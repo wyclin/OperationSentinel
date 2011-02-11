@@ -1,5 +1,12 @@
 package edu.berkeley.cs.cs162;
 
+/**
+ * This is an example of how you should test your chat server.  Create
+ * users and groups, and have them login, logout, and send messages in
+ * different orders.  By using a thread pool, we are able to increase
+ * the level of concurrency to better stress your synchronization.
+ *
+ */
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

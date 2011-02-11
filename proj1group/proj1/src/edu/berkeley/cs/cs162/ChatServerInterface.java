@@ -1,20 +1,20 @@
 package edu.berkeley.cs.cs162;
 
-
-
 public interface ChatServerInterface {
 	
 	/**
 	 * @param username  Login to the chat server using a specified user name, 
 	 * 					subject to the constraint that user name shall be unique and
 	 * 					max number of user is not reached.
-	 * @return LoginError Indicate success or one of the predefined failure modes.
+	 * @return LoginError Indicate success or one of the
+	 * predefined failure modes.  These will be used to provide an
+	 * error to the user.
 	 */
 	public abstract LoginError login(String username);
 
 	/**
 	 * @param username  Disconnect the specified user from the chat server.
-	 * @return Whether logging off was successful or not
+	 * @return Whether logging off was successful or not.
 	 */
 	public abstract boolean logoff(String username);
 
