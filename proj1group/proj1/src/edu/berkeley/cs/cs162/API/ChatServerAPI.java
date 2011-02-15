@@ -10,16 +10,17 @@ Constructor Detail
 
 Method Detail
 	public LoginError login(String username)
-		Logs a new user into the chat server.
+		Logs a new user into the chat server, subject to the constraint that user name 
+		shall be unique and max number of user is not reached.
 		Specified by: 
 			login in interface ChatServerInterface
 		Parameters:
 			username - the user name of the User to be logged in.
 		Returns:
-			a LoginError message describing success or failure to login.
+			a LoginError message describing success or one of the failure modes.
 
 	public boolean logoff(String username)
-		Logs a user out of the chat server.
+		Logs a specified user out of the chat server.
 		Specified by: 
 			logoff in interface ChatServerInterface
 		Parameters:
