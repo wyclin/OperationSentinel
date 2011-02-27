@@ -11,35 +11,54 @@ package edu.berkeley.cs.cs162;
 
 public class ChatServer extends Thread implements ChatServerInterface {
 
+	HashMap users = new HashMap();
+	HashMap groups = new HashMap();
+	
+	int maxUsers; 
+	
+	MessageDispatcher MD;
+	UserManager UM;
+	
+	private boolean isActive;
+	
+	
+	public ChatServer(){
+		MD = new MessageDispatcher();
+		UM = new UserManager();
+		maxUsers = 100;
+		active = true;
+	}
+		
 	@Override
 	public LoginError login(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		if (isActive) {
+			return UM.addUser(username);
+		} else {
+			return LoginError.USER_DROPPED;
+		}
 	}
 
 	@Override
 	public boolean logoff(String username) {
-		// TODO Auto-generated method stub
-		return false;
+		return UM.removeUser(username);
 	}
 
 	@Override
 	public boolean joinGroup(BaseUser user, String groupname) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!UM.hasGroup(groupname)) {
+			UM.createGroup(String groupname);
+		}
+		return UM.addUserToGroup(user, groupname);
 	}
 
 	@Override
 	public boolean leaveGroup(BaseUser user, String groupname) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!UM.hasGroup(groupname)){
+			return false;
+		}
+		UM.removeUserFromGroup(user, groupname);
 	}
 
-	@Override
-	public void shutdown() {
-		// TODO Auto-generated method stub
-		// shutdown msgdispatcher and usermanager
-	}
 
 	@Override
 	public BaseUser getUser(String username) {
@@ -47,8 +66,17 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return null;
 	}
 
-    public void start(){}//start msgdispatcher and usermanager
-    private void createGroup(){}
-    public void destroyGroup(){}
-    public void send(Message message){}
+	@Override
+	public void shutdown() {
+		active = false;
+		while (MD.hasMessage()){
+			//sleep();
+		}
+		UM.removeAll();
+	}
+	
+    
+    public void send(Message message){
+		MD.enqueue(message);
+	}
 }
