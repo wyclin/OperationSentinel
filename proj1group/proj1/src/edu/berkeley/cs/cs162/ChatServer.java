@@ -25,7 +25,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	public ChatServer(){
 		MD = new MessageDispatcher();
 		UM = new UserManager();
-		maxUsers = 100;
+		maxUsers = 20;
 		active = true;
 	}
 		
