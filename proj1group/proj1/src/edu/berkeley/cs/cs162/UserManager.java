@@ -34,10 +34,7 @@ class UserManager{
 	} else {
 		return false;
 	}
-    }
-
-
-
+    
 
     /* Returns true if createGroup is successful.*/
     synchronized public boolean createGroup(String groupName){
