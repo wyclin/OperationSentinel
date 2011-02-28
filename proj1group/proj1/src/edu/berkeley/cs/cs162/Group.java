@@ -1,11 +1,18 @@
 class Group{
-    private ArrayList<User> users;
-    
-    public Group(int maxNumUsers){}
+    private HashMap<String, User> users;
+    private String name;
+        
+    public Group(String groupName) {
+	this.name = groupName;
+    }
 
-    public void addUser(user){}
-    public void removeUser(user){}
+    public Group(String groupName, int maxNumUsers){}
+
+    public boolean addUser(BaseUser user){}
+    public void removeUser(String username){}
     public void listUsers(){}
-    public void userCount(){}
+    public void numUsers(){}
+    public boolean hasUser(String username) {}
+    public boolean isFull(){}
 
 }
