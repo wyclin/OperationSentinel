@@ -9,17 +9,32 @@ package edu.berkeley.cs.cs162;
 
 public class BaseUser extends Thread {
 
+	String name;
+	
 	public BaseUser() {
 		super();
 	}
-        /* You may need to create additional constructors and methods to finish the project */
+	/* You may need to create additional constructors and methods to finish the project */
 
+	public BaseUser(String name) {
+		this.name = name;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public ArrayList<Group> listGroups(){
+		return myGroups;
+	}
+	
 	/**
 	 * This function is called when the user successfully connect to the server. 
 	 * It also starts the thread that represents this particular user.
 	 */
 	public void connected() {
 		this.start();
+		
 	}
 
 	/**

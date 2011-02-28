@@ -55,7 +55,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		if (!UM.hasGroup(groupname)){
 			return false;
 		}
-		UM.removeUserFromGroup(user, groupname);
+		return UM.removeUserFromGroup(user, groupname);
 	}
 
 
