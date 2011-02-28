@@ -8,4 +8,7 @@ class Message{
 		this.text = text;
 		this.TimeStamp = new TimeStamp(currentTimeMillis());
     }
+	String printable(){
+		return;
+	}
 }

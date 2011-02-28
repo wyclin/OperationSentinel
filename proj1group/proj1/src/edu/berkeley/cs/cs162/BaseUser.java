@@ -8,16 +8,19 @@ package edu.berkeley.cs.cs162;
  */
 
 public class BaseUser extends Thread {
-
+	ChatServer myServer;
 	String name;
+	ArrayList<Group> myGroups;
 	
 	public BaseUser() {
 		super();
 	}
 	/* You may need to create additional constructors and methods to finish the project */
 
-	public BaseUser(String name) {
+	public BaseUser(String name, ChatServer myServer) {
 		this.name = name;
+		this.myServer = myServer;
+		myGroups = new ArrayList<Group>();
 	}
 	
 	public String getName(){
@@ -34,7 +37,6 @@ public class BaseUser extends Thread {
 	 */
 	public void connected() {
 		this.start();
-		
 	}
 
 	/**
@@ -46,7 +48,8 @@ public class BaseUser extends Thread {
 	 * destination.  
 	 */
 	public void send(String dest, String msg) {
-	
+		Message message = new Message(name, dest, msg);
+		myServer.send(message);
 	}
 	
 	/**
@@ -60,7 +63,7 @@ public class BaseUser extends Thread {
          * <source name>\t<destination>\t<sequence number>\t<message>
 	 */
 	public void msgReceived(String msg){
-		
+		System.out.printlin(msg.printable());
 	}
 
 }

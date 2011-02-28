@@ -23,9 +23,10 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	
 	
 	public ChatServer(){
-		MD = new MessageDispatcher();
-		UM = new UserManager();
 		active = true;
+		MD = new MessageDispatcher();
+		UM = new UserManager(this);
+		MD.start();
 	}
 		
 	@Override
@@ -70,7 +71,9 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		active = false;
 		while (MD.hasMessage()){
 			//sleep();
+			// let MD finish all the messages
 		}
+		MD.stop();
 		UM.removeAll();
 	}
 	

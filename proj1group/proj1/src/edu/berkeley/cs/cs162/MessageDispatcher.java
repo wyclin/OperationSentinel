@@ -1,8 +1,8 @@
 package edu.berkeley.cs.cs162;
 
-class MessageDispatcher{
+class MessageDispatcher extends Thread{
     
-	Queue messages;
+	Queue<Message> messages;
     MessageDispatcher(){
 		messages = new Queue();
 	}
@@ -10,10 +10,17 @@ class MessageDispatcher{
     public void enqueue(Message message) {
 		messages.enqueue(message);
 	}
+	public void run(){
+		while(true){
+			if (!messages.empty()){
+				this.deliver(messages.dequeue());
+			}
+		}
+	}
 
-    public void start(){}
-    public void stop(){}
-    private void deliver(){}
+    private void deliver(Message message){
+		
+	}
 	
 }
     

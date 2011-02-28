@@ -3,10 +3,12 @@ package edu.berkeley.cs.cs162;
 class UserManager{
     private HashMap users;
     private HashMap<Group> groups;
-    
+    public ChatServer myServer;
+	
     public UserManager(){
-	 users = new HashMap<String, BaseUser>();
-	 groups = new HashMap<String, Group>();  
+		this.myServer = myServer;
+		users = new HashMap<String, BaseUser>();
+		groups = new HashMap<String, Group>();  
     }
 
     /* Attempts to add user with @username.*/
@@ -17,7 +19,7 @@ class UserManager{
 	if (hasName(username)) {
 		return LoginError.USER_REJECTED;
 	} else {
-		BaseUser newUser = new BaseUser(username);
+		BaseUser newUser = new BaseUser(username, myServer);
 		users.put(username, newUser);
 		return LoginError.USER_ACCEPTED;
 	}
