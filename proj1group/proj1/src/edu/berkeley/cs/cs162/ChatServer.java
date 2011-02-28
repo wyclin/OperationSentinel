@@ -14,7 +14,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	HashMap users = new HashMap();
 	HashMap groups = new HashMap();
 	
-	int maxUsers; 
+	static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
 	
 	MessageDispatcher MD;
 	UserManager UM;
@@ -25,7 +25,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	public ChatServer(){
 		MD = new MessageDispatcher();
 		UM = new UserManager();
-		maxUsers = 20;
 		active = true;
 	}
 		
