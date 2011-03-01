@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162;
 
+
 /**
  * This is the core of the chat server.  Put the management of groups
  * and users in here.  You will need to control all of the threads,
@@ -25,7 +26,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		messageDispatcher.start();
 	}
 		
-	@Override
 	public LoginError login(String username) {
 		if (isActive) {
 			return userManager.addUser(username);
@@ -34,12 +34,10 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		}
 	}
 
-	@Override
 	public boolean logoff(String username) {
 		return userManager.removeUser(username);
 	}
 
-	@Override
 	public boolean joinGroup(BaseUser user, String groupname) {
 		if (!userManager.hasGroup(groupname)) {
 			userManager.createGroup(groupname);
@@ -47,7 +45,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.addUserToGroup(user, groupname);
 	}
 
-	@Override
 	public boolean leaveGroup(BaseUser user, String groupname) {
 		if (!userManager.hasGroup(groupname)){
 			return false;
@@ -55,8 +52,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.removeUserFromGroup(user.getUsername(), groupname);
 	}
 
-
-	@Override
 	public BaseUser getUser(String username) {
 		return userManager.getUser(username);
 	}
@@ -71,7 +66,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.hasGroup(groupName);
 	}
 
-	@Override
 	public void shutdown() {
 		isActive = false;
 		while (messageDispatcher.hasMessage()){
@@ -82,8 +76,12 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		userManager.removeAll();
 	}
 	
-    
-        public void send(Message message){
+	    public void send(Message message){
 		messageDispatcher.enqueue(message);
 	}
+	
+	public UserManager getUserManager(){
+		return userManager;
+	}
+	
 }
