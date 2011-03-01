@@ -16,6 +16,7 @@ public class BaseUser extends Thread {
     }
 
     public BaseUser(String name, ChatServer chatServer) {
+        super();
         this.name = name;
         this.chatServer = chatServer;
         this.joinedGroups = new ArrayList<Group>();

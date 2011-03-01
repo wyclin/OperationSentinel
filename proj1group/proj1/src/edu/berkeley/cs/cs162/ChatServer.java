@@ -7,14 +7,14 @@ public class ChatServer extends Thread implements ChatServerInterface {
 
     static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
 	
-    MessageDispatcher messageDispatcher;
-    UserManager userManager;
+	private MessageDispatcher messageDispatcher;
+	private UserManager userManager;
 	
     private boolean isActive;
 
     public ChatServer(){
         this.isActive = true;
-        this.messageDispatcher = new MessageDispatcher();
+        this.messageDispatcher = new MessageDispatcher(this);
         this.userManager = new UserManager(this);
         this.messageDispatcher.start();
 	}
@@ -46,21 +46,26 @@ public class ChatServer extends Thread implements ChatServerInterface {
         return userManager.removeUserFromGroup(user.getUsername(), groupName);
     }
 
-    public BaseUser getUser(String userName) {
-        return userManager.getUser(userName);
-    }
-
-	public Set<String> listAllGroups(String userName) {
-        if (userManager.hasUser(userName)) {
-            return (Set<String>) userManager.listGroups();
-        } else {
-            return null;
-        }
+	public BaseUser getUser(String username) {
+		return userManager.getUser(username);
+	}
+	
+	/** Returns true if the server has user with given username. */
+	public boolean hasUser(String username) {
+		return userManager.hasUser(username);
 	}
 
 	public Set<String> listAllUsers(String userName) {
         if (userManager.hasUser(userName)) {
             return (Set<String>) userManager.listUsers();
+        } else {
+            return null;
+        }
+	}
+
+	public Set<String> listAllGroups(String userName) {
+        if (userManager.hasUser(userName)) {
+            return (Set<String>) userManager.listGroups();
         } else {
             return null;
         }
@@ -81,16 +86,16 @@ public class ChatServer extends Thread implements ChatServerInterface {
             return -1;
         }
 	}
-
-    public void send(Message message) {
-        messageDispatcher.enqueue(message);
-    }
 	
-    public UserManager getUserManager() {
-        return userManager;
-    }
+	public void send(Message message){
+		messageDispatcher.enqueue(message);
+	}
+	
+	public UserManager getUserManager(){
+		return userManager;
+	}
 
-    public void shutdown() {
+	public void shutdown() {
         isActive = false;
         while (messageDispatcher.hasMessage()){
             //sleep();

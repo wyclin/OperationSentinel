@@ -14,9 +14,10 @@ class Message{
         this.date = new Date();
         this.sqn = sqn;
     }
-    
+   
+    /* Returns message in printable string format. SRC DST TIMESTAMP_UNIXTIME SQN. */ 
     public String printable(){
-	   //TODO What is this?
-       return null;
+	   //TODO Implement
+	   return null;
     }
 }
