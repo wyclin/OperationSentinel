@@ -16,17 +16,16 @@ class UserManager{
 
     /* Attempts to add user with @username.*/
     synchronized public LoginError addUser(String username){
-	if (getNumUsers() >= ChatServer.MAX_CHAT_USERS) {
-		return LoginError.USER_DROPPED;
-	} else
-	if (hasName(username)) {
-		return LoginError.USER_REJECTED;
-	} else {
-		BaseUser newUser = new BaseUser(username, myServer);
-		users.put(username, newUser);
-		return LoginError.USER_ACCEPTED;
+		if (getNumUsers() >= ChatServer.MAX_CHAT_USERS) {
+			return LoginError.USER_DROPPED;
+		} else if (hasName(username)) {
+				return LoginError.USER_REJECTED;
+		} else {
+				BaseUser newUser = new BaseUser(username, myServer);
+				users.put(username, newUser);
+				return LoginError.USER_ACCEPTED;
+		}
 	}
-    }
 
     /* Returns true if we successfully remove with user with username.*/ 
     synchronized public boolean removeUser(String username){
@@ -44,13 +43,13 @@ class UserManager{
 
     /* Returns true if createGroup is successful.*/
     synchronized public boolean createGroup(String groupName){
-	if (!hasName(groupName)) {
-		Group newGroup = new Group(groupName);
-		groups.put(groupName, newGroup);
-		return true;
-	} else {
-		return false;
-	}
+		if (!hasName(groupName)) {
+			Group newGroup = new Group(groupName);
+			groups.put(groupName, newGroup);
+			return true;
+		} else {
+			return false;
+		}
     }
 
     /* Returns true if a group is successfully deleted. */
@@ -74,17 +73,8 @@ class UserManager{
 	    if (!hasGroup(groupName)) {
 		    return false;
 	    } else {
-		    Group targetGroup = groups.get(groupName);
-		    String username = user.getUsername();
-
-		    if (targetGroup.hasUser(username)) {
-			    return false;
-		    }
-		    if (targetGroup.isFull()) {
-			    return false;
-		    }
-		    
-		   return targetGroup.addUser(user);
+		    Group targetGroup = groups.get(groupName);    
+			return targetGroup.addUser(user);
 	    }
     }
 
@@ -128,7 +118,7 @@ class UserManager{
     }
 
     /* Returns a set of the usernames currently on the server. */
-    public Set<String> getUserList(){
+    public Set<String> listUsers(){
 	    return users.keySet();
     }
 
@@ -156,6 +146,11 @@ class UserManager{
     /* Return num users on the server. */
     public int getNumUsers(){
 	    return users.size();
+    }
+	
+	/* Return num users on the server. */
+    public int getNumGroups(){
+	    return groups.size();
     }
 
     // DO WE NEED THESE?

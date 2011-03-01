@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162;
 
+
 /**
  * This is the core of the chat server.  Put the management of groups
  * and users in here.  You will need to control all of the threads,
@@ -68,4 +69,9 @@ public class ChatServer extends Thread implements ChatServerInterface {
     public void send(Message message){
 		messageDispatcher.enqueue(message);
 	}
+	
+	public UserManager getUserManager(){
+		return userManager;
+	}
+	
 }

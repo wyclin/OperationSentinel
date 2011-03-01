@@ -1,6 +1,8 @@
 package edu.berkeley.cs.cs162;
 
+import java.util.Set;
 import java.util.ArrayList;
+
 /**
  * You should extend this class to deliver messages to other users and
  * groups.  Make sure you implement (but don't modify) the send() and
@@ -66,5 +68,21 @@ public class BaseUser extends Thread {
 	public void msgReceived(String msg){
 		System.out.println(msg);
 	}
+	
+	public Set<String> listAllGroups(){
+		return (Set<String>) myServer.getUserManager().listGroups();
+	}
 
+	public Set<String> listAllUsers(){
+		return (Set<String>) myServer.getUserManager().listUsers();
+	}
+	
+	public int getNumberOfUsers(){
+		return myServer.getUserManager().getNumUsers();
+	}
+	
+	public int getNumberoOfGroups(){
+		return myServer.getUserManager().getNumGroups();
+	}
+	
 }
