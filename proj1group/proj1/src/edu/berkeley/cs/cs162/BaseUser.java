@@ -12,6 +12,8 @@ public class BaseUser extends Thread {
 	ChatServer myServer;
 	String name;
 	ArrayList<Group> myGroups;
+    ArrayList<String> myMessages;
+    int sendCount;
 	
 	public BaseUser() {
 		super();
@@ -22,6 +24,8 @@ public class BaseUser extends Thread {
 		this.name = name;
 		this.myServer = myServer;
 		myGroups = new ArrayList<Group>();
+        myMessages = new ArrayList<String>();
+        this.sendCount = 0;
 	}
 	
 	public String getUsername(){
@@ -65,6 +69,6 @@ public class BaseUser extends Thread {
 	 */
 	public void msgReceived(String msg){
 		System.out.println(msg);
-	}
 
+	}
 }

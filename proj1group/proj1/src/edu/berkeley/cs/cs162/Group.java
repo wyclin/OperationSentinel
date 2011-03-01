@@ -17,7 +17,7 @@ public class Group{
 
     /** Add a user object to the group. */	
     public boolean addUser(BaseUser user){
-		if (!this.isFull() || this.hasUser(user.getName())){
+		if (this.isFull() || this.hasUser(user.getName())){
 			return false;
 		}
 		users.put(user.getName(), user);

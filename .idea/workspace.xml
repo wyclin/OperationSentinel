@@ -3,6 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="01e95a07-f6ca-4e4a-8015-64269662c9f6" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" />
     </list>
     <ignored path="ChatServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -61,11 +65,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TestChatServer.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
+      <file leaf-file-name="Group.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="28" selection-start="742" selection-end="742" vertical-scroll-proportion="0.016781837">
-              <folding />
+            <state line="27" column="37" selection-start="661" selection-end="661" vertical-scroll-proportion="0.6152815">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,7 +91,11 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" />
+        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java" />
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" />
+        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" />
+        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java" />
+        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java" />
       </list>
     </option>
   </component>
@@ -119,6 +129,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -127,22 +138,49 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ChatServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="proj1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ChatServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="proj1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cs162" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
-    <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="dynamic.classpath" value="false" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
   <component name="RunManager" selected="Application.TestChatServer">
     <configuration default="false" name="TestChatServer" type="Application" factoryName="Application" temporary="true">
@@ -280,24 +318,24 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="614" y="0" width="1306" height="1201" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919872" sideWeight="0.670778" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30550283" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919872" sideWeight="0.7343454" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26565465" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -341,35 +379,75 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="22" selection-start="439" selection-end="439" vertical-scroll-proportion="0.41519675" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/LoginError.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="169" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java">
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServerInterface.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="8" selection-start="513" selection-end="513" vertical-scroll-proportion="0.009943182" />
+        <state line="11" column="0" selection-start="409" selection-end="409" vertical-scroll-proportion="0.009943182">
+          <folding />
+        </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java">
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="81" column="12" selection-start="2213" selection-end="2213" vertical-scroll-proportion="0.7260677" />
+        <state line="7" column="45" selection-start="249" selection-end="249" vertical-scroll-proportion="0.1690341">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="6" selection-start="62" selection-end="62" vertical-scroll-proportion="0.09659091">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="6" selection-start="68" selection-end="68" vertical-scroll-proportion="0.09659091">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.024147727">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="45" selection-start="1045" selection-end="1045" vertical-scroll-proportion="0.53125" />
+        <state line="32" column="0" selection-start="906" selection-end="1168" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="28" selection-start="742" selection-end="742" vertical-scroll-proportion="0.016781837">
+        <state line="44" column="20" selection-start="0" selection-end="7737" vertical-scroll-proportion="0.97407913">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="37" selection-start="661" selection-end="661" vertical-scroll-proportion="0.6152815">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

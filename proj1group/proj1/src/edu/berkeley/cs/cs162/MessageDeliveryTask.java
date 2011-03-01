@@ -13,7 +13,6 @@ public class MessageDeliveryTask implements Runnable {
 	}
 	
 	
-	@Override
 	public void run() {
 		BaseUser u = this.server.getUser(this.source);
 		if (u == null)
