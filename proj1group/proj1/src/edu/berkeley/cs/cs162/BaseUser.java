@@ -9,9 +9,11 @@ import java.util.ArrayList;
  */
 
 public class BaseUser extends Thread {
-	ChatServer myServer;
-	String name;
-	ArrayList<Group> myGroups;
+	
+	private ChatServer myServer;
+	private String name;
+	private ArrayList<Group> myGroups;
+	private int sqn; 
 	
 	public BaseUser() {
 		super();
@@ -21,7 +23,9 @@ public class BaseUser extends Thread {
 	public BaseUser(String name, ChatServer myServer) {
 		this.name = name;
 		this.myServer = myServer;
-		myGroups = new ArrayList<Group>();
+		this.myGroups = new ArrayList<Group>();
+		this.sqn = 0;
+		super();
 	}
 	
 	public String getUsername(){
@@ -49,8 +53,10 @@ public class BaseUser extends Thread {
 	 * destination.  
 	 */
 	public void send(String dest, String msg) {
-		Message message = new Message(name, dest, msg);
+		Message message = new Message(name, dest, msg, sqn);
 		myServer.send(message);
+		sqn++;
+		TestChatServer.logUserSendMsg(this.name, Message.printable());
 	}
 	
 	/**
@@ -64,7 +70,7 @@ public class BaseUser extends Thread {
          * <source name>\t<destination>\t<sequence number>\t<message>
 	 */
 	public void msgReceived(String msg){
-		System.out.println(msg);
+
 	}
 
 }

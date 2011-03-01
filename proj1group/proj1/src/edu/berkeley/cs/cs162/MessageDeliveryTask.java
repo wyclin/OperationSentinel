@@ -19,6 +19,6 @@ public class MessageDeliveryTask implements Runnable {
 		if (u == null)
 			return;
 		u.send(this.destination, this.message);
-	}
+        }
 
 }

@@ -13,8 +13,8 @@ public class ChatServer extends Thread implements ChatServerInterface {
 
 	static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
 	
-	MessageDispatcher messageDispatcher;
-	UserManager userManager;
+	private MessageDispatcher messageDispatcher;
+	private UserManager userManager;
 	
 	private boolean isActive;
 		
@@ -58,8 +58,17 @@ public class ChatServer extends Thread implements ChatServerInterface {
 
 	@Override
 	public BaseUser getUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		return userManager.getUser(username);
+	}
+	
+	/** Returns true if the server has user with given username. */
+	public boolean hasUser(String username) {
+		return userManager.hasUser(username);
+	}
+
+        /** Returns true if the server has group with given groupName. */
+	public boolean hasGroup(String groupName) {
+		return userManager.hasGroup(groupName);
 	}
 
 	@Override
@@ -74,7 +83,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	}
 	
     
-    public void send(Message message){
+        public void send(Message message){
 		messageDispatcher.enqueue(message);
 	}
 }
