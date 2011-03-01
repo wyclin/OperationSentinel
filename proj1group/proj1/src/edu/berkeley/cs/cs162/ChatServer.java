@@ -49,6 +49,11 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	public BaseUser getUser(String username) {
 		return userManager.getUser(username);
 	}
+
+	/** Returns true if the server has user or group with given name. */
+	public boolean hasName(String name) {
+		return userManager.hasName(name);
+	}
 	
 	/** Returns true if the server has user with given username. */
 	public boolean hasUser(String username) {
@@ -87,7 +92,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
 	}
 	
-	public void send(Message message){
+	public void send(Message message) throws InterruptedException {
 		messageDispatcher.enqueue(message);
 	}
 	

@@ -2,20 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="01e95a07-f6ca-4e4a-8015-64269662c9f6" name="Default" comment="">
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\BaseUser.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\ChatServer.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\ChatServerInterface.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\Group.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\LoginError.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\Message.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\MessageDeliveryTask.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\MessageDispatcher.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\TestChatServer.class" afterPath="" />
-      <change type="DELETED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\UserManager.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java" />
     </list>
     <ignored path="ChatServer.iws" />
@@ -75,32 +63,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="UserManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="172" column="0" selection-start="5638" selection-end="5638" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ChatServer.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="63" column="4" selection-start="1884" selection-end="1884" vertical-scroll-proportion="0.63384616">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MessageDispatcher.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="MessageDispatcher.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="426" vertical-scroll-proportion="0.0">
+            <state line="38" column="41" selection-start="1191" selection-end="1191" vertical-scroll-proportion="0.6296296">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ChatServer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="0" selection-start="1435" selection-end="1435" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -109,18 +84,7 @@
       <file leaf-file-name="TestChatServer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="105" column="0" selection-start="4187" selection-end="4187" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BaseUser.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="0" selection-start="605" selection-end="605" vertical-scroll-proportion="0.0">
+            <state line="84" column="0" selection-start="3190" selection-end="3190" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -147,8 +111,8 @@
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/GetUserListTask.java" />
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" />
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java" />
-        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java" />
         <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" />
+        <option value="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java" />
       </list>
     </option>
   </component>
@@ -182,7 +146,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -222,18 +185,19 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
-    <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="dynamic.classpath" value="false" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -380,20 +344,20 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919872" sideWeight="0.64326376" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.35673624" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24919872" sideWeight="0.64326376" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.35673624" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32922202" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -413,7 +377,7 @@
     <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added permissions checking to ChatServer info methods." />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'master' of https://github.com/raphaelx/OperationSentinel&#10;&#10;Conflicts:&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java&#10;" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -431,6 +395,7 @@
     <MESSAGE value="Some bugfixes, more tests" />
     <MESSAGE value="Fixed a couple of bugs. Converted UserManager to ReaderWriter." />
     <MESSAGE value="Added permissions checking to ChatServer info methods." />
+    <MESSAGE value="Merge branch 'master' of https://github.com/raphaelx/OperationSentinel&#10;&#10;Conflicts:&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java&#10;&#9;proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -452,63 +417,47 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Message.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="4" selection-start="373" selection-end="373" vertical-scroll-proportion="0.24853802">
-          <folding />
-        </state>
+        <state line="15" column="4" selection-start="373" selection-end="373" vertical-scroll-proportion="0.24853802" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/Group.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="4" selection-start="734" selection-end="734" vertical-scroll-proportion="0.6015385">
-          <folding />
-        </state>
+        <state line="25" column="4" selection-start="734" selection-end="734" vertical-scroll-proportion="0.6015385" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDeliveryTask.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="605" selection-end="605" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="105" column="0" selection-start="4187" selection-end="4187" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="172" column="0" selection-start="5638" selection-end="5638" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+        <state line="172" column="0" selection-start="5638" selection-end="5638" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java">
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/BaseUser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="426" vertical-scroll-proportion="0.0">
+        <state line="26" column="0" selection-start="605" selection-end="605" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="84" column="0" selection-start="3190" selection-end="3190" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="63" column="4" selection-start="1884" selection-end="1884" vertical-scroll-proportion="0.63384616">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="48" column="0" selection-start="1435" selection-end="1435" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/MessageDispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="38" column="41" selection-start="1191" selection-end="1191" vertical-scroll-proportion="0.6296296">
+          <folding />
         </state>
       </provider>
     </entry>
