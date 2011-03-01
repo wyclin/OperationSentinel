@@ -25,7 +25,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		messageDispatcher.start();
 	}
 		
-	@Override
 	public LoginError login(String username) {
 		if (isActive) {
 			return userManager.addUser(username);
@@ -34,12 +33,10 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		}
 	}
 
-	@Override
 	public boolean logoff(String username) {
 		return userManager.removeUser(username);
 	}
 
-	@Override
 	public boolean joinGroup(BaseUser user, String groupname) {
 		if (!userManager.hasGroup(groupname)) {
 			userManager.createGroup(groupname);
@@ -47,7 +44,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.addUserToGroup(user, groupname);
 	}
 
-	@Override
 	public boolean leaveGroup(BaseUser user, String groupname) {
 		if (!userManager.hasGroup(groupname)){
 			return false;
@@ -55,14 +51,10 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.removeUserFromGroup(user.getUsername(), groupname);
 	}
 
-
-	@Override
 	public BaseUser getUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+        return userManager.getUser(username);
 	}
 
-	@Override
 	public void shutdown() {
 		isActive = false;
 		while (messageDispatcher.hasMessage()){
@@ -73,7 +65,6 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		userManager.removeAll();
 	}
 	
-    
     public void send(Message message){
 		messageDispatcher.enqueue(message);
 	}
