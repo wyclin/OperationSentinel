@@ -1,25 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="01e95a07-f6ca-4e4a-8015-64269662c9f6" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/ant.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/proj1group/proj1/Proj1.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/ChatServer.java" />
+    <list default="true" id="01e95a07-f6ca-4e4a-8015-64269662c9f6" name="Default" comment="First test cases. Test commit.">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" />
-      <change type="MOVED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\API\ChatServerAPI.java" afterPath="$PROJECT_DIR$/proj1ddoc/API/ChatServerAPI.java" />
-      <change type="MOVED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\API\GroupAPI.java" afterPath="$PROJECT_DIR$/proj1ddoc/API/GroupAPI.java" />
-      <change type="MOVED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\API\MessageAPI.java" afterPath="$PROJECT_DIR$/proj1ddoc/API/MessageAPI.java" />
-      <change type="MOVED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\API\MessageDispatcherAPI.java" afterPath="$PROJECT_DIR$/proj1ddoc/API/MessageDispatcherAPI.java" />
-      <change type="MOVED" beforePath="D:\Projects\ChatServer\proj1group\proj1\src\edu\berkeley\cs\cs162\API\UserManagerAPI.java" afterPath="$PROJECT_DIR$/proj1ddoc/API/UserManagerAPI.java" />
     </list>
     <ignored path="ChatServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -81,7 +65,7 @@
       <file leaf-file-name="TestChatServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="6" selection-start="4193" selection-end="4194" vertical-scroll-proportion="0.5658466">
+            <state line="18" column="23" selection-start="508" selection-end="508" vertical-scroll-proportion="0.44283646">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -423,7 +407,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="6" selection-start="4193" selection-end="4194" vertical-scroll-proportion="0.5658466">
+        <state line="18" column="23" selection-start="508" selection-end="508" vertical-scroll-proportion="0.44283646">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
