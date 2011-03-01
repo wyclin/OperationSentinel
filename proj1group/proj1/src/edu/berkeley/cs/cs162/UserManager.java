@@ -1,12 +1,15 @@
 package edu.berkeley.cs.cs162;
 
+import java.util.Set;
+import java.util.HashMap;
+
 class UserManager{
-    private HashMap users;
-    private HashMap<Group> groups;
+    private HashMap<String, BaseUser> users;
+    private HashMap<String, Group> groups;
     public ChatServer myServer;
 	
-    public UserManager(){
-		this.myServer = myServer;
+    public UserManager(ChatServer chatServer){
+		this.myServer = chatServer;
 		users = new HashMap<String, BaseUser>();
 		groups = new HashMap<String, Group>();  
     }
@@ -36,6 +39,7 @@ class UserManager{
 	} else {
 		return false;
 	}
+    }
     
 
     /* Returns true if createGroup is successful.*/
@@ -43,6 +47,7 @@ class UserManager{
 	if (!hasName(groupName)) {
 		Group newGroup = new Group(groupName);
 		groups.put(groupName, newGroup);
+		return true;
 	} else {
 		return false;
 	}
@@ -70,7 +75,7 @@ class UserManager{
 		    return false;
 	    } else {
 		    Group targetGroup = groups.get(groupName);
-		    String username = user.getName();
+		    String username = user.getUsername();
 
 		    if (targetGroup.hasUser(username)) {
 			    return false;
@@ -84,14 +89,14 @@ class UserManager{
     }
 
     /* Returns true if user is successfully removed from group.*/
-    public boolean removeUserFromGroup(String username, String groupName){
+    synchronized public boolean removeUserFromGroup(String username, String groupName){
 	    
 	    if (!hasGroup(groupName)) {
 		    return false;
 	    }
 
 	    Group targetGroup = groups.get(groupName);
-	    if (!targetGroup.hasUser()) {
+	    if (!targetGroup.hasUser(username)) {
 		    return false;
 	    }
 	    
@@ -102,22 +107,22 @@ class UserManager{
 	    return true;
     }
 
-   
-    /* Returns true if the group with groupName exists.*/
-    synchronized public boolean hasGroup (String groupName) {
-	    return groups.containsKey(groupName);
-    }
-
-
     /* Returns a set contains the names of all groups currently on the server. */
-    public Set<String> listGroups(){
+    synchronized public Set<String> listGroups(){
 	    return groups.keySet();
     }
 
 
-    public void listUsersOfGroup(){}
+    /* Returns a set containing the names of all users in a group with groupName. */
+    synchronized public Set<String> listUsersOfGroup(String groupName){
+	    if (!hasGroup(groupName)) {
+		    return null;
+	    } else {
+		    return groups.get(groupName).listUsers();
+	    }
+    }
 
-    /* Returns the BaseUser object with give username */
+    /* Returns the BaseUser object with given username */
     public BaseUser getUser(String username){
 	   return users.get(username);
     }

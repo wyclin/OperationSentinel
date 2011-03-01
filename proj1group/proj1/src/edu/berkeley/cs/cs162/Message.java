@@ -1,14 +1,20 @@
+package edu.berkeley.cs.cs162;
+
+import java.util.Date;
+
 class Message{
     public String receiver, sender, text;
-    public TimeStamp timeStamp;
+    public Date date;
 
     Message(String sender, String receiver, String text){
 		this.receiver = receiver;
 		this.sender = sender;
 		this.text = text;
-		this.TimeStamp = new TimeStamp(currentTimeMillis());
+		this.date = new Date();
     }
-	String printable(){
-		return;
-	}
+    
+    public String printable(){
+	   //TODO What is this?
+	   return null;
+    }
 }

@@ -13,18 +13,26 @@ import java.util.concurrent.Executors;
 public class TestChatServer {
 	
 	public static void main(String [] args) throws InterruptedException {
+
 		ChatServerInterface s = new ChatServer();
+
+		System.out.println("Server created.");
+
 		ExecutorService exe = Executors.newFixedThreadPool(10);
 		int i;
 		
 		
 		s.login("steve");
+
+		System.out.println("Steve logged in.");
 		s.login("mike");
+		System.out.println("Mike logged in.");
 		BaseUser bu = s.getUser("mike");
-		
+
+/*	
 		s.joinGroup(bu, "group1");
 		
-		for (i = 0; i < 50; i++) {
+		for (i =0; i < 50; i++) {
 			MessageDeliveryTask t = new MessageDeliveryTask(s, "steve", "mike", "hi "+ i);
 			MessageDeliveryTask c = new MessageDeliveryTask(s, "steve", "group1", "hig "+ i);
 			exe.execute(t);
@@ -34,5 +42,6 @@ public class TestChatServer {
 		
 		s.shutdown();
 		System.out.println("done \n");
+*/
 	}
 }

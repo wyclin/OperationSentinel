@@ -11,28 +11,24 @@ package edu.berkeley.cs.cs162;
 
 public class ChatServer extends Thread implements ChatServerInterface {
 
-	HashMap users = new HashMap();
-	HashMap groups = new HashMap();
-	
 	static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
 	
-	MessageDispatcher MD;
-	UserManager UM;
+	MessageDispatcher messageDispatcher;
+	UserManager userManager;
 	
 	private boolean isActive;
-	
-	
+		
 	public ChatServer(){
-		active = true;
-		MD = new MessageDispatcher();
-		UM = new UserManager(this);
-		MD.start();
+		isActive = true;
+		messageDispatcher = new MessageDispatcher();
+		userManager = new UserManager(this);
+		messageDispatcher.start();
 	}
 		
 	@Override
 	public LoginError login(String username) {
 		if (isActive) {
-			return UM.addUser(username);
+			return userManager.addUser(username);
 		} else {
 			return LoginError.USER_DROPPED;
 		}
@@ -40,23 +36,23 @@ public class ChatServer extends Thread implements ChatServerInterface {
 
 	@Override
 	public boolean logoff(String username) {
-		return UM.removeUser(username);
+		return userManager.removeUser(username);
 	}
 
 	@Override
 	public boolean joinGroup(BaseUser user, String groupname) {
-		if (!UM.hasGroup(groupname)) {
-			UM.createGroup(String groupname);
+		if (!userManager.hasGroup(groupname)) {
+			userManager.createGroup(groupname);
 		}
-		return UM.addUserToGroup(user, groupname);
+		return userManager.addUserToGroup(user, groupname);
 	}
 
 	@Override
 	public boolean leaveGroup(BaseUser user, String groupname) {
-		if (!UM.hasGroup(groupname)){
+		if (!userManager.hasGroup(groupname)){
 			return false;
 		}
-		return UM.removeUserFromGroup(user, groupname);
+		return userManager.removeUserFromGroup(user.getUsername(), groupname);
 	}
 
 
@@ -68,17 +64,17 @@ public class ChatServer extends Thread implements ChatServerInterface {
 
 	@Override
 	public void shutdown() {
-		active = false;
-		while (MD.hasMessage()){
+		isActive = false;
+		while (messageDispatcher.hasMessage()){
 			//sleep();
-			// let MD finish all the messages
+			// let messageDispatcher finish all the messages
 		}
-		MD.stop();
-		UM.removeAll();
+		messageDispatcher.stop();
+		userManager.removeAll();
 	}
 	
     
     public void send(Message message){
-		MD.enqueue(message);
+		messageDispatcher.enqueue(message);
 	}
 }

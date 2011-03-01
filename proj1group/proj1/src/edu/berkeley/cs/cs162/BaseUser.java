@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162;
 
+import java.util.ArrayList;
 /**
  * You should extend this class to deliver messages to other users and
  * groups.  Make sure you implement (but don't modify) the send() and
@@ -23,7 +24,7 @@ public class BaseUser extends Thread {
 		myGroups = new ArrayList<Group>();
 	}
 	
-	public String getName(){
+	public String getUsername(){
 		return name;
 	}
 	
@@ -63,7 +64,7 @@ public class BaseUser extends Thread {
          * <source name>\t<destination>\t<sequence number>\t<message>
 	 */
 	public void msgReceived(String msg){
-		System.out.printlin(msg.printable());
+		System.out.println(msg);
 	}
 
 }
