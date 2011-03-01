@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162;
 
+import java.util.Calendar;
 import java.util.Set;
 import java.util.HashMap;
 
@@ -7,50 +8,50 @@ public class Group{
     private HashMap<String, BaseUser> users;
     private String name;
 
-            
     public Group(String groupName) {
-		this.name = groupName;
-		users = new HashMap<String, BaseUser>();
+        this.name = groupName;
+        this.users = new HashMap<String, BaseUser>();
     }
 
-    public Group(String groupName, int maxNumUsers){}
+    public Group(String groupName, int maxNumUsers) {}
 
     /** Add a user object to the group. */	
     public boolean addUser(BaseUser user){
-		if (this.isFull() || this.hasUser(user.getName())){
-			return false;
-		}
-		users.put(user.getName(), user);
-		return true;
-	}
+        if (this.isFull() || this.hasUser(user.getName())){
+            return false;
+        }
+        users.put(user.getName(), user);
+        TestChatServer.logUserJoinGroup(name, user.getUsername(), Calendar.getInstance().getTime());
+        return true;
+    }
 	
     /** Remove user with given name from the group. */
-    public void removeUser(String username){
-		if (!users.containsKey(username)){
-			return;
-		}
-		users.remove(username);
+    public void removeUser(String userName){
+        if (!users.containsKey(userName)){
+            return;
+        }
+        TestChatServer.logUserLeaveGroup(name, userName, Calendar.getInstance().getTime());
+        users.remove(userName);
     }
     
-    /** Returns Set of all usernames in the group. */
+    /** Returns Set of all userNames in the group. */
     public Set<String> listUsers(){
-		return users.keySet();
+        return users.keySet();
     }
 
 
     /** Returns number of users in the group. */	
     public int numUsers(){
-		return users.size();
-	}
+        return users.size();
+    }
 	
-    /** Returns true if group contains user with given username. */
-    public boolean hasUser(String username) {
-		return users.containsKey(username); 
+    /** Returns true if group contains user with given userName. */
+    public boolean hasUser(String userName) {
+        return users.containsKey(userName);
     }
 	
     /** Returns true if group is at maximum capacity. */	
     public boolean isFull(){
-		return this.numUsers() >= ChatServer.MAX_GROUP_USERS;
+        return this.numUsers() >= ChatServer.MAX_GROUP_USERS;
     }
-
 }

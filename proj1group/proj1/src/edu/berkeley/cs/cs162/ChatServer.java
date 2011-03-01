@@ -1,71 +1,86 @@
 package edu.berkeley.cs.cs162;
 
-/**
- * This is the core of the chat server.  Put the management of groups
- * and users in here.  You will need to control all of the threads,
- * and respond to requests from the test harness.
- *
- * It must implement the ChatServerInterface Interface, and you should
- * not modify that interface; it is necessary for testing.
- */
+import java.util.Calendar;
+import java.util.Set;
 
 public class ChatServer extends Thread implements ChatServerInterface {
 
-	static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
+    static final int MAX_CHAT_USERS = 100, MAX_GROUP_USERS = 10;
 	
-	MessageDispatcher messageDispatcher;
-	UserManager userManager;
+    MessageDispatcher messageDispatcher;
+    UserManager userManager;
 	
-	private boolean isActive;
+    private boolean isActive;
+
+    public ChatServer(){
+        this.isActive = true;
+        this.messageDispatcher = new MessageDispatcher();
+        this.userManager = new UserManager(this);
+        this.messageDispatcher.start();
+	}
 		
-	public ChatServer(){
-		isActive = true;
-		messageDispatcher = new MessageDispatcher();
-		userManager = new UserManager(this);
-		messageDispatcher.start();
-	}
-		
-	public LoginError login(String username) {
-		if (isActive) {
-			return userManager.addUser(username);
-		} else {
-			return LoginError.USER_DROPPED;
-		}
+    public LoginError login(String userName) {
+        if (isActive) {
+            return userManager.addUser(userName);
+        } else {
+            TestChatServer.logUserLoginFailed(userName, Calendar.getInstance().getTime(), LoginError.USER_DROPPED);
+            return LoginError.USER_DROPPED;
+        }
+    }
+
+    public boolean logoff(String userName) {
+        return userManager.removeUser(userName);
+    }
+
+    public boolean joinGroup(BaseUser user, String groupName) {
+        if (!userManager.hasGroup(groupName)) {
+            userManager.createGroup(groupName);
+        }
+        return userManager.addUserToGroup(user, groupName);
+    }
+
+    public boolean leaveGroup(BaseUser user, String groupName) {
+        if (!userManager.hasGroup(groupName)){
+            return false;
+        }
+        return userManager.removeUserFromGroup(user.getUsername(), groupName);
+    }
+
+    public BaseUser getUser(String userName) {
+        return userManager.getUser(userName);
+    }
+
+	public Set<String> listAllGroups(){
+		return (Set<String>) userManager.listGroups();
 	}
 
-	public boolean logoff(String username) {
-		return userManager.removeUser(username);
+	public Set<String> listAllUsers(){
+		return (Set<String>) userManager.listUsers();
 	}
 
-	public boolean joinGroup(BaseUser user, String groupname) {
-		if (!userManager.hasGroup(groupname)) {
-			userManager.createGroup(groupname);
-		}
-		return userManager.addUserToGroup(user, groupname);
+	public int getNumberOfUsers(){
+		return userManager.getNumUsers();
 	}
 
-	public boolean leaveGroup(BaseUser user, String groupname) {
-		if (!userManager.hasGroup(groupname)){
-			return false;
-		}
-		return userManager.removeUserFromGroup(user.getUsername(), groupname);
+	public int getNumberOfGroups(){
+		return userManager.getNumGroups();
 	}
 
-	public BaseUser getUser(String username) {
-        return userManager.getUser(username);
-	}
-
-	public void shutdown() {
-		isActive = false;
-		while (messageDispatcher.hasMessage()){
-			//sleep();
-			// let messageDispatcher finish all the messages
-		}
-		messageDispatcher.stop();
-		userManager.removeAll();
-	}
-	
     public void send(Message message){
-		messageDispatcher.enqueue(message);
-	}
+        messageDispatcher.enqueue(message);
+    }
+	
+    public UserManager getUserManager(){
+        return userManager;
+    }
+
+    public void shutdown() {
+        isActive = false;
+        while (messageDispatcher.hasMessage()){
+            //sleep();
+            // let messageDispatcher finish all the messages
+        }
+        messageDispatcher.stop();
+        userManager.removeAll();
+    }
 }
