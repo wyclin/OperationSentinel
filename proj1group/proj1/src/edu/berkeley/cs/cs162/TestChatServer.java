@@ -1,9 +1,12 @@
 package edu.berkeley.cs.cs162;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Intercepter;
+
 import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.Date;
+import java.util.Iterator;
 
 public class TestChatServer {
 
@@ -98,6 +101,38 @@ public class TestChatServer {
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
+    public static void testUserGetsServerInfo() throws InterruptedException {
+        System.out.println("=== BEGIN TEST User Gets Server Info ===");
+        ChatServer chatServer = new ChatServer();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        System.out.println("user1 logs in: " + chatServer.login("user1"));
+        System.out.println("user2 logs in: " + chatServer.login("user2"));
+
+        System.out.println("\nuser1 joins group1: " + chatServer.joinGroup(chatServer.getUser("user1"), "group1"));
+        System.out.println("user2 joins group1: " + chatServer.joinGroup(chatServer.getUser("user2"), "group1"));
+
+        System.out.println("\nuser1 gets number of groups: " + Integer.toString(chatServer.getNumberOfGroups("user1")));
+        System.out.print("user1 gets group list: ");
+        Iterator<String> groups = chatServer.listAllGroups("user1").iterator();
+        while (groups.hasNext()) {
+            System.out.print(groups.next() + " ");
+        }
+        System.out.println("");
+
+        System.out.println("\nuser1 gets number of users: " + Integer.toString(chatServer.getNumberOfUsers("user1")));
+        System.out.print("user1 gets user list: ");
+        Iterator<String> users = chatServer.listAllUsers("user1").iterator();
+        while (users.hasNext()) {
+            System.out.print(users.next() + " ");
+        }
+        System.out.println("");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST User Gets Server Info ===\n");
+    }
+
     public static void testUnicastMessages() throws InterruptedException {
         System.out.println("=== BEGIN TEST Unicast Messages ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -128,7 +163,8 @@ public class TestChatServer {
         testServerCapacity();
         testGroupCapacity();
         testUserJoinsMultipleGroups();
-        testUnicastMessages();
+        //testUnicastMessages();
+        testUserGetsServerInfo();
 	}
 
 	/**

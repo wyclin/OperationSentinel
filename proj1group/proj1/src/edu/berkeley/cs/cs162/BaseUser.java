@@ -71,21 +71,19 @@ public class BaseUser extends Thread {
         messages.add(msg);
     }
 
-
-
-	public Set<String> listAllGroups(){
-		return (Set<String>) chatServer.getUserManager().listGroups();
+	public Set<String> getGroupList(){
+		return (Set<String>) chatServer.listAllGroups(name);
 	}
 
-	public Set<String> listAllUsers(){
-		return (Set<String>) chatServer.getUserManager().listUsers();
+	public Set<String> getUserList(){
+		return (Set<String>) chatServer.listAllUsers(name);
 	}
-	
-	public int getNumberOfUsers(){
-		return chatServer.getUserManager().getNumUsers();
-	}
-	
+
 	public int getNumberOfGroups(){
-		return chatServer.getUserManager().getNumGroups();
+		return chatServer.getNumberOfGroups(name);
+	}
+
+	public int getNumberOfUsers(){
+		return chatServer.getNumberOfUsers(name);
 	}
 }

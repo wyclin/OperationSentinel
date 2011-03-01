@@ -50,27 +50,43 @@ public class ChatServer extends Thread implements ChatServerInterface {
         return userManager.getUser(userName);
     }
 
-	public Set<String> listAllGroups(){
-		return (Set<String>) userManager.listGroups();
+	public Set<String> listAllGroups(String userName) {
+        if (userManager.hasUser(userName)) {
+            return (Set<String>) userManager.listGroups();
+        } else {
+            return null;
+        }
 	}
 
-	public Set<String> listAllUsers(){
-		return (Set<String>) userManager.listUsers();
+	public Set<String> listAllUsers(String userName) {
+        if (userManager.hasUser(userName)) {
+            return (Set<String>) userManager.listUsers();
+        } else {
+            return null;
+        }
 	}
 
-	public int getNumberOfUsers(){
-		return userManager.getNumUsers();
+	public int getNumberOfUsers(String userName) {
+        if (userManager.hasUser(userName)) {
+            return userManager.getNumUsers();
+        } else {
+            return -1;
+        }
 	}
 
-	public int getNumberOfGroups(){
-		return userManager.getNumGroups();
+	public int getNumberOfGroups(String userName) {
+        if (userManager.hasUser(userName)) {
+            return userManager.getNumGroups();
+        } else {
+            return -1;
+        }
 	}
 
-    public void send(Message message){
+    public void send(Message message) {
         messageDispatcher.enqueue(message);
     }
 	
-    public UserManager getUserManager(){
+    public UserManager getUserManager() {
         return userManager;
     }
 
