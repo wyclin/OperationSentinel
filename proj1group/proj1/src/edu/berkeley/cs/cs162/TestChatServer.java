@@ -1,8 +1,12 @@
 package edu.berkeley.cs.cs162;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Intercepter;
+
+import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.Date;
+import java.util.Iterator;
 
 public class TestChatServer {
 
@@ -10,7 +14,6 @@ public class TestChatServer {
 
     public static void basicTest1() throws InterruptedException {
         System.out.println("=== BEGIN TEST Basic Test 1 ===");
-
         ChatServerInterface s = new ChatServer();
         ExecutorService exe = Executors.newFixedThreadPool(10);
         int i;
@@ -30,13 +33,11 @@ public class TestChatServer {
         exe.shutdown();
 
         s.shutdown();
-
         System.out.println("=== END TEST Basic Test 1 ===\n");
     }
 
     public static void testUserNameUniqueness() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Name Uniqueness ===");
-
         ChatServerInterface chatServer = new ChatServer();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
@@ -45,13 +46,11 @@ public class TestChatServer {
 
         chatServer.shutdown();
         threadPool.shutdown();
-
         System.out.println("=== END TEST User Name Uniqueness ===\n");
     }
 
     public static void testServerCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Server Capacity ===");
-
         ChatServerInterface chatServer = new ChatServer();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
@@ -63,13 +62,11 @@ public class TestChatServer {
 
         chatServer.shutdown();
         threadPool.shutdown();
-
         System.out.println("=== END TEST Server Capacity ===\n");
     }
 
     public static void testGroupCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Group Capacity ===");
-
         ChatServerInterface chatServer = new ChatServer();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
@@ -86,35 +83,74 @@ public class TestChatServer {
 
         chatServer.shutdown();
         threadPool.shutdown();
-
         System.out.println("=== END TEST Group Capacity ===\n");
     }
 
     public static void testUserJoinsMultipleGroups() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Joins Multiple Groups ===");
-
         ChatServerInterface chatServer = new ChatServer();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
-        for (int i = 1; i <= 11; i++) {
-          System.out.println("user" + Integer.toString(i) + " logs in and is: " + chatServer.login("user" + Integer.toString(i)));
-        }
+        System.out.println("user1 logs in: " + chatServer.login("user1"));
 
-        System.out.println("");
-        for (int i = 1; i <= 10; i++) {
-          System.out.println("user" + Integer.toString(i) + " joins group1: " + chatServer.joinGroup(chatServer.getUser("user" + Integer.toString(i)), "group"));
-        }
-
-        System.out.println("\nuser11 joins group1:" + chatServer.joinGroup(chatServer.getUser("user11"), "group1"));
+        System.out.println("\nuser1 joins group1: " + chatServer.joinGroup(chatServer.getUser("user1"), "group1"));
+        System.out.println("user1 joins group2: " + chatServer.joinGroup(chatServer.getUser("user1"), "group2"));
 
         chatServer.shutdown();
         threadPool.shutdown();
-
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
-    /* END Test Cases */
+    public static void testUserGetsServerInfo() throws InterruptedException {
+        System.out.println("=== BEGIN TEST User Gets Server Info ===");
+        ChatServer chatServer = new ChatServer();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
+        System.out.println("user1 logs in: " + chatServer.login("user1"));
+        System.out.println("user2 logs in: " + chatServer.login("user2"));
+
+        System.out.println("\nuser1 joins group1: " + chatServer.joinGroup(chatServer.getUser("user1"), "group1"));
+        System.out.println("user2 joins group1: " + chatServer.joinGroup(chatServer.getUser("user2"), "group1"));
+
+        System.out.println("\nuser1 gets number of groups: " + Integer.toString(chatServer.getNumberOfGroups("user1")));
+        System.out.print("user1 gets group list: ");
+        Iterator<String> groups = chatServer.listAllGroups("user1").iterator();
+        while (groups.hasNext()) {
+            System.out.print(groups.next() + " ");
+        }
+        System.out.println("");
+
+        System.out.println("\nuser1 gets number of users: " + Integer.toString(chatServer.getNumberOfUsers("user1")));
+        System.out.print("user1 gets user list: ");
+        Iterator<String> users = chatServer.listAllUsers("user1").iterator();
+        while (users.hasNext()) {
+            System.out.print(users.next() + " ");
+        }
+        System.out.println("");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST User Gets Server Info ===\n");
+    }
+
+    public static void testUnicastMessages() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Unicast Messages ===");
+        ChatServerInterface chatServer = new ChatServer();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        System.out.println("user1 logs in: " + chatServer.login("user1"));
+        System.out.println("user2 logs in: " + chatServer.login("user2"));
+
+        MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Unicast Messages ===\n");
+    }
+
+    /* END Test Cases */
 
     /**
      * Runs test cases
@@ -126,6 +162,9 @@ public class TestChatServer {
         testUserNameUniqueness();
         testServerCapacity();
         testGroupCapacity();
+        testUserJoinsMultipleGroups();
+        //testUnicastMessages();
+        testUserGetsServerInfo();
 	}
 
 	/**
