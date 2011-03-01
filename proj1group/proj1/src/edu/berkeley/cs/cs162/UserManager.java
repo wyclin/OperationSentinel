@@ -117,6 +117,11 @@ class UserManager{
 	   return users.get(username);
     }
 
+    /** Returns the BaseUser object with given groupName. */
+    public Group getGroup (String groupName) {
+           return groups.get(groupName);
+    }
+
     /* Returns a set of the usernames currently on the server. */
     public Set<String> listUsers(){
 	    return users.keySet();

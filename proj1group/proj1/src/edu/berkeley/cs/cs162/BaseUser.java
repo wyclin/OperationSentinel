@@ -23,11 +23,11 @@ public class BaseUser extends Thread {
 	/* You may need to create additional constructors and methods to finish the project */
 
 	public BaseUser(String name, ChatServer myServer) {
+		super();
 		this.name = name;
 		this.myServer = myServer;
 		this.myGroups = new ArrayList<Group>();
 		this.sqn = 0;
-		super();
 	}
 	
 	public String getUsername(){
@@ -58,7 +58,7 @@ public class BaseUser extends Thread {
 		Message message = new Message(name, dest, msg, sqn);
 		myServer.send(message);
 		sqn++;
-		TestChatServer.logUserSendMsg(this.name, Message.printable());
+		TestChatServer.logUserSendMsg(this.name, message.printable());
 	}
 	
 	/**

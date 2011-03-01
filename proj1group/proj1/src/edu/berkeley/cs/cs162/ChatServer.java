@@ -21,7 +21,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		
 	public ChatServer(){
 		isActive = true;
-		messageDispatcher = new MessageDispatcher();
+ 		messageDispatcher = new MessageDispatcher(this);
 		userManager = new UserManager(this);
 		messageDispatcher.start();
 	}
@@ -52,6 +52,12 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.removeUserFromGroup(user.getUsername(), groupname);
 	}
 
+	/** Returns true if the chatServer has group or user with the given name. */
+	public boolean hasName(String name) {
+	       return userManager.hasName(name);
+        }
+
+        /** Returns the BaseUser object with the given username.*/
 	public BaseUser getUser(String username) {
 		return userManager.getUser(username);
 	}
@@ -59,6 +65,11 @@ public class ChatServer extends Thread implements ChatServerInterface {
 	/** Returns true if the server has user with given username. */
 	public boolean hasUser(String username) {
 		return userManager.hasUser(username);
+	}
+
+        /** Returns the Group object of the group with given groupName. */
+	public Group getGroup(String groupName) {
+		return userManager.getGroup(groupName);
 	}
 
         /** Returns true if the server has group with given groupName. */

@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162;
 
-import java.util.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Date;
 
 class MessageDispatcher extends Thread{
    
@@ -14,7 +15,11 @@ class MessageDispatcher extends Thread{
 
     /* Puts a message into the message queue. */	
     synchronized public void enqueue(Message message) {
-		messages.put(message);
+    		try {
+			messages.put(message);
+		} catch (Exception e) {
+			//TODO Message could not be enqueued.
+		}
     }
 
     public void run(){
@@ -26,18 +31,22 @@ class MessageDispatcher extends Thread{
 	}
 
     /* Attempts to deliver the given message.*/
+
+    // TODO There's a concurrency problem here which we'd brought up
+    // What if the user drops after we do our check to see if the
+    // user or group is still there.
+
     private void deliver(Message message){
-	// TODO Add some type of checking to see if message is well formed?
 	
 	if (!chatServer.hasName(message.receiver)) {
-		// TODO ERROR to sender
+		TestChatServer.logChatServerDropMsg(message.printable(), new Date());
 	} else 
 	if (chatServer.hasUser(message.receiver)) {
-                 User targetUser = chatServer.getUser(message.receiver);
-		 recipient.msgReceived(message.text);
+                 BaseUser targetUser = chatServer.getUser(message.receiver);
+		 targetUser.msgReceived(message.printable());
 	} else {
 	         Group targetGroup = chatServer.getGroup(message.receiver);
-                 
+                 targetGroup.messageUsers(message); 
 	}
     }
 

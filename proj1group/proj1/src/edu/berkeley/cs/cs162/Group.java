@@ -41,7 +41,15 @@ public class Group{
     /** Returns number of users in the group. */	
     public int numUsers(){
 		return users.size();
-	}
+    }
+
+    /** Sends the given message to all users in the group. */
+    public void messageUsers(Message message){
+           for (BaseUser user: users.values()) {
+	   	user.msgReceived(message.printable());
+	   }
+    }
+
 	
     /** Returns true if group contains user with given username. */
     public boolean hasUser(String username) {

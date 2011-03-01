@@ -17,7 +17,6 @@ class Message{
    
     /* Returns message in printable string format. SRC DST TIMESTAMP_UNIXTIME SQN. */ 
     public String printable(){
-	   //TODO Implement
-	   return null;
+    	return String.format("%s\t%s\t%t\t%d\n", this.sender, this.receiver, this.date, this.sqn);
     }
 }
