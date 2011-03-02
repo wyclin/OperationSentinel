@@ -1,6 +1,8 @@
 package edu.berkeley.cs.cs162;
 
+
 //import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Intercepter;
+
 
 import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
@@ -12,6 +14,7 @@ public class TestChatServer {
 
     /* BEGIN Test Cases */
 
+    /* Test basic routines, i.e. server start and stop, login, logout, sending messages */
     public static void basicTest1() throws InterruptedException {
         System.out.println("=== BEGIN TEST Basic Test 1 ===");
         ChatServerInterface s = new ChatServer();
@@ -36,6 +39,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Basic Test 1 ===\n");
     }
 
+    /* Tests that usernames' uniqueness is enforced */
     public static void testUserNameUniqueness() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Name Uniqueness ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -49,6 +53,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Name Uniqueness ===\n");
     }
 
+    /* Tests that a chat server's user capacity is enforced*/
     public static void testServerCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Server Capacity ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -65,6 +70,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Server Capacity ===\n");
     }
 
+    /* Test that a group capacity is enforced*/
     public static void testGroupCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Group Capacity ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -86,6 +92,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Group Capacity ===\n");
     }
 
+    /* Tests that users can join multiple groups */
     public static void testUserJoinsMultipleGroups() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Joins Multiple Groups ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -101,6 +108,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
+    /* Tests that a logged on user can get chat server information  */
     public static void testUserGetsServerInfo() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Gets Server Info ===");
         ChatServer chatServer = new ChatServer();
@@ -133,6 +141,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Gets Server Info ===\n");
     }
 
+    /* Tests that message unicasting works */
     public static void testUnicastMessages() throws InterruptedException {
         System.out.println("=== BEGIN TEST Unicast Messages ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -142,6 +151,7 @@ public class TestChatServer {
         System.out.println("user2 logs in: " + chatServer.login("user2"));
         BaseUser user1 = chatServer.getUser("user1");
         BaseUser user2 = chatServer.getUser("user2");
+
 	
 		MessageDeliveryTask t1 = new MessageDeliveryTask(chatServer, "user2", "user1", "This is a test message from u2 to u1");
         System.out.println("\nuser2 unicasts to user1");
@@ -152,7 +162,20 @@ public class TestChatServer {
 		
         threadPool.execute(t1);
 		threadPool.execute(t2);
-		
+
+        MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message1");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+        t = new MessageDeliveryTask(chatServer, "user1", "user2", "message2");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+        t = new MessageDeliveryTask(chatServer, "user1", "user2", "message3");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+
         Thread.currentThread().sleep(1000);
 
         System.out.println("\n--- Log for user 1 ---");

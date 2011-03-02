@@ -18,7 +18,8 @@ public class ChatServer extends Thread implements ChatServerInterface {
         this.userManager = new UserManager(this);
         this.messageDispatcher.start();
 	}
-		
+
+    /* Logs user onto server, and returns a code representing action status */
     public LoginError login(String userName) {
         if (isActive) {
             return userManager.addUser(userName);
@@ -28,10 +29,12 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
     }
 
+    /* Logs user out of server */
     public boolean logoff(String userName) {
         return userManager.removeUser(userName);
     }
 
+    /* Adds user to specified group.  Creates new group if group does not exist */
     public boolean joinGroup(BaseUser user, String groupName) {
         if (!userManager.hasGroup(groupName)) {
             userManager.createGroup(groupName);
@@ -39,6 +42,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
         return userManager.addUserToGroup(user, groupName);
     }
 
+    /* Removes user from specified group */
     public boolean leaveGroup(BaseUser user, String groupName) {
         if (!userManager.hasGroup(groupName)){
             return false;
@@ -46,7 +50,8 @@ public class ChatServer extends Thread implements ChatServerInterface {
         return userManager.removeUserFromGroup(user.getUsername(), groupName);
     }
 
-	public BaseUser getUser(String username) {
+	/* Returns the User object with the given username */
+    public BaseUser getUser(String username) {
 		return userManager.getUser(username);
 	}
 
@@ -65,6 +70,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.hasUser(username);
 	}
 
+    /* Returns a list of all User objects on the chat server */
 	public Set<String> listAllUsers(String userName) {
         if (userManager.hasUser(userName)) {
             return (Set<String>) userManager.listUsers();
@@ -73,6 +79,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
 	}
 
+    /* Returns a list of Group objects on the chat server */
 	public Set<String> listAllGroups(String userName) {
         if (userManager.hasUser(userName)) {
             return (Set<String>) userManager.listGroups();
@@ -81,6 +88,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
 	}
 
+    /* Returns the total number of users logged on the chat server */
 	public int getNumberOfUsers(String userName) {
         if (userManager.hasUser(userName)) {
             return userManager.getNumUsers();
@@ -89,6 +97,7 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
 	}
 
+    /* Returns the total number of groups on the chat server */
 	public int getNumberOfGroups(String userName) {
         if (userManager.hasUser(userName)) {
             return userManager.getNumGroups();
@@ -96,15 +105,18 @@ public class ChatServer extends Thread implements ChatServerInterface {
             return -1;
         }
 	}
-	
+
+	/* Sends a message, using the parameters found in the Message object */
 	public void send(Message message) {
         messageDispatcher.enqueue(message);
 	}
-	
+
+    /* Returns the UserManager object */
 	public UserManager getUserManager(){
 		return userManager;
 	}
 
+    /* Shuts down the chat server */
 	public void shutdown() {
         isActive = false;
         while (messageDispatcher.hasMessage()){
