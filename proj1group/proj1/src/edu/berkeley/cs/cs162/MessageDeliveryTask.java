@@ -12,7 +12,7 @@ public class MessageDeliveryTask implements Runnable {
 		this.server = s;
 	}
 	
-	
+	/* Performs a message delivery */
 	public void run() {
 		BaseUser u = this.server.getUser(this.source);
 		if (u == null)

@@ -10,6 +10,7 @@ public class TestChatServer {
 
     /* BEGIN Test Cases */
 
+    /* Test basic routines, i.e. server start and stop, login, logout, sending messages */
     public static void basicTest1() throws InterruptedException {
         System.out.println("=== BEGIN TEST Basic Test 1 ===");
         ChatServerInterface s = new ChatServer();
@@ -34,6 +35,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Basic Test 1 ===\n");
     }
 
+    /* Tests that usernames' uniqueness is enforced */
     public static void testUserNameUniqueness() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Name Uniqueness ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -47,6 +49,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Name Uniqueness ===\n");
     }
 
+    /* Tests that a chat server's user capacity is enforced*/
     public static void testServerCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Server Capacity ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -63,6 +66,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Server Capacity ===\n");
     }
 
+    /* Test that a group capacity is enforced*/
     public static void testGroupCapacity() throws InterruptedException {
         System.out.println("=== BEGIN TEST Group Capacity ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -84,6 +88,7 @@ public class TestChatServer {
         System.out.println("=== END TEST Group Capacity ===\n");
     }
 
+    /* Tests that users can join multiple groups */
     public static void testUserJoinsMultipleGroups() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Joins Multiple Groups ===");
         ChatServerInterface chatServer = new ChatServer();
@@ -99,6 +104,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
+    /* Tests that a logged on user can get chat server information  */
     public static void testUserGetsServerInfo() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Gets Server Info ===");
         ChatServer chatServer = new ChatServer();
@@ -131,6 +137,7 @@ public class TestChatServer {
         System.out.println("=== END TEST User Gets Server Info ===\n");
     }
 
+    /* Tests that message unicasting works */
     public static void testUnicastMessages() throws InterruptedException {
         System.out.println("=== BEGIN TEST Unicast Messages ===");
         ChatServerInterface chatServer = new ChatServer();
