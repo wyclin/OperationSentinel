@@ -147,15 +147,15 @@ public class TestChatServer {
         System.out.println("\nuser1 unicasts to user2");
         threadPool.execute(t);
 
+        Thread.currentThread().sleep(1000);
+
         System.out.println("\n--- Log for user 1 ---");
-        System.out.println(Integer.toString(user1.messages.size()));
         for (int i = 0; i < user1.messages.size(); i++) {
             System.out.println(user1.messages.get(i));
         }
         System.out.println("--- ---");
 
         System.out.println("\n--- Log for user 2 ---");
-        System.out.println(Integer.toString(user1.messages.size()));
         for (int i = 0; i < user2.messages.size(); i++) {
             System.out.println(user2.messages.get(i));
         }

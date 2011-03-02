@@ -57,7 +57,7 @@ public class Group{
     /** Sends the given message to all users in the group. */
     public void messageUsers(Message message) {
         for (BaseUser user: users.values()) {
-            user.msgReceived(message.printable());
+            user.msgReceived(message.toString());
         }
     }
 }
