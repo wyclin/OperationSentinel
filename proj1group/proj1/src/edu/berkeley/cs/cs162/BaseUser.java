@@ -52,7 +52,6 @@ public class BaseUser extends Thread {
         Message message = new Message(name, dest, ++sendCount, msg);
         String logMessage = name + " " + dest + " " + Long.toString(message.date.getTime() / 1000L) + " " + Integer.toString(message.sqn);
 
-        messages.add(logMessage);
         chatServer.send(message);
         TestChatServer.logUserSendMsg(name, logMessage);
     }

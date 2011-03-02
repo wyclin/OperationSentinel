@@ -140,10 +140,26 @@ public class TestChatServer {
 
         System.out.println("user1 logs in: " + chatServer.login("user1"));
         System.out.println("user2 logs in: " + chatServer.login("user2"));
+        BaseUser user1 = chatServer.getUser("user1");
+        BaseUser user2 = chatServer.getUser("user2");
 
         MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message");
         System.out.println("\nuser1 unicasts to user2");
         threadPool.execute(t);
+
+        System.out.println("\n--- Log for user 1 ---");
+        System.out.println(Integer.toString(user1.messages.size()));
+        for (int i = 0; i < user1.messages.size(); i++) {
+            System.out.println(user1.messages.get(i));
+        }
+        System.out.println("--- ---");
+
+        System.out.println("\n--- Log for user 2 ---");
+        System.out.println(Integer.toString(user1.messages.size()));
+        for (int i = 0; i < user2.messages.size(); i++) {
+            System.out.println(user2.messages.get(i));
+        }
+        System.out.println("--- ---");
 
         chatServer.shutdown();
         threadPool.shutdown();
@@ -163,8 +179,8 @@ public class TestChatServer {
         testServerCapacity();
         testGroupCapacity();
         testUserJoinsMultipleGroups();
-        //testUnicastMessages();
         testUserGetsServerInfo();
+        testUnicastMessages();
 	}
 
 	/**
