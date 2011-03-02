@@ -22,8 +22,9 @@ class MessageDispatcher extends Thread{
 
     public void run(){
         while(true){
-            if (this.hasMessage()){
-                deliver(messages.poll());
+            try {
+                deliver(messages.take());
+            } catch (Exception e) {
             }
         }
     }
@@ -37,6 +38,11 @@ class MessageDispatcher extends Thread{
     private void deliver(Message message) {
         if (!chatServer.hasName(message.receiver)) {
             TestChatServer.logChatServerDropMsg(message.toString(), new Date());
+            BaseUser senderUser = chatServer.getUser(message.sender);
+            try {
+                senderUser.messages.put("DROPPED == " + message.toString());
+            } catch (Exception e) {
+            }
         } else if (chatServer.hasUser(message.receiver)) {
             BaseUser targetUser = chatServer.getUser(message.receiver);
             targetUser.msgReceived(message.toString());

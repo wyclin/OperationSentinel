@@ -144,10 +144,12 @@ public class TestChatServer {
         MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message1");
         System.out.println("\nuser1 unicasts to user2");
         threadPool.execute(t);
+        Thread.currentThread().sleep(100);
 
         t = new MessageDeliveryTask(chatServer, "user1", "user2", "message2");
         System.out.println("\nuser1 unicasts to user2");
         threadPool.execute(t);
+        Thread.currentThread().sleep(100);
 
         t = new MessageDeliveryTask(chatServer, "user1", "user2", "message3");
         System.out.println("\nuser1 unicasts to user2");
@@ -156,20 +158,81 @@ public class TestChatServer {
         Thread.currentThread().sleep(1000);
 
         System.out.println("\n--- Log for user 1 ---");
-        for (int i = 0; i < user1.messages.size(); i++) {
-            System.out.println(user1.messages.get(i));
+        String curMessage = user1.messages.poll();
+        while (curMessage != null) {
+            System.out.println(curMessage);
+            curMessage = user1.messages.poll();
         }
         System.out.println("--- ---");
 
         System.out.println("\n--- Log for user 2 ---");
-        for (int i = 0; i < user2.messages.size(); i++) {
-            System.out.println(user2.messages.get(i));
+        curMessage = user2.messages.poll();
+        while (curMessage != null) {
+            System.out.println(curMessage);
+            curMessage = user2.messages.poll();
         }
         System.out.println("--- ---");
 
         chatServer.shutdown();
         threadPool.shutdown();
         System.out.println("=== END TEST Unicast Messages ===\n");
+    }
+
+    public static void testBroadcastMessages() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Broadcast Messages ===");
+        ChatServerInterface chatServer = new ChatServer();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        System.out.println("user1 logs in: " + chatServer.login("user1"));
+        System.out.println("user2 logs in: " + chatServer.login("user2"));
+        System.out.println("user3 logs in: " + chatServer.login("user3"));
+
+        BaseUser user1 = chatServer.getUser("user1");
+        BaseUser user2 = chatServer.getUser("user2");
+        BaseUser user3 = chatServer.getUser("user3");
+
+        System.out.println("user1 joins group1: " + chatServer.joinGroup(chatServer.getUser("user1"), "group1"));
+        System.out.println("user2 joins group1: " + chatServer.joinGroup(chatServer.getUser("user2"), "group1"));
+        System.out.println("user3 joins group1: " + chatServer.joinGroup(chatServer.getUser("user3"), "group1"));
+
+        MessageDeliveryTask t;
+        for (int i = 1; i <= 3; i++) {
+            for (int j = 1; j <= 10; j++) {
+                t = new MessageDeliveryTask(chatServer, "user" + Integer.toString(i), "group1", "message" + Integer.toString(i) + Integer.toString(j));
+                System.out.println("user" + Integer.toString(i) + " unicasts to group1");
+                threadPool.execute(t);
+            }
+        }
+
+        Thread.currentThread().sleep(5000);
+
+        System.out.println("\n--- Log for user 1 ---");
+        String curMessage = user1.messages.poll();
+        while (curMessage != null) {
+            System.out.println(curMessage);
+            curMessage = user1.messages.poll();
+        }
+        System.out.println("--- ---");
+
+        System.out.println("\n--- Log for user 2 ---");
+        curMessage = user2.messages.poll();
+        while (curMessage != null) {
+            System.out.println(curMessage);
+            curMessage = user2.messages.poll();
+        }
+        System.out.println("--- ---");
+
+        System.out.println("\n--- Log for user 3 ---");
+        curMessage = user3.messages.poll();
+        while (curMessage != null) {
+            System.out.println(curMessage);
+            curMessage = user3.messages.poll();
+        }
+        System.out.println("--- ---");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Broadcast Messages ===\n");
     }
 
     /* END Test Cases */
@@ -187,6 +250,7 @@ public class TestChatServer {
         testUserJoinsMultipleGroups();
         testUserGetsServerInfo();
         testUnicastMessages();
+        testBroadcastMessages();
 	}
 
 	/**

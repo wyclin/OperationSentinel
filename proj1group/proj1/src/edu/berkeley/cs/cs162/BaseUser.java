@@ -1,14 +1,15 @@
 package edu.berkeley.cs.cs162;
 
-import java.util.Calendar;
-import java.util.Set;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Set;
 
 public class BaseUser extends Thread {
     ChatServer chatServer;
     String name;
     ArrayList<Group> joinedGroups;
-    ArrayList<String> messages;
+    LinkedBlockingQueue<String> messages;
     int sendCount;
 	
     public BaseUser() {
@@ -20,7 +21,7 @@ public class BaseUser extends Thread {
         this.name = name;
         this.chatServer = chatServer;
         this.joinedGroups = new ArrayList<Group>();
-        this.messages = new ArrayList<String>();
+        this.messages = new LinkedBlockingQueue<String>();
         this.sendCount = 0;
     }
 	
@@ -54,6 +55,10 @@ public class BaseUser extends Thread {
 
         chatServer.send(message);
         TestChatServer.logUserSendMsg(name, logMessage);
+        try {
+            messages.put("SENT == " + message);
+        } catch (Exception e) {
+        }
     }
 	
     /**
@@ -68,7 +73,10 @@ public class BaseUser extends Thread {
      */
     public void msgReceived(String msg){
         TestChatServer.logUserMsgRecvd(name, msg, Calendar.getInstance().getTime());
-        messages.add(msg);
+        try {
+            messages.put("RECEIVED == " + msg);
+        } catch (Exception e) {
+        }
     }
 
 	public Set<String> getGroupList(){
