@@ -143,10 +143,15 @@ public class TestChatServer {
         BaseUser user1 = chatServer.getUser("user1");
         BaseUser user2 = chatServer.getUser("user2");
 
-        MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message");
+        MessageDeliveryTask t1 = new MessageDeliveryTask(chatServer, "user1", "user2", "This is a test message");
         System.out.println("\nuser1 unicasts to user2");
-        threadPool.execute(t);
-
+	
+		MessageDeliveryTask t2 = new MessageDeliveryTask(chatServer, "user2", "user1", "This is a test message from u2 to u1");
+        System.out.println("\nuser2 unicasts to user1");
+		
+        threadPool.execute(t1);
+		threadPool.execute(t2);
+		
         Thread.currentThread().sleep(1000);
 
         System.out.println("\n--- Log for user 1 ---");

@@ -22,8 +22,6 @@ class MessageDispatcher extends Thread{
 
     public void run(){
         while(true){
-			System.out.println("out");
-			System.out.println(messages.size());
             if (this.hasMessage()){
                 deliver(messages.poll());
             }
