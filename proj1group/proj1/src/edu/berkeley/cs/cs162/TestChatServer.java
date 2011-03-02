@@ -1,7 +1,5 @@
 package edu.berkeley.cs.cs162;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Intercepter;
-
 import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -143,7 +141,15 @@ public class TestChatServer {
         BaseUser user1 = chatServer.getUser("user1");
         BaseUser user2 = chatServer.getUser("user2");
 
-        MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message");
+        MessageDeliveryTask t = new MessageDeliveryTask(chatServer, "user1", "user2", "message1");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+        t = new MessageDeliveryTask(chatServer, "user1", "user2", "message2");
+        System.out.println("\nuser1 unicasts to user2");
+        threadPool.execute(t);
+
+        t = new MessageDeliveryTask(chatServer, "user1", "user2", "message3");
         System.out.println("\nuser1 unicasts to user2");
         threadPool.execute(t);
 
