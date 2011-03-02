@@ -39,8 +39,7 @@ public class Group{
         return users.keySet();
     }
 
-
-    /** Returns number of users in the group. */	
+    /** Returns number of users in the group. */
     public int numUsers(){
         return users.size();
     }
@@ -53,5 +52,12 @@ public class Group{
     /** Returns true if group is at maximum capacity. */	
     public boolean isFull(){
         return this.numUsers() >= ChatServer.MAX_GROUP_USERS;
+    }
+
+    /** Sends the given message to all users in the group. */
+    public void messageUsers(Message message) {
+        for (BaseUser user: users.values()) {
+            user.msgReceived(message.printable());
+        }
     }
 }

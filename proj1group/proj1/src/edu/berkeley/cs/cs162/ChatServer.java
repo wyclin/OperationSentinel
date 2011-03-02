@@ -50,6 +50,11 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.getUser(username);
 	}
 
+    /** Returns the Group object of the group with given groupName. */
+    public Group getGroup(String groupName) {
+        return userManager.getGroup(groupName);
+    }
+
 	/** Returns true if the server has user or group with given name. */
 	public boolean hasName(String name) {
 		return userManager.hasName(name);
@@ -92,8 +97,8 @@ public class ChatServer extends Thread implements ChatServerInterface {
         }
 	}
 	
-	public void send(Message message) throws InterruptedException {
-		messageDispatcher.enqueue(message);
+	public void send(Message message) {
+        messageDispatcher.enqueue(message);
 	}
 	
 	public UserManager getUserManager(){

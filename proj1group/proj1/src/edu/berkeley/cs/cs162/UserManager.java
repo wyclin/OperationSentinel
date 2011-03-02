@@ -197,6 +197,15 @@ class UserManager {
         return result;
     }
 
+    /* Returnss the Group object with the given groupName */
+    public Group getGroup(String groupName) {
+        rwLock.readLock().lock();
+        Group result;
+        result = groups.get(groupName);
+        rwLock.readLock().unlock();
+        return result;
+    }
+
     /* Returns a set of the userNames currently on the server. */
     public Set<String> listUsers() {
         rwLock.readLock().lock();
