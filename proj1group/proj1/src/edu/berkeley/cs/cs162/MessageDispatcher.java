@@ -13,11 +13,10 @@ class MessageDispatcher extends Thread{
     }
 
     /* Puts a message into the message queue. */
-	synchronized public void enqueue(Message message) {
+	public void enqueue(Message message) {
         try {
             messages.put(message);
         } catch (Exception e) {
-            //TODO Message could not be enqueued.
         }
     }
 
@@ -26,7 +25,7 @@ class MessageDispatcher extends Thread{
 			System.out.println("out");
 			System.out.println(messages.size());
             if (this.hasMessage()){
-                this.deliver(messages.poll());
+                deliver(messages.poll());
             }
         }
     }
@@ -39,10 +38,10 @@ class MessageDispatcher extends Thread{
 
     private void deliver(Message message) {
         if (!chatServer.hasName(message.receiver)) {
-            TestChatServer.logChatServerDropMsg(message.printable(), new Date());
+            TestChatServer.logChatServerDropMsg(message.toString(), new Date());
         } else if (chatServer.hasUser(message.receiver)) {
             BaseUser targetUser = chatServer.getUser(message.receiver);
-            targetUser.msgReceived(message.printable());
+            targetUser.msgReceived(message.toString());
         } else {
             Group targetGroup = chatServer.getGroup(message.receiver);
             targetGroup.messageUsers(message);
@@ -50,7 +49,7 @@ class MessageDispatcher extends Thread{
     }
 
     /* Returns true if the message dispatcher has an enqueued message. */
-    synchronized public boolean hasMessage() {
+    public boolean hasMessage() {
         if (messages.size() > 0) {
             return true;
 	    } else {
