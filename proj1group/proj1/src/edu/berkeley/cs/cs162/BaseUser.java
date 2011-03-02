@@ -25,10 +25,12 @@ public class BaseUser extends Thread {
         this.sendCount = 0;
     }
 	
+    /* Returns the username of the user */
     public String getUsername(){
         return name;
     }
-	
+
+    /* Returns the list of groups a user has joined */
     public ArrayList<Group> listGroups(){
         return joinedGroups;
     }
@@ -79,18 +81,22 @@ public class BaseUser extends Thread {
         }
     }
 
+    /* Returns a list of all groups on the chat server */
 	public Set<String> getGroupList(){
 		return (Set<String>) chatServer.listAllGroups(name);
 	}
 
+    /* Returns a list of all users logged onto the chat server */
 	public Set<String> getUserList(){
 		return (Set<String>) chatServer.listAllUsers(name);
 	}
 
+    /* Returns the number of groups on the chat server */
 	public int getNumberOfGroups(){
 		return chatServer.getNumberOfGroups(name);
 	}
 
+    /* Returns the total number of users on the chat server */
 	public int getNumberOfUsers(){
 		return chatServer.getNumberOfUsers(name);
 	}

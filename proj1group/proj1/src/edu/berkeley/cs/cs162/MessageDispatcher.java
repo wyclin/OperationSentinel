@@ -13,13 +13,14 @@ class MessageDispatcher extends Thread{
     }
 
     /* Puts a message into the message queue. */
-    public void enqueue(Message message) {
+	public void enqueue(Message message) {
         try {
             messages.put(message);
         } catch (Exception e) {
         }
     }
 
+    /* Runs message dequeue-and-deliver in an infinite loop */
     public void run(){
         while(true){
             try {
@@ -34,7 +35,6 @@ class MessageDispatcher extends Thread{
     // TODO There's a concurrency problem here which we'd brought up
     // What if the user drops after we do our check to see if the
     // user or group is still there.
-
     private void deliver(Message message) {
         if (!chatServer.hasName(message.receiver)) {
             TestChatServer.logChatServerDropMsg(message.toString(), new Date());
