@@ -70,7 +70,12 @@ public class ChatServer extends Thread implements ChatServerInterface {
 		return userManager.hasUser(username);
 	}
 
-    /* Returns a list of all User objects on the chat server */
+	/** Returns true if the server has group with given groupName. */
+	public boolean hasGroup(String groupName) {
+		return userManager.hasGroup(groupName);
+	}
+
+       /** Returns a list of all User objects on the chat server */
 	public Set<String> listAllUsers(String userName) {
         if (userManager.hasUser(userName)) {
             return (Set<String>) userManager.listUsers();

@@ -141,14 +141,17 @@ public class TestChatServer {
     public static void testUnicastMessages() throws InterruptedException {
         System.out.println("=== BEGIN TEST Unicast Messages ===");
         ChatServerInterface chatServer = new ChatServer();
-        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+        ExecutorService threadPool = Executors.newFixedThreadPool(500);
 
         System.out.println("user1 logs in: " + chatServer.login("user1"));
         System.out.println("user2 logs in: " + chatServer.login("user2"));
+        System.out.println("user3 logs in: " + chatServer.login("user3"));
+        System.out.println("user4 logs in: " + chatServer.login("user4"));
         BaseUser user1 = chatServer.getUser("user1");
         BaseUser user2 = chatServer.getUser("user2");
+	BaseUser user3 = chatServer.getUser("user3");
+	BaseUser user4 = chatServer.getUser("user4");
 
-	
 		MessageDeliveryTask t1 = new MessageDeliveryTask(chatServer, "user2", "user1", "This is a test message from u2 to u1");
         System.out.println("\nuser2 unicasts to user1");
 		
@@ -191,7 +194,29 @@ public class TestChatServer {
             curMessage = user2.messages.poll();
         }
         System.out.println("--- ---");
+        
+	System.out.println("\nuser3 unicasts 50 messages to user4 and vice versa");
+	
+	for (int i = 0; i< 50; i++) {
+                MessageDeliveryTask to4 = new MessageDeliveryTask(chatServer, "user3", "user4", "messageTo4: "+i);
+		MessageDeliveryTask to3 = new MessageDeliveryTask(chatServer, "user4", "user3", "messageTo3: "+i);
+        	threadPool.execute(to4);
+		threadPool.execute(to3);
+                Thread.currentThread().sleep(10);
+	}
+        
+        System.out.println("\n--- Log for user 3 ---");
+        for (int i = 0; i < user3.messages.size(); i++) {
+            System.out.println(user3.messages.get(i));
+        }
 
+
+        System.out.println("\n--- Log for user 4 ---");
+        for (int i = 0; i < user4.messages.size(); i++) {
+            System.out.println(user4.messages.get(i));
+        }
+        System.out.println("--- ---");
+        System.out.println("--- ---");
         chatServer.shutdown();
         threadPool.shutdown();
         System.out.println("=== END TEST Unicast Messages ===\n");

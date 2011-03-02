@@ -13,11 +13,23 @@ class MessageDispatcher extends Thread{
     }
 
     /* Puts a message into the message queue. */
-	public void enqueue(Message message) {
-        try {
-            messages.put(message);
-        } catch (Exception e) {
-        }
+    public void enqueue(Message message) {
+	if (chatServer.hasGroup(message.receiver)) { //Broadcast Message
+		Group targetGroup = chatServer.getGroup(message.receiver);
+		if (targetGroup.numUsers() > 0) {
+			for (String targetUsername : targetGroup.listUsers()) {
+				Message newMessage = new Message(message.sender, targetUsername, message.sqn, message.text, message.date);
+				this.enqueue(newMessage);
+			}
+		}
+
+	} else { // Unicast Message
+        	try {
+            		messages.put(message);
+        	} catch (Exception e) {
+        		// Message could not be enqueued.
+		}
+	}
     }
 
     /* Runs message dequeue-and-deliver in an infinite loop */
@@ -30,13 +42,11 @@ class MessageDispatcher extends Thread{
         }
     }
 
-    /* Attempts to deliver the given message.*/
+    /* Attempts to deliver the given message to user. Messages that are sent to groups
+     * should have been converted to single message sent to users when being enqueued. */
 
-    // TODO There's a concurrency problem here which we'd brought up
-    // What if the user drops after we do our check to see if the
-    // user or group is still there.
     private void deliver(Message message) {
-        if (!chatServer.hasName(message.receiver)) {
+        if (!chatServer.hasUser(message.receiver)) { // The user logged off.
             TestChatServer.logChatServerDropMsg(message.toString(), new Date());
             BaseUser senderUser = chatServer.getUser(message.sender);
             try {
@@ -46,9 +56,6 @@ class MessageDispatcher extends Thread{
         } else if (chatServer.hasUser(message.receiver)) {
             BaseUser targetUser = chatServer.getUser(message.receiver);
             targetUser.msgReceived(message.toString());
-        } else {
-            Group targetGroup = chatServer.getGroup(message.receiver);
-            targetGroup.messageUsers(message);
         }
     }
 
