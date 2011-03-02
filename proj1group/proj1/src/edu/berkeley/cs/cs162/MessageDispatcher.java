@@ -15,10 +15,7 @@ class MessageDispatcher extends Thread{
     /* Puts a message into the message queue. */
 	synchronized public void enqueue(Message message) {
         try {
-			System.out.println("I am trying to enqueue");
             messages.put(message);
-			System.out.println("How many messages in queue");
-			System.out.println(messages.size());
         } catch (Exception e) {
             //TODO Message could not be enqueued.
         }
