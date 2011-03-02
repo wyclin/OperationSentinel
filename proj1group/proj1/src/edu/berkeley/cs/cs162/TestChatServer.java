@@ -194,7 +194,31 @@ public class TestChatServer {
         threadPool.shutdown();
         System.out.println("=== END TEST Unicast Messages ===\n");
     }
+	
+	public static void nonExistentUserRequestServer(){
+		System.out.println("=== BEGIN TEST User Not In The Server Request Server Information ===");
+		
+		ChatServer chatServer = new ChatServer();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		
+		System.out.println("user1 is created and not logged in the chat server");
+		BaseUser user1 = new BaseUser("user1", null);
+		
+		
+		System.out.println("testing chatServer's methods");
+		System.out.println("getUser: " + chatServer.getUser("user1"));
+		System.out.println("listAllUsers: " + chatServer.listAllUsers("user1"));
+		System.out.println("listAllGroups: " + chatServer.listAllGroups("user1"));
+		System.out.println("getNumberOfUsers: " + chatServer.getNumberOfUsers("user1"));
+		System.out.println("getNumberOfGroups: " + chatServer.getNumberOfGroups("user1"));		
+		
+		chatServer.shutdown();
+        threadPool.shutdown();
+		
+		System.out.println("=== END TEST User Not In The Server Request Server Information ===\n");
+	}
 
+	
     /* END Test Cases */
 
     /**
@@ -210,6 +234,7 @@ public class TestChatServer {
         testUserJoinsMultipleGroups();
         testUserGetsServerInfo();
         testUnicastMessages();
+		nonExistentUserRequestServer();
 	}
 
 	/**
