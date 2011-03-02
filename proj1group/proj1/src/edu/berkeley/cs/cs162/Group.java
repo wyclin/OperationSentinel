@@ -17,10 +17,10 @@ public class Group{
 
     /** Add a user object to the group. */	
     public boolean addUser(BaseUser user){
-        if (this.isFull() || this.hasUser(user.getName())){
+        if (this.isFull() || this.hasUser(user.getUsername())){
             return false;
         }
-        users.put(user.getName(), user);
+        users.put(user.getUsername(), user);
         TestChatServer.logUserJoinGroup(name, user.getUsername(), Calendar.getInstance().getTime());
         return true;
     }
