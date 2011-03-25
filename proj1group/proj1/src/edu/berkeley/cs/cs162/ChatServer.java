@@ -10,20 +10,28 @@ public class ChatServer {
 
 	private MessageDispatcher messageDispatcher;
 	private UserManager userManager;
+    private ConnectionManager connectionManager;
     private boolean shuttingDown;
 
-    public ChatServer() {
+    public ChatServer(int port) {
         this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
         this.messageDispatcher = new MessageDispatcher(this);
+        this.connectionManager = new ConnectionManager(this, port);
         this.shuttingDown = false;
 	}
 
     public void start() {
         messageDispatcher.start();
+        connectionManager.start();
     }
 
 	public void shutdown() {
         shuttingDown = true;
+        connectionManager.shutdown();
+        try {
+            connectionManager.join();
+        } catch (InterruptedException e) {
+        }
         messageDispatcher.shutdown();
         try {
             messageDispatcher.join();
@@ -31,6 +39,16 @@ public class ChatServer {
         }
         userManager.shutdown();
     }
+
+   public static void main(String[] args) {
+       if (args.length == 1) {
+           ChatServer newServer = new ChatServer(new Integer(args[0]));
+           newServer.start();
+       } else {
+           System.err.println("USAGE: java ChatServer port#");
+           System.exit(-1);
+       }
+   }
 
     public ChatServerResponse login(ChatUser user) {
         if (shuttingDown) {

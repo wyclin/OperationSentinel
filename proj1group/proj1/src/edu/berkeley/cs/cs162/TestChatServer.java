@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 public class TestChatServer {
 
-	public static void main(String [] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException {
         testBasic();
         testLogout();
         testUserNameUniqueness();

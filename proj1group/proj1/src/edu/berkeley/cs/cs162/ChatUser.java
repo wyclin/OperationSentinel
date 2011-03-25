@@ -1,5 +1,7 @@
 package edu.berkeley.cs.cs162;
 
+import java.io.*;
+import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChatUser extends Thread {
     private ChatServer chatServer;
+    private Socket socket;
     private boolean shuttingDown;
     private String loginName;
     private boolean loggedIn;
@@ -16,8 +19,9 @@ public class ChatUser extends Thread {
     private LinkedBlockingQueue<String> log;
     private SimpleDateFormat dateFormatter;
 
-    public ChatUser(ChatServer chatServer) {
+    public ChatUser(ChatServer chatServer, Socket socket) {
         this.chatServer = chatServer;
+        this.socket = socket;
         this.shuttingDown = false;
         this.loginName = null;
         this.loggedIn = false;
@@ -30,6 +34,22 @@ public class ChatUser extends Thread {
     public void shutdown() {
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Shutting Down");
         this.shuttingDown = true;
+        interrupt();
+    }
+
+    public void run() {
+        // Handle the above interrupt. Non-blocking sockets?
+        try {
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while (true) { // Handle graceful shutdown
+
+            }
+            //out.close();
+            //in.close();
+            //socket.close();
+        } catch (IOException e) {
+        }
     }
 
     public String getUserName() {
@@ -312,9 +332,6 @@ public class ChatUser extends Thread {
         } else {
             log.offer(dateFormatter.format(time) + " | Get Group User List Failure | Not logged in.");
         }
-    }
-
-    public void run() {
     }
 
     public void printLog() {
