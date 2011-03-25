@@ -1,8 +1,5 @@
 package edu.berkeley.cs.cs162;
 
-import java.util.Calendar;
-import java.util.TreeSet;
-
 public class ChatServer {
 
     public static final int MAX_CHAT_USERS = 100;
@@ -12,17 +9,29 @@ public class ChatServer {
 	private UserManager userManager;
     private ConnectionManager connectionManager;
     private boolean shuttingDown;
+    private boolean networked;
 
     public ChatServer(int port) {
         this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
         this.messageDispatcher = new MessageDispatcher(this);
         this.connectionManager = new ConnectionManager(this, port);
         this.shuttingDown = false;
+        this.networked = true;
 	}
+
+    public ChatServer() {
+        this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
+        this.messageDispatcher = new MessageDispatcher(this);
+        this.connectionManager = new ConnectionManager(this, -1);
+        this.shuttingDown = false;
+        this.networked = false;
+    }
 
     public void start() {
         messageDispatcher.start();
-        connectionManager.start();
+        if (networked) {
+            connectionManager.start();
+        }
     }
 
 	public void shutdown() {
@@ -52,7 +61,7 @@ public class ChatServer {
 
     public ChatServerResponse login(ChatUser user) {
         if (shuttingDown) {
-            return ChatServerResponse.SHUTTING_DOWN;
+            return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
         } else {
             return userManager.addUser(user);
         }
@@ -64,7 +73,7 @@ public class ChatServer {
 
     public ChatServerResponse joinGroup(ChatUser user, String groupName) {
         if (shuttingDown) {
-            return ChatServerResponse.SHUTTING_DOWN;
+            return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
         } else {
             return userManager.addUserToGroup(user, groupName);
         }
@@ -76,33 +85,33 @@ public class ChatServer {
 
 	public ChatServerResponse send(Message message) {
         if (shuttingDown) {
-            return ChatServerResponse.SHUTTING_DOWN;
+            return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
         } else {
             return messageDispatcher.enqueue(message);
         }
     }
 
-    public ChatServerResponsePair getUserCount(ChatUser user) {
+    public ChatServerResponse getUserCount(ChatUser user) {
         return userManager.getUserCount(user);
     }
 
-    public ChatServerResponsePair getUserList(ChatUser user) {
+    public ChatServerResponse getUserList(ChatUser user) {
         return userManager.getUserList(user);
     }
 
-    public ChatServerResponsePair getGroupCount(ChatUser user) {
+    public ChatServerResponse getGroupCount(ChatUser user) {
         return userManager.getGroupCount(user);
     }
 
-    public ChatServerResponsePair getGroupList(ChatUser user) {
+    public ChatServerResponse getGroupList(ChatUser user) {
         return userManager.getGroupList(user);
     }
 
-    public ChatServerResponsePair getGroupUserCount(ChatUser user, String groupName) {
+    public ChatServerResponse getGroupUserCount(ChatUser user, String groupName) {
         return userManager.getGroupUserCount(user, groupName);
     }
 
-    public ChatServerResponsePair getGroupUserList(ChatUser user, String groupName) {
+    public ChatServerResponse getGroupUserList(ChatUser user, String groupName) {
         return userManager.getGroupUserList(user, groupName);
     }
 

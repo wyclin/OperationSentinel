@@ -28,27 +28,27 @@ class MessageDispatcher extends Thread {
                 message.receivingUsers = new TreeSet<String>();
                 message.receivingUsers.add(message.receiver);
                 if (messages.offer(message)) {
-                    return ChatServerResponse.MESSAGE_ENQUEUED;
+                    return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else {
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    return ChatServerResponse.MESSAGE_BUFFER_FULL;
+                    return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
             } else if (userManager.hasGroup(message.receiver)) {
                 ChatGroup targetGroup = userManager.getGroup(message.receiver);
                 message.receivingUsers = new TreeSet<String>(targetGroup.users.keySet());
                 if (messages.offer(message)) {
-                    return ChatServerResponse.MESSAGE_ENQUEUED;
+                    return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else {
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    return ChatServerResponse.MESSAGE_BUFFER_FULL;
+                    return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
             } else {
                 TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                return ChatServerResponse.RECEIVER_NOT_FOUND;
+                return new ChatServerResponse(ResponseType.RECEIVER_NOT_FOUND);
             }
         } else {
             TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-            return ChatServerResponse.SENDER_NOT_FOUND;
+            return new ChatServerResponse(ResponseType.SENDER_NOT_FOUND);
         }
     }
 
