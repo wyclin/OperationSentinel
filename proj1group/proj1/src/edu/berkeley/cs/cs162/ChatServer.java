@@ -64,6 +64,30 @@ public class ChatServer {
         }
     }
 
+    public ChatServerResponsePair getUserCount(ChatUser user) {
+        return userManager.getUserCount(user);
+    }
+
+    public ChatServerResponsePair getUserList(ChatUser user) {
+        return userManager.getUserList(user);
+    }
+
+    public ChatServerResponsePair getGroupCount(ChatUser user) {
+        return userManager.getGroupCount(user);
+    }
+
+    public ChatServerResponsePair getGroupList(ChatUser user) {
+        return userManager.getGroupList(user);
+    }
+
+    public ChatServerResponsePair getGroupUserCount(ChatUser user, String groupName) {
+        return userManager.getGroupUserCount(user, groupName);
+    }
+
+    public ChatServerResponsePair getGroupUserList(ChatUser user, String groupName) {
+        return userManager.getGroupUserList(user, groupName);
+    }
+
     public UserManager getUserManager() {
         return userManager;
     }

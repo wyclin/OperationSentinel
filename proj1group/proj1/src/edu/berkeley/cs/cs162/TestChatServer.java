@@ -9,6 +9,7 @@ public class TestChatServer {
 
 	public static void main(String [] args) throws InterruptedException {
         testBasic();
+        testLogout();
         testUserNameUniqueness();
         testServerCapacity();
         testLoginQueue();
@@ -17,9 +18,8 @@ public class TestChatServer {
         testUnicastMessages();
         testBroadcastMessages();
         testServerShutdown();
+        testUserManager();
 	}
-
-    /* BEGIN Server Integration Tests */
 
     public static void testBasic() throws InterruptedException {
         System.out.println("=== BEGIN TEST Basic Test ===");
@@ -72,6 +72,31 @@ public class TestChatServer {
         chatServer.shutdown();
         threadPool.shutdown();
         System.out.println("=== END TEST Basic test ===\n");
+    }
+
+    public static void testLogout() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Logout ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+        user1.joinGroup("Group 1");
+        user2.joinGroup("Group 1");
+        user1.joinGroup("Group 2");
+        user1.joinGroup("Group 3");
+        user1.logout();
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Logout ===\n");
     }
 
     public static void testUserNameUniqueness() throws InterruptedException {
@@ -296,7 +321,69 @@ public class TestChatServer {
         System.out.println("=== END TEST Server Shutdown ===\n");
     }
 
-    /* END Server Integration Tests */
+    public static void testUserManager() throws InterruptedException {
+        System.out.println("=== BEGIN TEST UserManager ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        ChatUser user3 = new ChatUser(chatServer);
+        ChatUser user4 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+        user3.login("User 3");
+
+        user4.getUserCount();
+        user4.getUserList();
+        user4.getGroupCount();
+        user4.getGroupList();
+
+        user4.login("User 4");
+        user4.logout();
+        user4.getUserCount();
+        user4.getUserList();
+        user4.getGroupCount();
+        user4.getGroupList();
+
+        user1.getGroupUserList("Group 1");
+        user1.leaveGroup("Group 1");
+        user1.getGroupUserList("Group 1");
+        user2.joinGroup("Group 1");
+        user1.leaveGroup("Group 1");
+        user1.getGroupUserList("Group 1");
+        user2.leaveGroup("Group 1");
+        user1.getGroupUserList("Group 1");
+
+        user2.joinGroup("Group 1");
+        user2.joinGroup("Group 2");
+        user2.joinGroup("Group 3");
+        user1.getGroupUserList("Group 1");
+        user1.getGroupUserList("Group 2");
+        user1.getGroupUserList("Group 3");
+        user2.logout();
+        user1.getGroupUserList("Group 1");
+        user1.getGroupUserList("Group 2");
+        user1.getGroupUserList("Group 3");
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==");
+        System.out.println("\n== BEGIN LOG user3 ==");
+        user3.printLog();
+        System.out.println("== END LOG user3 ==");
+        System.out.println("\n== BEGIN LOG user4 ==");
+        user4.printLog();
+        System.out.println("== END LOG user4 ==");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST UserManager ===\n");
+    }
 
 	/**
 	 * Logs the events of a user logging into the ChatServer.  This should only be called AFTER

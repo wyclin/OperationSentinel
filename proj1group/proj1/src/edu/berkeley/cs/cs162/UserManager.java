@@ -64,18 +64,26 @@ class UserManager {
         return result;
     }
 
-    public int getUserCount() {
-        int result;
+    public ChatServerResponsePair getUserCount(ChatUser user) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
-        result = users.size();
+        if (users.containsKey(user.getUserName())) {
+            result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, users.size());
+        } else {
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
+        }
         rwLock.readLock().unlock();
         return result;
     }
 
-    public TreeSet<String> getUserList() {
-        TreeSet<String> result;
+    public ChatServerResponsePair getUserList(ChatUser user) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
-        result = new TreeSet<String>(users.keySet());
+        if (users.containsKey(user.getUserName())) {
+            result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, new TreeSet<String>(users.keySet()));
+        } else {
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
+        }
         rwLock.readLock().unlock();
         return result;
     }
@@ -96,18 +104,26 @@ class UserManager {
         return result;
     }
 
-    public int getGroupCount() {
-        int result;
+    public ChatServerResponsePair getGroupCount(ChatUser user) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
-        result = groups.size();
+        if (users.containsKey(user.getUserName())) {
+            result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, groups.size());
+        } else {
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
+        }
         rwLock.readLock().unlock();
         return result;
     }
 
-    public TreeSet<String> getGroupList() {
-        TreeSet<String> result;
+    public ChatServerResponsePair getGroupList(ChatUser user) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
-        result = new TreeSet<String>(groups.keySet());
+        if (users.containsKey(user.getUserName())) {
+            result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, new TreeSet<String>(groups.keySet()));
+        } else {
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
+        }
         rwLock.readLock().unlock();
         return result;
     }
@@ -123,25 +139,35 @@ class UserManager {
         return result;
     }
 
-    public int getGroupUserCount(String groupName) {
-        int result = -1;
+    public ChatServerResponsePair getGroupUserCount(ChatUser user, String groupName) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
         ChatGroup targetGroup = groups.get(groupName);
-        if (targetGroup != null) {
-            result = targetGroup.users.size();
+        if (users.containsKey(user.getUserName())) {
+            if (targetGroup == null) {
+                result = new ChatServerResponsePair(ChatServerResponse.GROUP_NOT_FOUND, null);
+            } else {
+                result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, targetGroup.users.size());
+            }
+        } else {
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
         }
         rwLock.readLock().unlock();
         return result;
     }
 
-    public TreeSet<String> getGroupUserList(String groupName) {
-        TreeSet<String> result;
+    public ChatServerResponsePair getGroupUserList(ChatUser user, String groupName) {
+        ChatServerResponsePair result;
         rwLock.readLock().lock();
         ChatGroup targetGroup = groups.get(groupName);
-        if (targetGroup == null) {
-            result = null;
+        if (users.containsKey(user.getUserName())) {
+            if (targetGroup == null) {
+                result = new ChatServerResponsePair(ChatServerResponse.GROUP_NOT_FOUND, null);
+            } else {
+                result = new ChatServerResponsePair(ChatServerResponse.DATA_SENT, new TreeSet<String>(targetGroup.users.keySet()));
+            }
         } else {
-            result = new TreeSet<String>(targetGroup.users.keySet());
+            result = new ChatServerResponsePair(ChatServerResponse.USER_NOT_FOUND, null);
         }
         rwLock.readLock().unlock();
         return result;
@@ -171,8 +197,15 @@ class UserManager {
         ChatServerResponse result;
         rwLock.writeLock().lock();
         if (users.containsKey(user.getUserName())) {
+            TreeSet<String> groupsToRemove = new TreeSet<String>();
             for (ChatGroup group : groups.values()) {
                 group.users.remove(user.getUserName());
+                if (group.users.size() == 0) {
+                    groupsToRemove.add(group.name);
+                }
+            }
+            for (String groupName : groupsToRemove) {
+                groups.remove(groupName);
             }
             users.remove(user.getUserName());
             result = ChatServerResponse.USER_REMOVED;

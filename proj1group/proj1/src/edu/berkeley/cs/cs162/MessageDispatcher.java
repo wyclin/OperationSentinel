@@ -34,7 +34,8 @@ class MessageDispatcher extends Thread {
                     return ChatServerResponse.MESSAGE_BUFFER_FULL;
                 }
             } else if (userManager.hasGroup(message.receiver)) {
-                message.receivingUsers = new TreeSet<String>(userManager.getGroupUserList(message.receiver));
+                ChatGroup targetGroup = userManager.getGroup(message.receiver);
+                message.receivingUsers = new TreeSet<String>(targetGroup.users.keySet());
                 if (messages.offer(message)) {
                     return ChatServerResponse.MESSAGE_ENQUEUED;
                 } else {

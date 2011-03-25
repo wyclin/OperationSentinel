@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChatUser extends Thread {
@@ -193,11 +194,127 @@ public class ChatUser extends Thread {
         // sendack sqn FAILED
     }
 
-    public void run() {
-        while (true) {
-            // read socket and put an action on the queue
-            // execute current action and write to socket
+    public void getUserCount() {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getUserCount(this);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get User Count Failure | " + loginName + " is not logged in.");
+                    break;
+                case DATA_SENT:
+                    log.offer(dateFormatter.format(time) + " | Get User Count Success | Server has " + responsePair.data.toString() + " users.");
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get User Count Failure | Not logged in.");
         }
+    }
+
+    public void getUserList() {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getUserList(this);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get User List Failure | " + loginName + " is not logged in.");
+                    break;
+                case DATA_SENT:
+                    String users = "";
+                    for (String user : (TreeSet<String>)responsePair.data) {
+                        users += user + ", ";
+                    }
+                    log.offer(dateFormatter.format(time) + " | Get User Count Success | Users: " + users);
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get User Count Failure | Not logged in.");
+        }
+    }
+
+    public void getGroupCount() {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getGroupCount(this);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group Count Failure | " + loginName + " is not logged in.");
+                    break;
+                case DATA_SENT:
+                    log.offer(dateFormatter.format(time) + " | Get Group Count Success | Server has " + responsePair.data.toString() + " groups.");
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get Group Count Failure | Not logged in.");
+        }
+    }
+
+    public void getGroupList() {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getGroupList(this);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group List Failure | " + loginName + " is not logged in.");
+                    break;
+                case DATA_SENT:
+                    String groups = "";
+                    for (String group : (TreeSet<String>)responsePair.data) {
+                        groups += group + ", ";
+                    }
+                    log.offer(dateFormatter.format(time) + " | Get Group List Success | Groups: " + groups);
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get Group List Failure | Not logged in.");
+        }
+    }
+
+    public void getGroupUserCount(String groupName) {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getGroupUserCount(this, groupName);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group User Count Failure | " + loginName + " is not logged in.");
+                    break;
+                case GROUP_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group User Count Failure | " + groupName + " not found.");
+                    break;
+                case DATA_SENT:
+                    log.offer(dateFormatter.format(time) + " | Get Group User Count Success | " + groupName + " has " + responsePair.data.toString() + " users.");
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get Group User Count Failure | Not logged in.");
+        }
+    }
+
+    public void getGroupUserList(String groupName) {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn) {
+            ChatServerResponsePair responsePair = chatServer.getGroupUserList(this, groupName);
+            switch (responsePair.response) {
+                case USER_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group User List Failure | " + loginName + " is not logged in.");
+                    break;
+                case GROUP_NOT_FOUND:
+                    log.offer(dateFormatter.format(time) + " | Get Group User List Failure | " + groupName + " not found.");
+                    break;
+                case DATA_SENT:
+                    String users = "";
+                    for (String user : (TreeSet<String>)responsePair.data) {
+                        users += user + ", ";
+                    }
+                    log.offer(dateFormatter.format(time) + " | Get Group User List Success | " + groupName + " Users: " + users);
+                    break;
+            }
+        } else {
+            log.offer(dateFormatter.format(time) + " | Get Group User List Failure | Not logged in.");
+        }
+    }
+
+    public void run() {
     }
 
     public void printLog() {
