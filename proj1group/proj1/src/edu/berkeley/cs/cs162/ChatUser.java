@@ -157,6 +157,9 @@ public class ChatUser extends Thread {
         log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + receiver + " | " + messageText);
         if (loggedIn) {
             switch (chatServer.send(message)) {
+                case SHUTTING_DOWN:       // send sqn FAIL
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + receiver + " | ChatServer is shutting down.");
+                    break;
                 case MESSAGE_ENQUEUED:    // send sqn OK
                     log.offer(dateFormatter.format(time) + " | Message Queue Success | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + receiver + ".");
                     break;

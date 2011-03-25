@@ -10,6 +10,13 @@ public class TestChatServer {
 	public static void main(String [] args) throws InterruptedException {
         testBasic();
         testUserNameUniqueness();
+        testServerCapacity();
+        testLoginQueue();
+        testGroupCapacity();
+        testUserJoinsMultipleGroups();
+        testUnicastMessages();
+        testBroadcastMessages();
+        testServerShutdown();
 	}
 
     /* BEGIN Server Integration Tests */
@@ -29,24 +36,24 @@ public class TestChatServer {
         user3.login("User 3");
 
         user1.sendMessage("User 2", "Message 1");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
         user2.sendMessage("User 1", "Message 2");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
         user1.sendMessage("User 2", "Message 3");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
         user2.sendMessage("User 1", "Message 4");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
 
         user1.joinGroup("Group 1");
         user2.joinGroup("Group 1");
         user3.joinGroup("Group 1");
 
         user1.sendMessage("Group 1", "Message 5");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
         user2.sendMessage("Group 1", "Message 6");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
         user3.sendMessage("Group 1", "Message 7");
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
 
         user1.logout();
         user2.logout();
@@ -70,6 +77,7 @@ public class TestChatServer {
     public static void testUserNameUniqueness() throws InterruptedException {
         System.out.println("=== BEGIN TEST User Name Uniqueness ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.start();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
         ChatUser user1 = new ChatUser(chatServer);
@@ -88,6 +96,204 @@ public class TestChatServer {
         chatServer.shutdown();
         threadPool.shutdown();
         System.out.println("=== END TEST User Name Uniqueness ===\n");
+    }
+
+    public static void testServerCapacity() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Server Capacity ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser[] users = new ChatUser[112];
+        for (int i = 1; i <= 111; i++) {
+            users[i] = new ChatUser(chatServer);
+            users[i].login("User " + Integer.toString(i));
+        }
+
+        for (int i = 1; i <= 111; i++) {
+            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
+            users[i].printLog();
+            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
+        }
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Server Capacity ===\n");
+    }
+
+    public static void testLoginQueue() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Login Queue ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser[] users = new ChatUser[111];
+        for (int i = 1; i <= 110; i++) {
+            users[i] = new ChatUser(chatServer);
+            users[i].login("User " + Integer.toString(i));
+        }
+
+        for (int i = 1; i <= 10; i++) {
+            users[i].logout();
+        }
+
+        for (int i = 1; i <= 110; i++) {
+            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
+            users[i].printLog();
+            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
+        }
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Login Queue ===\n");
+    }
+
+    public static void testGroupCapacity() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Group Capacity ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser[] users = new ChatUser[12];
+        for (int i = 1; i <= 11; i++) {
+            users[i] = new ChatUser(chatServer);
+            users[i].login("User " + Integer.toString(i));
+            users[i].joinGroup("Group 1");
+        }
+
+        for (int i = 1; i <= 11; i++) {
+            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
+            users[i].printLog();
+            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
+        }
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Group Capacity ===\n");
+    }
+
+    public static void testUserJoinsMultipleGroups() throws InterruptedException {
+        System.out.println("=== BEGIN TEST User Joins Multiple Groups ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user1.joinGroup("Group 1");
+        user1.joinGroup("Group 2");
+        user1.joinGroup("Group 3");
+
+        user1.printLog();
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST User Joins Multiple Groups ===\n");
+    }
+
+    public static void testUnicastMessages() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Unicast Messages ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+
+        for (int i = 1; i <= 10; i++) {
+            user1.sendMessage("User 2", "Message " + Integer.toString(i));
+            Thread.currentThread().sleep(50);
+            user2.sendMessage("User 1", "Response " + Integer.toString(i));
+            Thread.currentThread().sleep(50);
+        }
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Unicast Messages ===\n");
+    }
+
+    public static void testBroadcastMessages() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Broadcast Messages ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        ChatUser user3 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+        user3.login("User 3");
+        user1.joinGroup("Group 1");
+        user2.joinGroup("Group 1");
+        user3.joinGroup("Group 1");
+
+        for (int i = 1; i <= 10; i++) {
+            user1.sendMessage("Group 1", "Message " + Integer.toString(i));
+            Thread.currentThread().sleep(50);
+            user2.sendMessage("Group 1", "Response " + Integer.toString(i));
+            Thread.currentThread().sleep(50);
+            user3.sendMessage("Group 1", "Another Response " + Integer.toString(i));
+            Thread.currentThread().sleep(50);
+        }
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==");
+        System.out.println("\n== BEGIN LOG user3 ==");
+        user3.printLog();
+        System.out.println("== END LOG user3 ==");
+
+        chatServer.shutdown();
+        threadPool.shutdown();
+        System.out.println("=== END TEST Broadcast Messages ===\n");
+    }
+
+    public static void testServerShutdown() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Server Shutdown ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.start();
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        ChatUser user3 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+        user2.joinGroup("Group 2");
+
+        chatServer.shutdown();
+        user1.sendMessage("User 2", "Message 1");
+        user1.joinGroup("Group 1");
+        user3.login("User 3");
+
+        user1.logout();
+        user2.leaveGroup("Group 2");
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==");
+        System.out.println("\n== BEGIN LOG user3 ==");
+        user3.printLog();
+        System.out.println("== END LOG user3 ==");
+
+        threadPool.shutdown();
+        System.out.println("=== END TEST Server Shutdown ===\n");
     }
 
     /* END Server Integration Tests */
