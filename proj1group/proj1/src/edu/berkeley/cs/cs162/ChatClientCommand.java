@@ -5,28 +5,30 @@ import java.io.Serializable;
 public class ChatClientCommand implements Serializable {
 
     public CommandType commandType;
-    public String string;
+    public String string1;
+    public String string2;
     public int number;
-    public Message message;
 
     ChatClientCommand(CommandType commandType) {
         this.commandType = commandType;
     }
 
-    ChatClientCommand(CommandType commandType, String string, int number) {
+    ChatClientCommand(CommandType commandType, String string1, int number) {
         this.commandType = commandType;
-        this.string = string;
+        this.string1 = string1;
         this.number = number;
     }
 
-    ChatClientCommand(CommandType commandType, String string) {
+    ChatClientCommand(CommandType commandType, String string1) {
         this.commandType = commandType;
-        this.string = string;
+        this.string1 = string1;
     }
 
-    ChatClientCommand(CommandType commandType, Message message) {
+    ChatClientCommand(CommandType commandType, String string1, int number, String string2) {
         this.commandType = commandType;
-        this.message = message;
+        this.string1 = string1;
+        this.number = number;
+        this.string2 = string2;
     }
 
     ChatClientCommand(CommandType commandType, int number) {

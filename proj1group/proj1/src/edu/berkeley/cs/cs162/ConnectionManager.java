@@ -14,7 +14,6 @@ public class ConnectionManager extends Thread {
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            System.exit(-2);
         }
         this.shuttingDown = false;
     }
@@ -31,8 +30,6 @@ public class ConnectionManager extends Thread {
         while(!shuttingDown) {
             try {
                 new ChatUser(chatServer, serverSocket.accept()).start();
-            } catch (IOException e) {
-                System.exit(-3);
             } catch (Exception e) {
             }
         }

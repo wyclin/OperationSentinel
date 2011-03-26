@@ -35,20 +35,17 @@ public class ChatServer {
 	public void shutdown() {
         shuttingDown = true;
         if (networked) {
-            System.out.println("Shutting down ConnectionManager");
             connectionManager.shutdown();
             try {
                 connectionManager.join();
             } catch (InterruptedException e) {
             }
         }
-        System.out.println("Shutting down MessageDispatcher");
         messageDispatcher.shutdown();
         try {
             messageDispatcher.join();
         } catch (InterruptedException e) {
         }
-        System.out.println("Shutting down UserManager");
         userManager.shutdown();
     }
 

@@ -12,12 +12,16 @@ class Message {
     public Date date;
     public int sqn;
 
-    Message(ChatUser sender, String receiver, int sqn, String text) {
+    Message(Date date, ChatUser sender, String receiver, int sqn, String text) {
         this.receiver = receiver;
         this.sender = sender;
         this.text = text;
-        this.date = Calendar.getInstance().getTime();
+        this.date = date;
         this.sqn = sqn;
+    }
+
+    Message(ChatUser sender, String receiver, int sqn, String text) {
+        this(Calendar.getInstance().getTime(), sender, receiver, sqn, text);
     }
 
     Message(String receiver, int sqn, String text) {

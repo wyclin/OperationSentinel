@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.TreeSet;
 
 public class ChatServerResponse implements Serializable {
@@ -10,6 +11,12 @@ public class ChatServerResponse implements Serializable {
     TreeSet<String> treeSet;
     int number;
     Message message;
+
+    Date messageDate;
+    String messageSender;
+    String messageReceiver;
+    int messagesqn;
+    String messageText;
 
     ChatServerResponse(ResponseType responseType) {
         this.responseType = responseType;

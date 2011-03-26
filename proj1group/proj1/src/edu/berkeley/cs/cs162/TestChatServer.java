@@ -7,21 +7,25 @@ import java.util.Date;
 public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
-        /*
-        testBasic();
-        testLogout();
-        testUserNameUniqueness();
-        testServerCapacity();
-        testLoginQueue();
-        testGroupCapacity();
-        testUserJoinsMultipleGroups();
-        testUnicastMessages();
-        testBroadcastMessages();
-        testServerShutdown();
-        testUserManager();
-        */
+        // Non-Networked Tests
+        //testBasic();
+        //testLogout();
+        //testUserNameUniqueness();
+        //testServerCapacity();
+        //testLoginQueue();
+        //testGroupCapacity();
+        //testUserJoinsMultipleGroups();
+        //testUnicastMessages();
+        //testBroadcastMessages();
+        //testServerShutdown();
+        //testUserManager();
 
-        testConnectionManager();
+        // Networked Tests
+        //testNetworkLogin();
+        //testNetworkLoginTimeout();
+        //testNetworkUnexpectedDisconnectBeforeLogin();
+        //testNetworkUnexpectedDisconnectAfterLogin();
+        testNetworkSendReceive();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -372,36 +376,189 @@ public class TestChatServer {
 
     /* Networked Server Tests (Project 2) */
 
-    public static void testConnectionManager() throws Exception {
-        System.out.println("=== BEGIN TEST ConnectionManager ===");
+    public static void testNetworkLogin() throws Exception {
+        System.out.println("=== BEGIN TEST Remote Login ===");
         ChatServer chatServer = new ChatServer(8080);
         chatServer.start();
 
         Socket user1Socket = new Socket("localhost", 8080);
         ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
         ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
         user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
         user1Requests.flush();
-        Thread.currentThread().sleep(100);
+        Thread.currentThread().sleep(50);
+
         ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.JOIN_GROUP, "group1"));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LEAVE_GROUP, "group1"));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.DISCONNECT));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
         user1Requests.close();
         user1Responses.close();
         user1Socket.close();
 
-        ChatUser user2 = new ChatUser(chatServer);
-        user2.login("user2");
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Remote Login ===\n");
+    }
+
+    public static void testNetworkLoginTimeout() throws Exception {
+        System.out.println("=== BEGIN TEST Login Timeout ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        Thread.currentThread().sleep(21000);
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
 
         System.out.println("\n== BEGIN LOG user1 ==");
         user1.printLog();
-        System.out.println("== END LOG user1 ==");
-        System.out.println("\n== BEGIN LOG user2 ==");
-        user2.printLog();
-        System.out.println("== END LOG user2 ==");
+        System.out.println("== END LOG user1 ==\n");
 
         chatServer.shutdown();
-        System.out.println("=== END TEST ConnectionManager ===\n");
+        System.out.println("=== END TEST Login Timeout ===\n");
     }
 
+    public static void testNetworkUnexpectedDisconnectBeforeLogin() throws Exception {
+        System.out.println("=== BEGIN TEST Unexpected Disconnect Before Login ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
+        Thread.currentThread().sleep(50);
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Unexpected Disconnect Before Login ===\n");
+    }
+
+    public static void testNetworkUnexpectedDisconnectAfterLogin() throws Exception {
+        System.out.println("=== BEGIN TEST Unexpected Disconnect After Login ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
+        user1Requests.flush();
+        Thread.currentThread().sleep(50);
+
+        ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
+        Thread.currentThread().sleep(50);
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Unexpected Disconnect After Login ===\n");
+    }
+
+    public static void testNetworkSendReceive() throws Exception {
+        System.out.println("=== BEGIN TEST Send and Receive ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        System.out.println("\n== BEGIN Simulated Client ==");
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.LOGIN);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.JOIN_GROUP, "group1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.JOIN_GROUP);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "group1", 1, "Message 1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.SEND_MESSAGE);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
+        Thread.currentThread().sleep(50);
+        System.out.println("== END Simulated Client ==\n");
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Send and Receive ===\n");
+    }
 
 	/**
 	 * Logs the events of a user logging into the ChatServer.  This should only be called AFTER

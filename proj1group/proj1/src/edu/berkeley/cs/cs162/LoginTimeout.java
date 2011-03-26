@@ -26,7 +26,7 @@ public class LoginTimeout {
         }
 
         public void run() {
-            chatUser.shutdown();
+            chatUser.timeout();
             timer.cancel();
         }
     }

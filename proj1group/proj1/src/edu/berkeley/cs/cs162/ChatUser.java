@@ -56,12 +56,33 @@ public class ChatUser extends Thread {
     public void start() {
         responder.start();
         super.start();
+        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Client Connected");
     }
 
+    /* Clean shutdown: finish sending any responses */
     public void shutdown() {
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Shutting Down");
         if (networked) {
             responder.shutdown();
+            if (loginTimeout != null) {
+                loginTimeout.cancel();
+                loginTimeout = null;
+            }
+        }
+    }
+
+    /* Immediate shutdown */
+    public void terminate() {
+        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Terminating");
+        if (networked && loginTimeout != null) {
+            loginTimeout.cancel();
+            loginTimeout = null;
+        }
+        try {
+            socket.close();
+            responder.interrupt();
+            interrupt();
+        } catch (Exception e) {
         }
     }
 
@@ -72,20 +93,12 @@ public class ChatUser extends Thread {
             }
         } catch (Exception e) {
         } finally {
-            if (loggedIn) {
-                logout();
-            }
+            forceDisconnect();
             try {
                 input.close();
                 socket.close();
+                responder.interrupt();
             } catch (Exception f) {
-            }
-            ChatServerResponse pendingResponse = pendingResponses.poll();
-            while (pendingResponse != null) {
-                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED) {
-                    pendingResponse.message.sender.receiveSendFailure(pendingResponse.message);
-                }
-                pendingResponse = pendingResponses.poll();
             }
         }
     }
@@ -94,27 +107,26 @@ public class ChatUser extends Thread {
         return loginName;
     }
 
-    public void disconnect() {
-        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Disconnected");
-    }
-
     public void executeCommand(ChatClientCommand command) {
         ChatServerResponse response;
         switch (command.commandType) {
+            case DISCONNECT:
+                disconnect();
+                return;
             case LOGIN:
-                response = login(command.string);
+                response = login(command.string1);
                 break;
             case LOGOUT:
                 response = logout();
                 break;
             case JOIN_GROUP:
-                response = joinGroup(command.string);
+                response = joinGroup(command.string1);
                 break;
             case LEAVE_GROUP:
-                response = leaveGroup(command.string);
+                response = leaveGroup(command.string1);
                 break;
             case SEND_MESSAGE:
-                response = sendMessage(command.message);
+                response = sendMessage(command.string1, command.number, command.string2);
                 break;
             default:
                 response = new ChatServerResponse(ResponseType.COMMAND_NOT_FOUND);
@@ -124,12 +136,29 @@ public class ChatUser extends Thread {
         pendingResponses.offer(response);
     }
 
+    public void disconnect() {
+        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Client Disconnected");
+        terminate();
+    }
+
+    public void forceDisconnect() {
+        Date time = Calendar.getInstance().getTime();
+        if (loggedIn || queued) {
+            chatServer.logoff(this);
+            log.offer(dateFormatter.format(time) + " | " + loginName + " has been force logged out.");
+            queued = false;
+            loggedIn = false;
+        }
+        log.offer(dateFormatter.format(time) + " | Client force disconnected.");
+    }
+
+    public void timeout() {
+        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Login Timeout");
+        terminate();
+    }
+
     public ChatServerResponse login(String userName) {
         Date time = Calendar.getInstance().getTime();
-        if (networked && loginTimeout != null) {
-            loginTimeout.cancel();
-            loginTimeout = null;
-        }
         if (loggedIn) {
             logout();
         }
@@ -142,6 +171,10 @@ public class ChatUser extends Thread {
                 break;
             case USER_QUEUED:
                 queued = true;
+                if (networked && loginTimeout != null) {
+                    loginTimeout.cancel();
+                    loginTimeout = null;
+                }
                 log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
                 break;
             case USER_CAPACITY_REACHED:
@@ -154,6 +187,10 @@ public class ChatUser extends Thread {
                 break;
             case USER_ADDED:
                 loggedIn = true;
+                if (networked && loginTimeout != null) {
+                    loginTimeout.cancel();
+                    loginTimeout = null;
+                }
                 TestChatServer.logUserLogin(userName, time);
                 log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + userName);
                 break;
@@ -255,8 +292,9 @@ public class ChatUser extends Thread {
         }
     }
 	
-    public ChatServerResponse sendMessage(Message message) {
+    public ChatServerResponse sendMessage(String receiver, int sqn, String messageText) {
         Date time = Calendar.getInstance().getTime();
+        Message message = new Message(this, receiver, sqn, messageText);
         log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | " + message.text);
         if (loggedIn) {
             ChatServerResponse response = chatServer.send(message);
@@ -292,7 +330,7 @@ public class ChatUser extends Thread {
 
     /* Legacy method for testing of Project 1 */
     public ChatServerResponse sendMessage(String receiver, String messageText) {
-        return sendMessage(new Message(this, receiver, ++sendCount, messageText));
+        return sendMessage(receiver, ++sendCount, messageText);
     }
 	
     public void receiveMessage(Message message) {

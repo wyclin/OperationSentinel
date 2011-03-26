@@ -36,8 +36,17 @@ public class ChatUserResponder extends Thread {
         try {
             while (!shuttingDown) {
                 response = pendingResponses.take();
+                if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
+                    response.messageDate = response.message.date;
+                    response.messageSender = response.message.sender.getUserName();
+                    response.messageReceiver = response.message.receiver;
+                    response.messagesqn = response.message.sqn;
+                    response.messageText = response.message.text;
+                    response.message = null;
+                }
                 output.writeObject(response);
                 output.flush();
+                response = null;
             }
         } catch (Exception e) {
         } finally {
@@ -45,10 +54,17 @@ public class ChatUserResponder extends Thread {
                 output.close();
             } catch (Exception f) {
             }
-            if (response != null) {
-                pendingResponses.offer(response);
+            ChatServerResponse pendingResponse = response;
+            while (pendingResponse != null) {
+                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED) {
+                    pendingResponse.message.sender.receiveSendFailure(pendingResponse.message);
+                }
+                pendingResponse = pendingResponses.poll();
             }
-            chatUser.interrupt();
+            try {
+                socket.close();
+            } catch (Exception e) {
+            }
         }
     }
 }

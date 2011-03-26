@@ -76,7 +76,7 @@ public class ChatClient extends Thread {
         } else if (leaveMatcher.matches()) {
             return new ChatClientCommand(CommandType.LEAVE_GROUP, leaveMatcher.group(1));
         } else if (sendMatcher.matches()) {
-            return new ChatClientCommand(CommandType.SEND_MESSAGE, new Message(sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3)));
+            return new ChatClientCommand(CommandType.SEND_MESSAGE, sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3));
         } else if (sleepMatcher.matches()) {
             return new ChatClientCommand(CommandType.SLEEP, Integer.valueOf(sleepMatcher.group(1)));
         } else {
@@ -87,25 +87,25 @@ public class ChatClient extends Thread {
     public void executeCommand(ChatClientCommand command) {
         switch (command.commandType) {
             case CONNECT:
-                connect(command.string, command.number);
+                connect(command.string1, command.number);
                 break;
             case DISCONNECT:
                 disconnect();
                 break;
             case LOGIN:
-                login(command.string);
+                login(command.string1);
                 break;
             case LOGOUT:
                 logout();
                 break;
             case JOIN_GROUP:
-                joinGroup(command.string);
+                joinGroup(command.string1);
                 break;
             case LEAVE_GROUP:
-                leaveGroup(command.string);
+                leaveGroup(command.string1);
                 break;
             case SEND_MESSAGE:
-                sendMessage(command.message);
+                sendMessage(command.string1, command.number, command.string2);
                 break;
             case SLEEP:
                 sleep(command.number);
@@ -125,7 +125,7 @@ public class ChatClient extends Thread {
 
     public void leaveGroup(String groupName) {}
 
-    public void sendMessage(Message message) {}
+    public void sendMessage(String receive, int sqn, String message) {}
 
     // in milliseconds
     public void sleep(int time) {}
