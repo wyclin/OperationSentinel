@@ -92,40 +92,26 @@ public class ChatClient extends Thread {
             case DISCONNECT:
                 disconnect();
                 break;
-            case LOGIN:
-                login(command.string1);
-                break;
-            case LOGOUT:
-                logout();
-                break;
-            case JOIN_GROUP:
-                joinGroup(command.string1);
-                break;
-            case LEAVE_GROUP:
-                leaveGroup(command.string1);
-                break;
-            case SEND_MESSAGE:
-                sendMessage(command.string1, command.number, command.string2);
-                break;
             case SLEEP:
                 sleep(command.number);
+                break;
+            case LOGIN:
+            case LOGOUT:
+            case JOIN_GROUP:
+            case LEAVE_GROUP:
+            case SEND_MESSAGE:
+                sendCommand(command);
+                break;
+            default: // Silently drop unknown command
                 break;
         }
     }
 
+    public void sendCommand(ChatClientCommand command) {}
+
     public void connect(String host, int port) {}
 
     public void disconnect() {}
-
-    public void login(String userName) {}
-
-    public void logout() {}
-
-    public void joinGroup(String groupName) {}
-
-    public void leaveGroup(String groupName) {}
-
-    public void sendMessage(String receive, int sqn, String message) {}
 
     // in milliseconds
     public void sleep(int time) {}
