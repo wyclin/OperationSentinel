@@ -79,6 +79,13 @@ public class ChatUser extends Thread {
                 socket.close();
             } catch (Exception f) {
             }
+            ChatServerResponse pendingResponse = pendingResponses.poll();
+            while (pendingResponse != null) {
+                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED) {
+                    pendingResponse.message.sender.receiveSendFailure(pendingResponse.message);
+                }
+                pendingResponse = pendingResponses.poll();
+            }
         }
     }
 
@@ -254,18 +261,22 @@ public class ChatUser extends Thread {
             ChatServerResponse response = chatServer.send(message);
             switch (response.responseType) {
                 case SHUTTING_DOWN:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | ChatServer is shutting down.");
                     break;
                 case MESSAGE_ENQUEUED:
                     log.offer(dateFormatter.format(time) + " | Message Queue Success | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + ".");
                     break;
                 case MESSAGE_BUFFER_FULL:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Buffer full.");
                     break;
                 case SENDER_NOT_FOUND:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Sender not found.");
                     break;
                 case RECEIVER_NOT_FOUND:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Receiver not found.");
                     break;
             }
@@ -292,6 +303,7 @@ public class ChatUser extends Thread {
 
     public void receiveSendFailure(Message message) {
         Date time = Calendar.getInstance().getTime();
+        TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
         log.offer(dateFormatter.format(time) + " | Message Send Failure | " + message.sender.getUserName() + " (" + Integer.toString(message.sqn) + ") -> " + message.receiver + ".");
         pendingResponses.offer(new ChatServerResponse(ResponseType.MESSAGE_DELIVERY_FAILURE, message));
     }

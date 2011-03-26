@@ -28,7 +28,6 @@ class MessageDispatcher extends Thread {
                 if (messages.offer(message)) {
                     return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else {
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
             } else if (userManager.hasGroup(message.receiver)) {
@@ -37,15 +36,12 @@ class MessageDispatcher extends Thread {
                 if (messages.offer(message)) {
                     return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else {
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
             } else {
-                TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                 return new ChatServerResponse(ResponseType.RECEIVER_NOT_FOUND);
             }
         } else {
-            TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
             return new ChatServerResponse(ResponseType.SENDER_NOT_FOUND);
         }
     }
@@ -62,7 +58,6 @@ class MessageDispatcher extends Thread {
             }
         }
         if (hasFailed) {
-            TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
             message.sender.receiveSendFailure(message);
         }
     }

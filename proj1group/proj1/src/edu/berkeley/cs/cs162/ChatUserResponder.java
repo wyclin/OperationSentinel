@@ -32,18 +32,23 @@ public class ChatUserResponder extends Thread {
     }
 
     public void run() {
+        ChatServerResponse response = null;
         try {
             while (!shuttingDown) {
-                ChatServerResponse response = pendingResponses.take();
-                while (response != null) {
-                    output.writeObject(response);
-                    response = pendingResponses.poll();
-                }
+                response = pendingResponses.take();
+                output.writeObject(response);
                 output.flush();
             }
-            output.close();
-            chatUser.interrupt();
         } catch (Exception e) {
+        } finally {
+            try {
+                output.close();
+            } catch (Exception f) {
+            }
+            if (response != null) {
+                pendingResponses.offer(response);
+            }
+            chatUser.interrupt();
         }
     }
 }
