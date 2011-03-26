@@ -8,23 +8,23 @@ public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
         // Non-Networked Tests
-        //testBasic();
-        //testLogout();
-        //testUserNameUniqueness();
-        //testServerCapacity();
-        //testLoginQueue();
-        //testGroupCapacity();
-        //testUserJoinsMultipleGroups();
-        //testUnicastMessages();
-        //testBroadcastMessages();
-        //testServerShutdown();
-        //testUserManager();
+        testBasic();
+        testLogout();
+        testUserNameUniqueness();
+        testServerCapacity();
+        testLoginQueue();
+        testGroupCapacity();
+        testUserJoinsMultipleGroups();
+        testUnicastMessages();
+        testBroadcastMessages();
+        testServerShutdown();
+        testUserManager();
 
         // Networked Tests
-        //testNetworkLogin();
-        //testNetworkLoginTimeout();
-        //testNetworkUnexpectedDisconnectBeforeLogin();
-        //testNetworkUnexpectedDisconnectAfterLogin();
+        testNetworkLogin();
+        testNetworkLoginTimeout();
+        testNetworkUnexpectedDisconnectBeforeLogin();
+        testNetworkUnexpectedDisconnectAfterLogin();
         testNetworkSendReceive();
 	}
 
@@ -530,6 +530,21 @@ public class TestChatServer {
 
         ChatUser user1 = chatServer.getUserManager().getUser("user1");
 
+        ChatUser user2 = new ChatUser(chatServer);
+        user2.login("user2");
+
+        user2.sendMessage("user1", "Unicast 1");
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "user2", 1, "Unicast 2"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.SEND_MESSAGE);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
         user1Requests.writeObject(new ChatClientCommand(CommandType.JOIN_GROUP, "group1"));
         user1Requests.flush();
         System.out.println("-> " + CommandType.JOIN_GROUP);
@@ -537,7 +552,7 @@ public class TestChatServer {
         System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
         Thread.currentThread().sleep(50);
 
-        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "group1", 1, "Message 1"));
+        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "group1", 1, "Broadcast 1"));
         user1Requests.flush();
         System.out.println("-> " + CommandType.SEND_MESSAGE);
         Thread.currentThread().sleep(50);
@@ -546,15 +561,44 @@ public class TestChatServer {
         System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
         Thread.currentThread().sleep(50);
 
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LEAVE_GROUP, "group1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.LEAVE_GROUP);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "group1", 1, "Broadcast 1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.SEND_MESSAGE);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.LOGOUT);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.DISCONNECT));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.DISCONNECT);
+        Thread.currentThread().sleep(50);
+
         user1Requests.close();
         user1Responses.close();
         user1Socket.close();
         Thread.currentThread().sleep(50);
         System.out.println("== END Simulated Client ==\n");
 
-        System.out.println("\n== BEGIN LOG user1 ==");
+        System.out.println("== BEGIN LOG user1 ==");
         user1.printLog();
         System.out.println("== END LOG user1 ==\n");
+        System.out.println("== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==\n");
 
         chatServer.shutdown();
         System.out.println("=== END TEST Send and Receive ===\n");

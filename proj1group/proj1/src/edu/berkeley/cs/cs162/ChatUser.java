@@ -295,28 +295,28 @@ public class ChatUser extends Thread {
     public ChatServerResponse sendMessage(String receiver, int sqn, String messageText) {
         Date time = Calendar.getInstance().getTime();
         Message message = new Message(this, receiver, sqn, messageText);
-        log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | " + message.text);
+        log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + sqn + ") -> " + receiver + " | " + message.text);
         if (loggedIn) {
             ChatServerResponse response = chatServer.send(message);
             switch (response.responseType) {
                 case SHUTTING_DOWN:
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | ChatServer is shutting down.");
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | ChatServer is shutting down.");
                     break;
                 case MESSAGE_ENQUEUED:
-                    log.offer(dateFormatter.format(time) + " | Message Queue Success | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + ".");
+                    log.offer(dateFormatter.format(time) + " | Message Queue Success | " + loginName + " (" + sqn + ") -> " + receiver + ".");
                     break;
                 case MESSAGE_BUFFER_FULL:
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Buffer full.");
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Buffer full.");
                     break;
                 case SENDER_NOT_FOUND:
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Sender not found.");
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender not found.");
                     break;
                 case RECEIVER_NOT_FOUND:
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
-                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + Integer.toString(sendCount) + ") -> " + message.receiver + " | Receiver not found.");
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Receiver not found.");
                     break;
             }
             TestChatServer.logUserSendMsg(loginName, message.toString());
