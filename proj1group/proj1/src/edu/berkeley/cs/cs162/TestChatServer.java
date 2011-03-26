@@ -158,6 +158,8 @@ public class TestChatServer {
             users[i].login("User " + Integer.toString(i));
         }
 
+        users[110].logout();
+
         for (int i = 1; i <= 10; i++) {
             users[i].logout();
         }

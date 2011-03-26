@@ -215,6 +215,8 @@ class UserManager {
                 queuedUser.loggedIn();
             } catch (NoSuchElementException e) {
             }
+        } else if (userQueue.remove(user)) {
+            result = new ChatServerResponse(ResponseType.USER_REMOVED);
         } else {
             result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }

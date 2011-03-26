@@ -15,6 +15,7 @@ public class ChatUser extends Thread {
     private boolean networked;
     private String loginName;
     private boolean loggedIn;
+    private boolean queued;
     private int sendCount;
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
     private LinkedBlockingQueue<String> log;
@@ -26,6 +27,7 @@ public class ChatUser extends Thread {
         this.networked = false;
         this.loginName = null;
         this.loggedIn = false;
+        this.queued = false;
         this.pendingResponses = new LinkedBlockingQueue<ChatServerResponse>();
         this.log = new LinkedBlockingQueue<String>();
         this.dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -131,6 +133,7 @@ public class ChatUser extends Thread {
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is shutting down.");
                 break;
             case USER_QUEUED:
+                queued = true;
                 log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
                 break;
             case USER_CAPACITY_REACHED:
@@ -151,6 +154,7 @@ public class ChatUser extends Thread {
     }
 
     public void loggedIn() {
+        queued = false;
         loggedIn = true;
         Date time = Calendar.getInstance().getTime();
         TestChatServer.logUserLogin(loginName, time);
@@ -160,7 +164,7 @@ public class ChatUser extends Thread {
 
     public ChatServerResponse logout() {
         Date time = Calendar.getInstance().getTime();
-        if (loggedIn) {
+        if (loggedIn || queued) {
             ChatServerResponse response = chatServer.logoff(this);
             switch (response.responseType) {
                 case USER_NOT_FOUND:
@@ -171,6 +175,7 @@ public class ChatUser extends Thread {
                     log.offer(dateFormatter.format(time) + " | Logout Success | " + loginName + " has been logged out.");
                     break;
             }
+            queued = false;
             loggedIn = false;
             if (networked) {
                 loginTimeout = new LoginTimeout(this, 20);
