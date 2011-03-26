@@ -1,18 +1,21 @@
 package edu.berkeley.cs.cs162;
 
 import java.io.*;
+import java.net.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChatClientResponseHandler extends Thread {
 
     private ChatClient chatClient;
-    private boolean shuttingDown;
+    private Socket socket;
+    private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
 
-    public ChatClientResponseHandler(ChatClient chatClient) {
+    public ChatClientResponseHandler(ChatClient chatClient, Socket socket, LinkedBlockingQueue<ChatServerResponse> pendingResponses) {
         this.chatClient = chatClient;
-        this.shuttingDown = false;
+        this.socket = socket;
+        this.pendingResponses = pendingResponses;
     }
 
     public void shutdown() {
-        this.shuttingDown = true;
     }
 }

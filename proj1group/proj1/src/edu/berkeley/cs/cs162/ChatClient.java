@@ -1,14 +1,18 @@
 package edu.berkeley.cs.cs162;
 
 import java.io.*;
+import java.net.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.*;
 
 public class ChatClient extends Thread {
 
     private ChatClientResponseHandler responseHandler;
-    private BufferedReader input;
-    private PrintWriter output;
-    private boolean shuttingDown;
+    private BufferedReader localInput;
+    private PrintWriter localOutput;
+    private Socket socket;
+    private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
+    private ObjectOutputStream remoteOutput;
     private boolean connected;
 
     private Pattern connectPattern;
@@ -20,21 +24,22 @@ public class ChatClient extends Thread {
     private Pattern sendPattern;
     private Pattern sleepPattern;
 
-    public ChatClient(BufferedReader input, PrintWriter output) {
+    public ChatClient(BufferedReader localInput, PrintWriter localOutput) {
         this.responseHandler = null;
-        this.input = input;
-        this.output = output;
-        this.shuttingDown = false;
+        this.localInput = localInput;
+        this.localOutput = localOutput;
+        this.socket = null;
+        this.pendingResponses = new LinkedBlockingQueue<ChatServerResponse>();
         this.connected = false;
 
-        connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
-        disconnectPattern = Pattern.compile("^disconnect$");
-        loginPattern = Pattern.compile("^login ([^\\s]+)$");
-        logoutPattern = Pattern.compile("^logout$");
-        joinPattern = Pattern.compile("^join ([^\\s]+)$");
-        leavePattern = Pattern.compile("^leave ([^\\s]+)$");
-        sendPattern = Pattern.compile("^send ([^\\s]+) (\\d+) \"([^\"]+)\"$");
-        sleepPattern = Pattern.compile("^sleep (\\d+)$");
+        this.connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
+        this.disconnectPattern = Pattern.compile("^disconnect$");
+        this.loginPattern = Pattern.compile("^login ([^\\s]+)$");
+        this.logoutPattern = Pattern.compile("^logout$");
+        this.joinPattern = Pattern.compile("^join ([^\\s]+)$");
+        this.leavePattern = Pattern.compile("^leave ([^\\s]+)$");
+        this.sendPattern = Pattern.compile("^send ([^\\s]+) (\\d+) \"([^\"]+)\"$");
+        this.sleepPattern = Pattern.compile("^sleep (\\d+)$");
     }
 
     public static void main(String[] args) {
@@ -46,7 +51,7 @@ public class ChatClient extends Thread {
 
     public void run() {
         try {
-            String command = input.readLine();
+            String command = localInput.readLine();
             while (command != null) {
                 executeCommand(parseCommand(command));
             }
@@ -102,17 +107,45 @@ public class ChatClient extends Thread {
             case SEND_MESSAGE:
                 sendCommand(command);
                 break;
-            default: // Silently drop unknown command
+            case COMMAND_NOT_FOUND:
                 break;
         }
     }
 
     public void sendCommand(ChatClientCommand command) {}
 
-    public void connect(String host, int port) {}
+    public void connect(String host, int port) {
+        try {
+            socket = new Socket(host, port);
+            remoteOutput = new ObjectOutputStream(socket.getOutputStream());
+            connected = true;
+            responseHandler = new ChatClientResponseHandler(this, socket, pendingResponses);
+            responseHandler.start();
+            localOutput.println("connect OK");
+        } catch (Exception e) {
+            localOutput.println("connect REJECTED");
+        }
+    }
 
-    public void disconnect() {}
+    public void disconnect() {
+        if (connected) {
+            connected = false;
+            try {
+                remoteOutput.close();
+                remoteOutput = null;
+                socket.close();
+                socket = null;
+                responseHandler.shutdown();
+                responseHandler.join();
+                responseHandler = null;
+            } catch (Exception e) {
+            }
+        }
+        localOutput.println("disconnect OK");
+    }
 
-    // in milliseconds
-    public void sleep(int time) {}
+    public void sleep(int time) {
+        sleep(time);
+        localOutput.println("sleep " + Integer.toString(time) + " OK");
+    }
 }
