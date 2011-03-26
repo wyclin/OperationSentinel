@@ -19,6 +19,7 @@ public class ChatUser extends Thread {
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
     private LinkedBlockingQueue<String> log;
     private SimpleDateFormat dateFormatter;
+    private LoginTimeout loginTimeout;
 
     public ChatUser(ChatServer chatServer) {
         this.chatServer = chatServer;
@@ -44,6 +45,9 @@ public class ChatUser extends Thread {
             } catch(IOException f) {
             }
         }
+        if (networked) {
+            loginTimeout = new LoginTimeout(this, 20);
+        }
     }
 
     public void start() {
@@ -65,6 +69,9 @@ public class ChatUser extends Thread {
             }
         } catch (Exception e) {
         } finally {
+            if (loggedIn) {
+                logout();
+            }
             try {
                 input.close();
                 socket.close();
@@ -109,6 +116,10 @@ public class ChatUser extends Thread {
 
     public ChatServerResponse login(String userName) {
         Date time = Calendar.getInstance().getTime();
+        if (networked && loginTimeout != null) {
+            loginTimeout.cancel();
+            loginTimeout = null;
+        }
         if (loggedIn) {
             logout();
         }
@@ -161,6 +172,9 @@ public class ChatUser extends Thread {
                     break;
             }
             loggedIn = false;
+            if (networked) {
+                loginTimeout = new LoginTimeout(this, 20);
+            }
             return response;
         } else {
             log.offer(dateFormatter.format(time) + " | Logout Failure | Not logged in.");
