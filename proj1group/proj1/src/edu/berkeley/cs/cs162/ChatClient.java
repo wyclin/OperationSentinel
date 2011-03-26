@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162;
 
 import java.io.*;
+import java.util.regex.*;
 
 public class ChatClient extends Thread {
 
@@ -10,12 +11,30 @@ public class ChatClient extends Thread {
     private boolean shuttingDown;
     private boolean connected;
 
+    private Pattern connectPattern;
+    private Pattern disconnectPattern;
+    private Pattern loginPattern;
+    private Pattern logoutPattern;
+    private Pattern joinPattern;
+    private Pattern leavePattern;
+    private Pattern sendPattern;
+    private Pattern sleepPattern;
+
     public ChatClient(BufferedReader input, PrintWriter output) {
         this.responseHandler = null;
         this.input = input;
         this.output = output;
         this.shuttingDown = false;
         this.connected = false;
+
+        connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
+        disconnectPattern = Pattern.compile("^disconnect$");
+        loginPattern = Pattern.compile("^login ([^\\s]+)$");
+        logoutPattern = Pattern.compile("^logout$");
+        joinPattern = Pattern.compile("^join ([^\\s]+)$");
+        leavePattern = Pattern.compile("^leave ([^\\s]+)$");
+        sendPattern = Pattern.compile("^send ([^\\s]+) (\\d+) \"([^\"]+)\"$");
+        sleepPattern = Pattern.compile("^sleep (\\d+)$");
     }
 
     public static void main(String[] args) {
