@@ -34,7 +34,7 @@ public class ChatUserResponder extends Thread {
     public void run() {
         try {
             while (!shuttingDown) {
-                ChatServerResponse response = pendingResponses.poll();
+                ChatServerResponse response = pendingResponses.take();
                 while (response != null) {
                     output.writeObject(response);
                     response = pendingResponses.poll();
@@ -43,7 +43,7 @@ public class ChatUserResponder extends Thread {
             }
             output.close();
             chatUser.interrupt();
-        } catch (IOException e) {
+        } catch (Exception e) {
         }
     }
 }
