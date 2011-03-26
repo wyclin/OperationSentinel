@@ -70,7 +70,7 @@ class UserManager {
         if (users.containsKey(user.getUserName())) {
             result = new ChatServerResponse(ResponseType.DATA_SENT, users.size());
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;
@@ -82,7 +82,7 @@ class UserManager {
         if (users.containsKey(user.getUserName())) {
             result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(users.keySet()));
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;
@@ -110,7 +110,7 @@ class UserManager {
         if (users.containsKey(user.getUserName())) {
             result = new ChatServerResponse(ResponseType.DATA_SENT, groups.size());
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;
@@ -122,7 +122,7 @@ class UserManager {
         if (users.containsKey(user.getUserName())) {
             result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(groups.keySet()));
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;
@@ -145,12 +145,12 @@ class UserManager {
         ChatGroup targetGroup = groups.get(groupName);
         if (users.containsKey(user.getUserName())) {
             if (targetGroup == null) {
-                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND, null);
+                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
             } else {
                 result = new ChatServerResponse(ResponseType.DATA_SENT, targetGroup.users.size());
             }
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;
@@ -162,12 +162,12 @@ class UserManager {
         ChatGroup targetGroup = groups.get(groupName);
         if (users.containsKey(user.getUserName())) {
             if (targetGroup == null) {
-                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND, null);
+                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
             } else {
                 result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(targetGroup.users.keySet()));
             }
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND, null);
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
         rwLock.readLock().unlock();
         return result;

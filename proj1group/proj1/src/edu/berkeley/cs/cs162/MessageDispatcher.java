@@ -5,13 +5,11 @@ import java.util.Calendar;
 import java.util.TreeSet;
 
 class MessageDispatcher extends Thread {
-    private ChatServer chatServer;
     private UserManager userManager;
     private LinkedBlockingQueue<Message> messages;
     private boolean shuttingDown;
 
     MessageDispatcher(ChatServer chatServer){
-	    this.chatServer = chatServer;
         this.userManager = chatServer.getUserManager();
         this.messages = new LinkedBlockingQueue<Message>();
         this.shuttingDown = false;

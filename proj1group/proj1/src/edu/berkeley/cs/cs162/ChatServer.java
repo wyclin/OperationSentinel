@@ -5,24 +5,22 @@ public class ChatServer {
     public static final int MAX_CHAT_USERS = 100;
     public static final int MAX_GROUP_USERS = 10;
 
+    private UserManager userManager;
 	private MessageDispatcher messageDispatcher;
-	private UserManager userManager;
     private ConnectionManager connectionManager;
     private boolean shuttingDown;
     private boolean networked;
 
     public ChatServer(int port) {
-        this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
-        this.messageDispatcher = new MessageDispatcher(this);
+        this();
         this.connectionManager = new ConnectionManager(this, port);
-        this.shuttingDown = false;
         this.networked = true;
 	}
 
     public ChatServer() {
         this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
         this.messageDispatcher = new MessageDispatcher(this);
-        this.connectionManager = new ConnectionManager(this, -1);
+        this.connectionManager = null;
         this.shuttingDown = false;
         this.networked = false;
     }
@@ -36,10 +34,12 @@ public class ChatServer {
 
 	public void shutdown() {
         shuttingDown = true;
-        connectionManager.shutdown();
-        try {
-            connectionManager.join();
-        } catch (InterruptedException e) {
+        if (networked) {
+            connectionManager.shutdown();
+            try {
+                connectionManager.join();
+            } catch (InterruptedException e) {
+            }
         }
         messageDispatcher.shutdown();
         try {
