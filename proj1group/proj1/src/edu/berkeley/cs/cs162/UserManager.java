@@ -128,6 +128,19 @@ class UserManager {
         return result;
     }
 
+    public TreeSet<String> getGroupUsers(String groupName) {
+        TreeSet<String> result;
+        rwLock.readLock().lock();
+        ChatGroup targetGroup = groups.get(groupName);
+        if (targetGroup == null) {
+            result = null;
+        } else {
+            result = new TreeSet<String>(targetGroup.users.keySet());
+        }
+        rwLock.readLock().unlock();
+        return result;
+    }
+
     public boolean groupHasUser(String groupName, String userName) {
         boolean result = false;
         rwLock.readLock().lock();

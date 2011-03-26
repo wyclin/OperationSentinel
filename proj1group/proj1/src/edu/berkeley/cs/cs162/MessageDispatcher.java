@@ -21,6 +21,7 @@ class MessageDispatcher extends Thread {
     }
 
     public ChatServerResponse enqueue(Message message) {
+        TreeSet<String> groupUsers = userManager.getGroupUsers(message.receiver);
         if (userManager.hasUser(message.sender.getUserName())) {
             if (userManager.hasUser(message.receiver)) {
                 message.receivingUsers = new TreeSet<String>();
@@ -30,9 +31,8 @@ class MessageDispatcher extends Thread {
                 } else {
                     return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
-            } else if (userManager.hasGroup(message.receiver)) {
-                ChatGroup targetGroup = userManager.getGroup(message.receiver);
-                message.receivingUsers = new TreeSet<String>(targetGroup.users.keySet());
+            } else if (groupUsers != null) {
+                message.receivingUsers = groupUsers;
                 if (messages.offer(message)) {
                     return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else {
