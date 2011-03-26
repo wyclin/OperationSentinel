@@ -26,13 +26,11 @@ public class ConnectionManager extends Thread {
             try {
                 serverSocket = new ServerSocket(port);
             } catch (IOException e) {
-                System.err.println("Could not listen on port: " + Integer.toString(port));
                 System.exit(-1);
             }
             try {
                 new ChatUser(chatServer, serverSocket.accept()).start();
             } catch (IOException e) {
-                System.err.println("Failed to accept connection.");
                 System.exit(-1);
             } catch (Exception e) {
             }

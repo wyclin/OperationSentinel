@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChatUser extends Thread {
+
     private ChatServer chatServer;
     private ChatUserResponder responder;
     private Socket socket;

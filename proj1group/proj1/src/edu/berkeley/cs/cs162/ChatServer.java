@@ -54,7 +54,6 @@ public class ChatServer {
            ChatServer newServer = new ChatServer(new Integer(args[0]));
            newServer.start();
        } else {
-           System.err.println("USAGE: java ChatServer port#");
            System.exit(-1);
        }
    }
