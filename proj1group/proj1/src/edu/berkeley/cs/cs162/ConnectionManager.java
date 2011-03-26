@@ -6,32 +6,33 @@ import java.net.*;
 public class ConnectionManager extends Thread {
 
     private ChatServer chatServer;
-    private int port;
+    private ServerSocket serverSocket;
     private boolean shuttingDown;
 
     public ConnectionManager(ChatServer chatServer, int port) {
         this.chatServer = chatServer;
-        this.port = port;
+        try {
+            this.serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            System.exit(-2);
+        }
         this.shuttingDown = false;
     }
 
     public void shutdown() {
-        this.shuttingDown = true;
-        interrupt();
+        shuttingDown = true;
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+        }
     }
 
     public void run() {
-        ServerSocket serverSocket = null;
         while(!shuttingDown) {
-            try {
-                serverSocket = new ServerSocket(port);
-            } catch (IOException e) {
-                System.exit(-1);
-            }
             try {
                 new ChatUser(chatServer, serverSocket.accept()).start();
             } catch (IOException e) {
-                System.exit(-1);
+                System.exit(-3);
             } catch (Exception e) {
             }
         }
