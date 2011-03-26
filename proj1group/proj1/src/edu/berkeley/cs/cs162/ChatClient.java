@@ -55,7 +55,33 @@ public class ChatClient extends Thread {
     }
 
     public ChatClientCommand parseCommand(String command) {
-        return new ChatClientCommand(CommandType.COMMAND_NOT_FOUND);
+        Matcher connectMatcher = connectPattern.matcher(command);
+        Matcher disconnectMatcher = disconnectPattern.matcher(command);
+        Matcher loginMatcher = loginPattern.matcher(command);
+        Matcher logoutMatcher = logoutPattern.matcher(command);
+        Matcher joinMatcher = joinPattern.matcher(command);
+        Matcher leaveMatcher = leavePattern.matcher(command);
+        Matcher sendMatcher = sendPattern.matcher(command);
+        Matcher sleepMatcher = sleepPattern.matcher(command);
+        if (connectMatcher.matches()) {
+            return new ChatClientCommand(CommandType.CONNECT, connectMatcher.group(1), Integer.valueOf(connectMatcher.group(2)));
+        } else if (disconnectMatcher.matches()) {
+            return new ChatClientCommand(CommandType.DISCONNECT);
+        } else if (loginMatcher.matches()) {
+            return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1));
+        } else if (logoutMatcher.matches()) {
+            return new ChatClientCommand(CommandType.LOGOUT);
+        } else if (joinMatcher.matches()) {
+            return new ChatClientCommand(CommandType.JOIN_GROUP, joinMatcher.group(1));
+        } else if (leaveMatcher.matches()) {
+            return new ChatClientCommand(CommandType.LEAVE_GROUP, leaveMatcher.group(1));
+        } else if (sendMatcher.matches()) {
+            return new ChatClientCommand(CommandType.SEND_MESSAGE, new Message(sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3)));
+        } else if (sleepMatcher.matches()) {
+            return new ChatClientCommand(CommandType.SLEEP, Integer.valueOf(sleepMatcher.group(1)));
+        } else {
+            return new ChatClientCommand(CommandType.COMMAND_NOT_FOUND);
+        }
     }
 
     public void executeCommand(ChatClientCommand command) {

@@ -19,6 +19,10 @@ class Message {
         this.date = Calendar.getInstance().getTime();
         this.sqn = sqn;
     }
+
+    Message(String receiver, int sqn, String text) {
+        this(null, receiver, sqn, text);
+    }
    
     /* Returns message in printable string format. SRC DST TIMESTAMP_UNIXTIME MSG SQN. */
     public String toString() {
