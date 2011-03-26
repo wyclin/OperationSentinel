@@ -4,14 +4,14 @@ import java.io.*;
 
 public class ChatClient extends Thread {
 
-    private ChatClientPrinter printer;
+    private ChatClientResponseHandler responseHandler;
     private BufferedReader input;
     private PrintWriter output;
     private boolean shuttingDown;
     private boolean connected;
 
     public ChatClient(BufferedReader input, PrintWriter output) {
-        this.printer = null;
+        this.responseHandler = null;
         this.input = input;
         this.output = output;
         this.shuttingDown = false;
@@ -40,6 +40,48 @@ public class ChatClient extends Thread {
     }
 
     public void executeCommand(ChatClientCommand command) {
-
+        switch (command.commandType) {
+            case CONNECT:
+                connect(command.string, command.number);
+                break;
+            case DISCONNECT:
+                disconnect();
+                break;
+            case LOGIN:
+                login(command.string);
+                break;
+            case LOGOUT:
+                logout();
+                break;
+            case JOIN_GROUP:
+                joinGroup(command.string);
+                break;
+            case LEAVE_GROUP:
+                leaveGroup(command.string);
+                break;
+            case SEND_MESSAGE:
+                sendMessage(command.message);
+                break;
+            case SLEEP:
+                sleep(command.number);
+                break;
+        }
     }
+
+    public void connect(String host, int port) {}
+
+    public void disconnect() {}
+
+    public void login(String userName) {}
+
+    public void logout() {}
+
+    public void joinGroup(String groupName) {}
+
+    public void leaveGroup(String groupName) {}
+
+    public void sendMessage(Message message) {}
+
+    // in milliseconds
+    public void sleep(int time) {}
 }
