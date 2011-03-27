@@ -616,13 +616,14 @@ public class TestChatServer {
             "connect localhost:8080\n" +
             "login user1\n" +
             "join group1\n" +
+            "leave group1\n" +
             "logout\n" +
             "disconnect";
         BufferedReader input = new BufferedReader(new StringReader(commands));
         PrintWriter output = new PrintWriter(System.out, true);
         ChatClient chatClient = new ChatClient(input, output);
         chatClient.start();
-        Thread.currentThread().sleep(15000);
+        Thread.currentThread().sleep(5000);
 
         chatServer.shutdown();
         System.out.println("=== END TEST Client Login ===\n");

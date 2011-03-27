@@ -70,7 +70,7 @@ public class ChatClient extends Thread {
                         pendingResponse = pendingResponses.take();
                     } catch (Exception e) {
                     }
-                    while (pendingResponse.responseType != ResponseType.TIMEOUT || !isResponse(command, pendingResponse)) {
+                    while (pendingResponse.responseType != ResponseType.TIMEOUT && !isResponse(command, pendingResponse)) {
                         printResponse(pendingResponse);
                         try {
                             pendingResponse = pendingResponses.take();
@@ -223,6 +223,7 @@ public class ChatClient extends Thread {
                 connect(command.string1, command.number);
                 break;
             case DISCONNECT:
+                sendCommand(command);
                 disconnect();
                 break;
             case SLEEP:

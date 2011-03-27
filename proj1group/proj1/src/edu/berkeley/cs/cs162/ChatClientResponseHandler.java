@@ -21,16 +21,16 @@ public class ChatClientResponseHandler extends Thread {
     }
 
     public void run() {
-        while (true) {
-            try {
+        try {
+            while (true) {
                 pendingResponses.offer((ChatServerResponse)remoteInput.readObject());
-            } catch (Exception e) {
-            } finally {
-                try {
-                    remoteInput.close();
-                    socket.close();
-                } catch (Exception f) {
-                }
+            }
+        } catch (Exception e) {
+        } finally {
+            try {
+                remoteInput.close();
+                socket.close();
+            } catch (Exception f) {
             }
         }
     }
