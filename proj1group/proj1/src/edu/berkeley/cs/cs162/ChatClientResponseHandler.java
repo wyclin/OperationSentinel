@@ -6,16 +6,32 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChatClientResponseHandler extends Thread {
 
-    private ChatClient chatClient;
     private Socket socket;
+    private ObjectInputStream remoteInput;
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
 
     public ChatClientResponseHandler(ChatClient chatClient, Socket socket, LinkedBlockingQueue<ChatServerResponse> pendingResponses) {
-        this.chatClient = chatClient;
         this.socket = socket;
         this.pendingResponses = pendingResponses;
+        try {
+            remoteInput = new ObjectInputStream(socket.getInputStream());
+        } catch (Exception e) {
+            chatClient.disconnect();
+        }
     }
 
-    public void shutdown() {
+    public void run() {
+        while (true) {
+            try {
+                pendingResponses.offer((ChatServerResponse)remoteInput.readObject());
+            } catch (Exception e) {
+            } finally {
+                try {
+                    remoteInput.close();
+                    socket.close();
+                } catch (Exception f) {
+                }
+            }
+        }
     }
 }

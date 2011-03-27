@@ -26,5 +26,7 @@ public enum ResponseType {
     MESSAGE_RECEIVED,
     MESSAGE_DELIVERY_FAILURE,
 
+    TIMEOUT,
+
     COMMAND_NOT_FOUND
 }

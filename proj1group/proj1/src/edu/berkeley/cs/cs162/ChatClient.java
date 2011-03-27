@@ -53,9 +53,99 @@ public class ChatClient extends Thread {
         try {
             String command = localInput.readLine();
             while (command != null) {
+                ChatServerResponse pendingResponse = pendingResponses.poll();
+                while (pendingResponse != null) {
+                    printResponse(pendingResponse);
+                    pendingResponse = pendingResponses.poll();
+                }
                 executeCommand(parseCommand(command));
             }
         } catch (IOException e) {
+        }
+    }
+
+    public void printResponse(ChatServerResponse response) {
+        if (response.command == null) {
+            switch (response.responseType) {
+                case MESSAGE_RECEIVED:
+                    localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
+                    break;
+                case MESSAGE_DELIVERY_FAILURE:
+                    localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");
+                    break;
+                case TIMEOUT:
+                    localOutput.println("timeout");
+                    break;
+            }
+        } else {
+            switch (response.command.commandType) {
+                case LOGIN:
+                    switch (response.responseType) {
+                        case USER_ADDED:
+                            localOutput.println("login OK");
+                            break;
+                        case USER_QUEUED:
+                            localOutput.println("login QUEUED");
+                            break;
+                        case SHUTTING_DOWN:
+                        case USER_CAPACITY_REACHED:
+                        case NAME_CONFLICT:
+                            localOutput.println("login REJECTED");
+                            break;
+                    }
+                    break;
+                case LOGOUT:
+                    localOutput.println("logout OK");
+                    break;
+                case JOIN_GROUP:
+                    switch (response.responseType) {
+                        case USER_ADDED_TO_NEW_GROUP:
+                            localOutput.println("join " + response.command.string1 + " OK_CREATE");
+                            break;
+                        case USER_ADDED_TO_GROUP:
+                            localOutput.println("join " + response.command.string1 + " OK_JOIN");
+                            break;
+                        case NAME_CONFLICT:
+                            localOutput.println("join " + response.command.string1 + " BAD_GROUP");
+                            break;
+                        case GROUP_CAPACITY_REACHED:
+                            localOutput.println("join " + response.command.string1 + " FAIL_FULL");
+                            break;
+                        case SHUTTING_DOWN:
+                        case USER_ALREADY_MEMBER_OF_GROUP:
+                            localOutput.println("join " + response.command.string1 + " FAIL");
+                            break;
+                    }
+                    break;
+                case LEAVE_GROUP:
+                    switch (response.responseType) {
+                        case USER_REMOVED_FROM_GROUP:
+                            localOutput.println("leave " + response.command.string1 + " OK");
+                            break;
+                        case USER_NOT_MEMBER_OF_GROUP:
+                            localOutput.println("leave " + response.command.string1 + " NOT_MEMBER");
+                            break;
+                        case GROUP_NOT_FOUND:
+                            localOutput.println("leave " + response.command.string1 + " BAD_GROUP");
+                            break;
+                    }
+                    break;
+                case SEND_MESSAGE:
+                    switch (response.responseType) {
+                        case MESSAGE_ENQUEUED:
+                            localOutput.println("send " + response.command.number + " OK");
+                            break;
+                        case RECEIVER_NOT_FOUND:
+                            localOutput.println("send " + response.command.number + " BAD_DEST");
+                            break;
+                        case SHUTTING_DOWN:
+                        case MESSAGE_BUFFER_FULL:
+                        case SENDER_NOT_FOUND:
+                            localOutput.println("send " + response.command.number + " FAIL");
+                            break;
+                    }
+                    break;
+            }
         }
     }
 
@@ -115,6 +205,9 @@ public class ChatClient extends Thread {
     public void sendCommand(ChatClientCommand command) {}
 
     public void connect(String host, int port) {
+        if (connected) {
+            disconnect();
+        }
         try {
             socket = new Socket(host, port);
             remoteOutput = new ObjectOutputStream(socket.getOutputStream());
@@ -135,7 +228,7 @@ public class ChatClient extends Thread {
                 remoteOutput = null;
                 socket.close();
                 socket = null;
-                responseHandler.shutdown();
+                responseHandler.interrupt();
                 responseHandler.join();
                 responseHandler = null;
             } catch (Exception e) {
