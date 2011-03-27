@@ -50,18 +50,45 @@ public class ChatClient extends Thread {
    }
 
     public void run() {
+        String commandString;
+        ChatClientCommand command;
+        ChatServerResponse pendingResponse;
         try {
-            String command = localInput.readLine();
-            while (command != null) {
-                ChatServerResponse pendingResponse = pendingResponses.poll();
+            commandString = localInput.readLine();
+            while (commandString != null) {
+                pendingResponse = pendingResponses.poll();
                 while (pendingResponse != null) {
                     printResponse(pendingResponse);
                     pendingResponse = pendingResponses.poll();
                 }
-                executeCommand(parseCommand(command));
+
+                command = parseCommand(commandString);
+                executeCommand(command);
+
+                if (mustWait(command)) {
+                    try {
+                        pendingResponse = pendingResponses.take();
+                    } catch (Exception e) {
+                    }
+                    while (pendingResponse.responseType != ResponseType.TIMEOUT || !isResponse(command, pendingResponse)) {
+                        printResponse(pendingResponse);
+                        try {
+                            pendingResponse = pendingResponses.take();
+                        } catch (Exception e) {
+                        }
+                    }
+                    printResponse(pendingResponse);
+                }
+
+                commandString = localInput.readLine();
             }
         } catch (IOException e) {
         }
+    }
+
+    public boolean isResponse(ChatClientCommand command, ChatServerResponse response) {
+        // Weak test, but should do fine
+        return response.command != null && response.command.commandType == command.commandType;
     }
 
     public void printResponse(ChatServerResponse response) {
@@ -179,6 +206,17 @@ public class ChatClient extends Thread {
         }
     }
 
+    public boolean mustWait(ChatClientCommand command) {
+        switch (command.commandType) {
+            case CONNECT:
+            case DISCONNECT:
+            case SLEEP:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     public void executeCommand(ChatClientCommand command) {
         switch (command.commandType) {
             case CONNECT:
@@ -202,7 +240,14 @@ public class ChatClient extends Thread {
         }
     }
 
-    public void sendCommand(ChatClientCommand command) {}
+    public void sendCommand(ChatClientCommand command) {
+        try {
+            remoteOutput.writeObject(command);
+            remoteOutput.flush();
+        } catch (Exception e) {
+            // Failure message?
+        }
+    }
 
     public void connect(String host, int port) {
         if (connected) {
