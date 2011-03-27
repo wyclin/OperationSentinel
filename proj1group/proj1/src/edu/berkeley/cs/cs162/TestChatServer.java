@@ -28,7 +28,8 @@ public class TestChatServer {
         //testNetworkSendReceive();
 
         // Client-Server Tests
-        testClientBasic();
+        //testClientBasic();
+        testClientTimeout();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -626,6 +627,24 @@ public class TestChatServer {
         ChatClient chatClient = new ChatClient(input, output);
         chatClient.start();
         Thread.currentThread().sleep(5000);
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Basic ===\n");
+    }
+
+    public static void testClientTimeout() throws Exception {
+        System.out.println("=== BEGIN TEST Client Basic ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "sleep 21000";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(22000);
 
         chatServer.shutdown();
         System.out.println("=== END TEST Client Basic ===\n");

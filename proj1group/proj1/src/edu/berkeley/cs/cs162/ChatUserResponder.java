@@ -34,7 +34,7 @@ public class ChatUserResponder extends Thread {
     public void run() {
         ChatServerResponse response = null;
         try {
-            while (!shuttingDown) {
+            while (!shuttingDown || pendingResponses.size() > 0) {
                 response = pendingResponses.take();
                 if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
                     response.messageDate = response.message.date;

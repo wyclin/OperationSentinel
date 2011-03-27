@@ -153,8 +153,9 @@ public class ChatUser extends Thread {
     }
 
     public void timeout() {
+        pendingResponses.offer(new ChatServerResponse(ResponseType.TIMEOUT));
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Login Timeout");
-        terminate();
+        shutdown();
     }
 
     public ChatServerResponse login(String userName) {

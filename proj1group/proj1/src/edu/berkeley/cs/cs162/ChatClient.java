@@ -82,6 +82,11 @@ public class ChatClient extends Thread {
 
                 commandString = localInput.readLine();
             }
+            pendingResponse = pendingResponses.poll();
+            while (pendingResponse != null) {
+                printResponse(pendingResponse);
+                pendingResponse = pendingResponses.poll();
+            }
         } catch (IOException e) {
         }
     }
@@ -284,7 +289,10 @@ public class ChatClient extends Thread {
     }
 
     public void sleep(int time) {
-        sleep(time);
+        try {
+            Thread.sleep(time);
+        } catch (Exception e) {
+        }
         localOutput.println("sleep " + Integer.toString(time) + " OK");
     }
 }
