@@ -8,24 +8,27 @@ public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
         // Non-Networked Tests
-        testBasic();
-        testLogout();
-        testUserNameUniqueness();
-        testServerCapacity();
-        testLoginQueue();
-        testGroupCapacity();
-        testUserJoinsMultipleGroups();
-        testUnicastMessages();
-        testBroadcastMessages();
-        testServerShutdown();
-        testUserManager();
+        //testBasic();
+        //testLogout();
+        //testUserNameUniqueness();
+        //testServerCapacity();
+        //testLoginQueue();
+        //testGroupCapacity();
+        //testUserJoinsMultipleGroups();
+        //testUnicastMessages();
+        //testBroadcastMessages();
+        //testServerShutdown();
+        //testUserManager();
 
         // Networked Tests
-        testNetworkLogin();
-        testNetworkLoginTimeout();
-        testNetworkUnexpectedDisconnectBeforeLogin();
-        testNetworkUnexpectedDisconnectAfterLogin();
-        testNetworkSendReceive();
+        //testNetworkLogin();
+        //testNetworkLoginTimeout();
+        //testNetworkUnexpectedDisconnectBeforeLogin();
+        //testNetworkUnexpectedDisconnectAfterLogin();
+        //testNetworkSendReceive();
+
+        // Client-Server Tests
+        testClientLogin();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -602,6 +605,27 @@ public class TestChatServer {
 
         chatServer.shutdown();
         System.out.println("=== END TEST Send and Receive ===\n");
+    }
+
+    public static void testClientLogin() throws Exception {
+        System.out.println("=== BEGIN TEST Client Login ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "join group1\n" +
+            "logout\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(15000);
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Login ===\n");
     }
 
 	/**
