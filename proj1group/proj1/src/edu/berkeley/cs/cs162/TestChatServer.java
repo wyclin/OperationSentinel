@@ -28,7 +28,7 @@ public class TestChatServer {
         //testNetworkSendReceive();
 
         // Client-Server Tests
-        testClientLogin();
+        testClientBasic();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -607,8 +607,8 @@ public class TestChatServer {
         System.out.println("=== END TEST Send and Receive ===\n");
     }
 
-    public static void testClientLogin() throws Exception {
-        System.out.println("=== BEGIN TEST Client Login ===");
+    public static void testClientBasic() throws Exception {
+        System.out.println("=== BEGIN TEST Client Basic ===");
         ChatServer chatServer = new ChatServer(8080);
         chatServer.start();
 
@@ -617,6 +617,8 @@ public class TestChatServer {
             "login user1\n" +
             "join group1\n" +
             "leave group1\n" +
+            "join user1\n" +
+            "leave user1\n" +
             "logout\n" +
             "disconnect";
         BufferedReader input = new BufferedReader(new StringReader(commands));
@@ -626,7 +628,7 @@ public class TestChatServer {
         Thread.currentThread().sleep(5000);
 
         chatServer.shutdown();
-        System.out.println("=== END TEST Client Login ===\n");
+        System.out.println("=== END TEST Client Basic ===\n");
     }
 
 	/**

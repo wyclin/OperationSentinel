@@ -241,21 +241,25 @@ class UserManager {
         ChatServerResponse result;
         rwLock.writeLock().lock();
         if (users.containsKey(user.getUserName())) {
-            ChatGroup targetGroup = groups.get(groupName);
-            if (targetGroup == null) {
-                targetGroup = new ChatGroup(groupName);
-                groups.put(groupName, targetGroup);
-                targetGroup.users.put(user.getUserName(), user);
-                result = new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
+            if (users.containsKey(groupName)) {
+                result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
             } else {
-                if (targetGroup.users.containsKey(user.getUserName())) {
-                    result = new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
+                ChatGroup targetGroup = groups.get(groupName);
+                if (targetGroup == null) {
+                    targetGroup = new ChatGroup(groupName);
+                    groups.put(groupName, targetGroup);
+                    targetGroup.users.put(user.getUserName(), user);
+                    result = new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
                 } else {
-                    if (targetGroup.users.size() >= maxGroupUsers) {
-                        result = new ChatServerResponse(ResponseType.GROUP_CAPACITY_REACHED);
+                    if (targetGroup.users.containsKey(user.getUserName())) {
+                        result = new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
                     } else {
-                        targetGroup.users.put(user.getUserName(), user);
-                        result = new ChatServerResponse(ResponseType.USER_ADDED_TO_GROUP);
+                        if (targetGroup.users.size() >= maxGroupUsers) {
+                            result = new ChatServerResponse(ResponseType.GROUP_CAPACITY_REACHED);
+                        } else {
+                            targetGroup.users.put(user.getUserName(), user);
+                            result = new ChatServerResponse(ResponseType.USER_ADDED_TO_GROUP);
+                        }
                     }
                 }
             }
