@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="40dc9e4e-1649-4548-a3d7-b43507c9f618" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/TestChatServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java" afterPath="$PROJECT_DIR$/proj1group/proj1/src/edu/berkeley/cs/cs162/UserManager.java" />
-    </list>
+    <list default="true" id="40dc9e4e-1649-4548-a3d7-b43507c9f618" name="Default" comment="" />
     <ignored path="162.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
