@@ -200,6 +200,7 @@ class UserManager {
             result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
         } else {
             users.put(user.getUserName(), user);
+            user.loggedIn();
             result = new ChatServerResponse(ResponseType.USER_ADDED);
         }
         rwLock.writeLock().unlock();

@@ -29,7 +29,13 @@ public class TestChatServer {
 
         // Client-Server Tests
         //testClientBasic();
-        testClientTimeout();
+        //testClientTimeout();
+        // testClientLoginQueue();  // NOT PASSING
+
+        // Group Tests
+        //testClientJoinGroup();
+        //testClientGroupCapacity();
+        testClientRetryGroupJoin();   // NOT PASSING
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -649,6 +655,142 @@ public class TestChatServer {
         chatServer.shutdown();
         System.out.println("=== END TEST Client Basic ===\n");
     }
+
+    public static void testClientLoginQueue() throws Exception {
+        System.out.println("=== BEGIN TEST Client Login Queue ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        BufferedReader input;
+        PrintWriter output;
+        String commands;
+
+        ChatClient[] clients = new ChatClient[102];
+        for (int i = 1; i <= 101; i++) {
+            commands = "" +
+            "connect localhost:8080\n" +
+            "login user" + i + "\n";
+
+            if (i == 100)
+                commands += "" +
+                "sleep 2000\n" +
+                "logout\n";
+            if (i == 101)
+                commands += "" +
+                "sleep 22000\n" +
+                "join group1\n";
+
+            input = new BufferedReader(new StringReader(commands));
+            output = new PrintWriter(System.out, true);
+            clients[i] = new ChatClient(input, output);
+            clients[i].start();
+        }
+
+        Thread.currentThread().sleep(10000);
+        chatServer.shutdown();
+
+        System.out.println("=== END TEST Client Login Queue ===\n");
+    }
+
+    public static void testClientJoinGroup() throws Exception {
+        System.out.println("=== BEGIN TEST Client Join Group ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands1 = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "join group1\n";
+        BufferedReader input1 = new BufferedReader(new StringReader(commands1));
+        PrintWriter output1 = new PrintWriter(System.out, true);
+        ChatClient chatClient1 = new ChatClient(input1, output1);
+
+        String commands2 = "" +
+            "connect localhost:8080\n" +
+            "login user2\n" +
+            "join group1\n";
+        BufferedReader input2 = new BufferedReader(new StringReader(commands2));
+        PrintWriter output2 = new PrintWriter(System.out, true);
+        ChatClient chatClient2 = new ChatClient(input2, output2);
+
+        chatClient1.start();
+        chatClient2.start();
+        Thread.currentThread().sleep(5000);
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Join Group ===\n");
+    }
+
+    public static void testClientGroupCapacity() throws Exception {
+        System.out.println("=== BEGIN TEST Client Group Capacity ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        BufferedReader input;
+        PrintWriter output;
+        String commands;
+
+        ChatClient[] clients = new ChatClient[12];
+        for (int i = 1; i <= 11; i++) {
+            commands = "" +
+            "connect localhost:8080\n" +
+            "login user" + i + "\n" +
+            "join group1\n";
+            input = new BufferedReader(new StringReader(commands));
+            output = new PrintWriter(System.out, true);
+            clients[i] = new ChatClient(input, output);
+
+            clients[i].start();
+        }
+
+        Thread.currentThread().sleep(5000);
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Group Capacity ===\n");
+    }
+
+    public static void testClientRetryGroupJoin() throws Exception {
+        System.out.println("=== BEGIN TEST Client Retry Group Join ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        BufferedReader input;
+        PrintWriter output;
+        String commands;
+
+        ChatClient[] clients = new ChatClient[12];
+        for (int i = 1; i <= 11; i++) {
+            commands = "" +
+            "connect localhost:8080\n" +
+            "login user" + i + "\n" +
+            "join group1\n";
+
+            if (i == 10 || i == 9)
+                commands += "" +
+                "sleep 5000\n" +
+                "leave group1\n";
+            if (i == 11)
+                commands += "" +
+                "sleep 8000\n" +
+                "join group1\n";
+
+            input = new BufferedReader(new StringReader(commands));
+            output = new PrintWriter(System.out, true);
+            clients[i] = new ChatClient(input, output);
+
+            clients[i].start();
+
+        }
+
+        Thread.currentThread().sleep(10000);
+        chatServer.shutdown();
+
+        System.out.println("=== END TEST Client Retry Group Join ===\n");
+    }
+
+    public static void testClientSleep() throws Exception {}
+
+
+
 
 	/**
 	 * Logs the events of a user logging into the ChatServer.  This should only be called AFTER
