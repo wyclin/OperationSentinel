@@ -52,7 +52,7 @@ public class ChatClient extends Thread {
     public void run() {
         String commandString;
         ChatClientCommand command;
-        ChatServerResponse pendingResponse;
+        ChatServerResponse pendingResponse = null;
         try {
             commandString = localInput.readLine();
             while (commandString != null) {
@@ -99,6 +99,9 @@ public class ChatClient extends Thread {
     public void printResponse(ChatServerResponse response) {
         if (response.command == null) {
             switch (response.responseType) {
+                case USER_ADDED:
+                    localOutput.println("login OK");
+                    break;
                 case MESSAGE_RECEIVED:
                     localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
                     break;
@@ -168,6 +171,8 @@ public class ChatClient extends Thread {
                             localOutput.println("send " + response.command.number + " OK");
                             break;
                         case RECEIVER_NOT_FOUND:
+                        case USER_NOT_MEMBER_OF_GROUP:
+                        case RECEIVER_SAME_AS_SENDER:
                             localOutput.println("send " + response.command.number + " BAD_DEST");
                             break;
                         case SHUTTING_DOWN:

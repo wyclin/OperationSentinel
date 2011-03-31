@@ -21,6 +21,9 @@ class MessageDispatcher extends Thread {
     }
 
     public ChatServerResponse enqueue(Message message) {
+        if (message.sender.getUserName().equals(message.receiver)) {
+            return new ChatServerResponse(ResponseType.RECEIVER_SAME_AS_SENDER);
+        }
         TreeSet<String> groupUsers = userManager.getGroupUsers(message.receiver);
         if (userManager.hasUser(message.sender.getUserName())) {
             if (userManager.hasUser(message.receiver)) {
@@ -32,11 +35,15 @@ class MessageDispatcher extends Thread {
                     return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
                 }
             } else if (groupUsers != null) {
-                message.receivingUsers = groupUsers;
-                if (messages.offer(message)) {
-                    return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
+                if (groupUsers.contains(message.sender.getUserName())) {
+                    message.receivingUsers = groupUsers;
+                    if (messages.offer(message)) {
+                        return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
+                    } else {
+                        return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
+                    }
                 } else {
-                    return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
+                    return new ChatServerResponse(ResponseType.USER_NOT_MEMBER_OF_GROUP);
                 }
             } else {
                 return new ChatServerResponse(ResponseType.RECEIVER_NOT_FOUND);

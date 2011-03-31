@@ -56,6 +56,14 @@ class UserManager {
         return result;
     }
 
+    public ChatUser getFirstQueuedUser() {
+        ChatUser result;
+        rwLock.readLock().lock();
+        result = userQueue.getFirst();
+        rwLock.readLock().unlock();
+        return result;
+    }
+
     public boolean hasUser(String userName) {
         boolean result;
         rwLock.readLock().lock();
@@ -200,7 +208,6 @@ class UserManager {
             result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
         } else {
             users.put(user.getUserName(), user);
-            user.loggedIn();
             result = new ChatServerResponse(ResponseType.USER_ADDED);
         }
         rwLock.writeLock().unlock();

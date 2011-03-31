@@ -36,6 +36,8 @@ public class ChatUserResponder extends Thread {
         try {
             while (!shuttingDown || pendingResponses.size() > 0) {
                 response = pendingResponses.take();
+                if (response.responseType == ResponseType.USER_ADDED) {
+                }
                 if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
                     response.messageDate = response.message.date;
                     response.messageSender = response.message.sender.getUserName();

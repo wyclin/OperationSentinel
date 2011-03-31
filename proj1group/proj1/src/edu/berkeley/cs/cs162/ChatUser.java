@@ -319,6 +319,14 @@ public class ChatUser extends Thread {
                     TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Receiver not found.");
                     break;
+                case RECEIVER_SAME_AS_SENDER:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender same as receiver.");
+                    break;
+                case USER_NOT_MEMBER_OF_GROUP:
+                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
+                    log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender not member of group " + receiver + ".");
+                    break;
             }
             TestChatServer.logUserSendMsg(loginName, message.toString());
             return response;
