@@ -17,8 +17,9 @@ public class TestChatServer {
         //testUserJoinsMultipleGroups();
         //testUnicastMessages();
         //testBroadcastMessages();
-        testSelfUnicast();
+        //testSelfUnicast();
         //testNonMemberBroadcast();
+        //testFailUnicast();
         //testServerShutdown();
         //testUserManager();
 
@@ -326,6 +327,32 @@ public class TestChatServer {
 
         chatServer.shutdown();
         System.out.println("=== END TEST Non-Member Broadcast ===\n");
+    }
+
+    public static void testFailUnicast() throws InterruptedException {
+        System.out.println("=== BEGIN TEST Fail Unicast ===");
+        ChatServer chatServer = new ChatServer();
+        MessageDispatcher messageDispatcher = chatServer.getMessageDispatcher();
+        chatServer.start();
+
+        messageDispatcher.suspend();
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        user1.login("User 1");
+        user2.login("User 2");
+        user1.sendMessage("User 2", "Message 1");
+        user2.logout();
+        messageDispatcher.resume();
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Fail Unicast ===\n");
     }
 
     public static void testServerShutdown() throws InterruptedException {

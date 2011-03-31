@@ -39,7 +39,7 @@ public class ChatUser extends Thread {
         this(chatServer);
         this.networked = true;
         this.socket = socket;
-        this.responder = new ChatUserResponder(this, socket, pendingResponses);
+        this.responder = new ChatUserResponder(this, socket, pendingResponses, log);
         try {
             this.input = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
