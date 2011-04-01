@@ -39,12 +39,12 @@ public class ChatUserResponder extends Thread {
 
     public void run() {
         ChatServerResponse response = null;
+        Message message = null;
         try {
             while (!shuttingDown || pendingResponses.size() > 0) {
                 response = pendingResponses.take();
-                if (response.responseType == ResponseType.USER_ADDED) {
-                }
                 if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
+                    message = response.message;
                     response.messageDate = response.message.date;
                     response.messageSender = response.message.sender.getUserName();
                     response.messageReceiver = response.message.receiver;
@@ -65,8 +65,8 @@ public class ChatUserResponder extends Thread {
             ChatServerResponse pendingResponse = response;
             while (pendingResponse != null) {
                 log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Failed to send Response: " + pendingResponse.responseType);
-                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED) {
-                    pendingResponse.message.sender.receiveSendFailure(pendingResponse.message);
+                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED && message != null) {
+                    message.sender.receiveSendFailure(pendingResponse.message);
                 }
                 pendingResponse = pendingResponses.poll();
             }

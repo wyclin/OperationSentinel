@@ -39,7 +39,7 @@ public class TestChatServer {
         //testClientLoginQueue();
         //testClientGroupCapacity();
         //testClientSendMsgFailNotify();
-        testClientDisconnectsWhileInLoginWaitQueue();
+        //testClientDisconnectsWhileInLoginWaitQueue();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
