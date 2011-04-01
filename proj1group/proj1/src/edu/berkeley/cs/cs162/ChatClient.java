@@ -294,10 +294,10 @@ public class ChatClient extends Thread {
     }
 
     public void sleep(int time) {
+        localOutput.println("sleep " + Integer.toString(time) + " OK");
         try {
             Thread.sleep(time);
         } catch (Exception e) {
         }
-        localOutput.println("sleep " + Integer.toString(time) + " OK");
     }
 }
