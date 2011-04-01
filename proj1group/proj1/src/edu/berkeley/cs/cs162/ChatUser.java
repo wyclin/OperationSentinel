@@ -159,6 +159,10 @@ public class ChatUser extends Thread {
     }
 
     public ChatServerResponse login(String userName) {
+        if (networked && loginTimeout != null) {
+            loginTimeout.cancel();
+            loginTimeout = null;
+        }
         Date time = Calendar.getInstance().getTime();
         if (loggedIn) {
             logout();
@@ -167,31 +171,32 @@ public class ChatUser extends Thread {
         ChatServerResponse response = chatServer.login(this);
         switch (response.responseType) {
             case SHUTTING_DOWN:
+                if (networked) {
+                    loginTimeout = new LoginTimeout(this, 20);
+                }
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is shutting down.");
                 break;
             case USER_QUEUED:
                 queued = true;
-                if (networked && loginTimeout != null) {
-                    loginTimeout.cancel();
-                    loginTimeout = null;
-                }
                 log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
                 break;
             case USER_CAPACITY_REACHED:
+                if (networked) {
+                    loginTimeout = new LoginTimeout(this, 20);
+                }
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_DROPPED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is full.");
                 break;
             case NAME_CONFLICT:
+                if (networked) {
+                    loginTimeout = new LoginTimeout(this, 20);
+                }
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | Name already taken.");
                 break;
             case USER_ADDED:
                 loggedIn = true;
-                if (networked && loginTimeout != null) {
-                    loginTimeout.cancel();
-                    loginTimeout = null;
-                }
                 TestChatServer.logUserLogin(userName, time);
                 log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + userName);
                 break;
