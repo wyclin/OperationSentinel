@@ -82,10 +82,16 @@ public class ChatClient extends Thread {
 
                 commandString = localInput.readLine();
             }
-            pendingResponse = pendingResponses.poll();
-            while (pendingResponse != null) {
+            try {
+                pendingResponse = pendingResponses.take();
+            } catch (InterruptedException f) {
+            }
+            while (true) {
                 printResponse(pendingResponse);
-                pendingResponse = pendingResponses.poll();
+                try {
+                    pendingResponse = pendingResponses.take();
+                } catch (InterruptedException f) {
+                }
             }
         } catch (IOException e) {
         }
