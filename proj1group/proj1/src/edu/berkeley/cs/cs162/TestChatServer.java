@@ -34,6 +34,7 @@ public class TestChatServer {
 
         // Client-Server Tests
         //testClientBasic();
+        testClientDisconnect();
         //testClientReconnect();
         //testClientTimeout();
         //testClientLoginQueue();
@@ -823,6 +824,28 @@ public class TestChatServer {
 
         chatServer.shutdown();
         System.out.println("=== END TEST Client Basic ===\n");
+    }
+
+    public static void testClientDisconnect() throws Exception {
+        System.out.println("=== BEGIN TEST Client Disconnect ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "join group1\n" +
+            "join group2\n" +
+            "join group3\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Disconnect ===\n");
     }
 
     public static void testClientReconnect() throws Exception {

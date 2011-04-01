@@ -59,7 +59,6 @@ public class ChatUser extends Thread {
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Client Connected");
     }
 
-    /* Clean shutdown: finish sending any responses */
     public void shutdown() {
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Shutting Down");
         if (networked) {
@@ -68,21 +67,6 @@ public class ChatUser extends Thread {
                 loginTimeout.cancel();
                 loginTimeout = null;
             }
-        }
-    }
-
-    /* Immediate shutdown */
-    public void terminate() {
-        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Terminating");
-        if (networked && loginTimeout != null) {
-            loginTimeout.cancel();
-            loginTimeout = null;
-        }
-        try {
-            socket.close();
-            responder.interrupt();
-            interrupt();
-        } catch (Exception e) {
         }
     }
 
@@ -137,8 +121,12 @@ public class ChatUser extends Thread {
     }
 
     public void disconnect() {
+        if (loggedIn || queued) {
+            pendingResponses.offer(logout());
+        }
+        pendingResponses.offer(new ChatServerResponse(ResponseType.DISCONNECT));
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Client Disconnected");
-        terminate();
+        shutdown();
     }
 
     public void forceDisconnect() {
@@ -289,7 +277,7 @@ public class ChatUser extends Thread {
                     break;
                 case USER_REMOVED_FROM_GROUP:
                     TestChatServer.logUserLeaveGroup(groupName, loginName, time);
-                    log.offer(dateFormatter.format(time) + " | Leave Group success | " + loginName + " has left group " + groupName + ".");
+                    log.offer(dateFormatter.format(time) + " | Leave Group Success | " + loginName + " has left group " + groupName + ".");
                     break;
             }
             return response;
@@ -297,6 +285,13 @@ public class ChatUser extends Thread {
             log.offer(dateFormatter.format(time) + " | Leave Group Failure | Not logged in.");
             return new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
+    }
+
+    public void leftGroup(String groupName) {
+        Date time = Calendar.getInstance().getTime();
+        TestChatServer.logUserLeaveGroup(groupName, loginName, time);
+        log.offer(dateFormatter.format(time) + " | Leave Group Success | " + loginName + " has left group " + groupName + ".");
+        pendingResponses.offer(new ChatServerResponse(ResponseType.USER_REMOVED_FROM_GROUP, groupName));
     }
 	
     public ChatServerResponse sendMessage(String receiver, int sqn, String messageText) {

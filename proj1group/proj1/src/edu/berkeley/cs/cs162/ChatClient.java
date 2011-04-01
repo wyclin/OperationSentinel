@@ -108,6 +108,12 @@ public class ChatClient extends Thread {
                 case USER_ADDED:
                     localOutput.println("login OK");
                     break;
+                case USER_REMOVED:
+                    localOutput.println("logout OK");
+                    break;
+                case USER_REMOVED_FROM_GROUP:
+                    localOutput.println("leave " + response.string + " OK");
+                    break;
                 case MESSAGE_RECEIVED:
                     localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
                     break;
@@ -240,6 +246,19 @@ public class ChatClient extends Thread {
                 break;
             case DISCONNECT:
                 sendCommand(command);
+                ChatServerResponse pendingResponse = null;
+                try {
+                    pendingResponse = pendingResponses.take();
+                } catch (Exception e) {
+                }
+                while (pendingResponse.responseType != ResponseType.TIMEOUT && pendingResponse.responseType != ResponseType.DISCONNECT) {
+                    printResponse(pendingResponse);
+                    try {
+                        pendingResponse = pendingResponses.take();
+                    } catch (Exception e) {
+                    }
+                }
+                printResponse(pendingResponse);
                 disconnect();
                 break;
             case SLEEP:

@@ -212,14 +212,13 @@ class UserManager {
     }
 
     public ChatServerResponse removeUser(ChatUser user) {
-        Date time = Calendar.getInstance().getTime();
         ChatServerResponse result;
         rwLock.writeLock().lock();
         if (users.containsKey(user.getUserName())) {
             TreeSet<String> groupsToRemove = new TreeSet<String>();
             for (ChatGroup group : groups.values()) {
                 group.users.remove(user.getUserName());
-                TestChatServer.logUserLeaveGroup(group.name, user.getUserName(), time);
+                user.leftGroup(group.name);
                 if (group.users.size() == 0) {
                     groupsToRemove.add(group.name);
                 }

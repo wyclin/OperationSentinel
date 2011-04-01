@@ -10,8 +10,9 @@ public class ChatServerResponse implements Serializable {
     ResponseType responseType;
     TreeSet<String> treeSet;
     int number;
-    Message message;
+    String string;
 
+    Message message;
     Date messageDate;
     String messageSender;
     String messageReceiver;
@@ -25,6 +26,11 @@ public class ChatServerResponse implements Serializable {
     ChatServerResponse(ResponseType responseType, TreeSet<String> treeSet) {
         this.responseType = responseType;
         this.treeSet = treeSet;
+    }
+
+    ChatServerResponse(ResponseType responseType, String string) {
+        this.responseType = responseType;
+        this.string = string;
     }
 
     ChatServerResponse(ResponseType responseType, int number) {
