@@ -145,6 +145,7 @@ public class ChatUser extends Thread {
         Date time = Calendar.getInstance().getTime();
         if (loggedIn || queued) {
             chatServer.logoff(this);
+            TestChatServer.logUserLogout(loginName, time);
             log.offer(dateFormatter.format(time) + " | " + loginName + " has been force logged out.");
             queued = false;
             loggedIn = false;

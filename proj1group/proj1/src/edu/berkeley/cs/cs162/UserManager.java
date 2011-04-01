@@ -1,10 +1,7 @@
 package edu.berkeley.cs.cs162;
 
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.TreeSet;
 
 class UserManager {
     public final int maxUsers;
@@ -215,12 +212,14 @@ class UserManager {
     }
 
     public ChatServerResponse removeUser(ChatUser user) {
+        Date time = Calendar.getInstance().getTime();
         ChatServerResponse result;
         rwLock.writeLock().lock();
         if (users.containsKey(user.getUserName())) {
             TreeSet<String> groupsToRemove = new TreeSet<String>();
             for (ChatGroup group : groups.values()) {
                 group.users.remove(user.getUserName());
+                TestChatServer.logUserLeaveGroup(group.name, user.getUserName(), time);
                 if (group.users.size() == 0) {
                     groupsToRemove.add(group.name);
                 }
