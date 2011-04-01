@@ -232,6 +232,7 @@ public class ChatClient extends Thread {
         switch (command.commandType) {
             case CONNECT:
             case DISCONNECT:
+            case COMMAND_NOT_FOUND:
             case SLEEP:
                 return false;
             default:
