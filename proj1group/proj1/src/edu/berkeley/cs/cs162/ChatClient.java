@@ -148,7 +148,7 @@ public class ChatClient extends Thread {
                             break;
                         case SHUTTING_DOWN:
                         case USER_ALREADY_MEMBER_OF_GROUP:
-                            localOutput.println("join " + response.command.string1 + " FAIL");
+                            localOutput.println("join " + response.command.string1 + " OK_JOIN");
                             break;
                     }
                     break;

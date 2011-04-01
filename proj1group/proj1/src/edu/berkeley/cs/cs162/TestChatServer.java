@@ -33,7 +33,7 @@ public class TestChatServer {
 
         // Client-Server Tests
         //testClientBasic();
-        testClientReconnect();
+        //testClientReconnect();
         //testClientTimeout();
         //testClientLoginQueue();
         //testClientGroupCapacity();
