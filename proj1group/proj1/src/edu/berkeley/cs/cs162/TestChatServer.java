@@ -30,7 +30,7 @@ public class TestChatServer {
         //testNetworkUnexpectedDisconnectAfterLogin();
         //testNetworkLoginQueue();
         //testNetworkSendReceive();
-        testNetworkFailUnicast();
+        //testNetworkFailUnicast();
 
         // Client-Server Tests
         //testClientBasic();
@@ -38,6 +38,8 @@ public class TestChatServer {
         //testClientTimeout();
         //testClientLoginQueue();
         //testClientGroupCapacity();
+        //testClientSendMsgFailNotify();
+        testClientDisconnectsWhileInLoginWaitQueue();
 	}
 
     /* Non-Networked Server Tests (Project 1) */
@@ -931,6 +933,80 @@ public class TestChatServer {
 
         chatServer.shutdown();
         System.out.println("=== END TEST Client Group Capacity ===\n");
+    }
+
+    public static void testClientSendMsgFailNotify() throws Exception {
+        System.out.println("=== BEGIN TEST Client Send Message Failure Notification ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        Socket user2Socket = new Socket("localhost", 8080);
+        ChatUser user2 = new ChatUser(chatServer, user2Socket);
+        //ChatUser user2 = new ChatUser(chatServer);
+        user2.login("user2");
+        user2.start();
+        user2Socket.close();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "send user2 2 \"Hello user2!\"\n" +
+            "send user3 3 \"Hello user3!\"\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(500);
+
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Send Message Failure Notification ===");
+    }
+
+    public static void testClientDisconnectsWhileInLoginWaitQueue() throws Exception {
+        System.out.println("=== BEGIN TEST Client Disconnects While In Login Wait Queue ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        ChatUser[] users = new ChatUser[101];
+        for (int i = 1; i <= 100; i++) {
+            users[i] = new ChatUser(chatServer);
+            users[i].login("user" + Integer.toString(i));
+        }
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        System.out.println("\n== BEGIN Simulated Client ==");
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user101"));
+        user1Requests.flush();
+
+        System.out.println("-> " + CommandType.LOGIN);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
+
+        Thread.currentThread().sleep(50);
+        users[99].logout();
+
+        ChatUser user101 = chatServer.getUserManager().getUser("user101");
+        if (user101 == null)
+            System.out.println("user101 was NOT added to chat server.  Hooray, test passed!");
+
+        Thread.currentThread().sleep(50);
+        System.out.println("== END Simulated Client ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Disconnects While In Login Wait Queue ===");
     }
 
 	/**
