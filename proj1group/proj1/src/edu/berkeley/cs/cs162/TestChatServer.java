@@ -30,6 +30,7 @@ public class TestChatServer {
         //testNetworkUnexpectedDisconnectAfterLogin();
         //testNetworkLoginQueue();
         //testNetworkSendReceive();
+        testNetworkFailUnicast();
 
         // Client-Server Tests
         //testClientBasic();
@@ -731,6 +732,71 @@ public class TestChatServer {
 
         chatServer.shutdown();
         System.out.println("=== END TEST Send and Receive ===\n");
+    }
+
+    public static void testNetworkFailUnicast() throws Exception {
+        System.out.println("=== BEGIN TEST Fail Unicast ===");
+        ChatServer chatServer = new ChatServer(8080);
+        MessageDispatcher messageDispatcher = chatServer.getMessageDispatcher();
+        chatServer.start();
+
+        Socket user1Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
+        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
+
+        System.out.println("\n== BEGIN Simulated Client ==");
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.LOGIN);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        ChatUser user1 = chatServer.getUserManager().getUser("user1");
+
+        ChatUser user2 = new ChatUser(chatServer);
+        user2.login("user2");
+
+        messageDispatcher.suspend();
+        user1Requests.writeObject(new ChatClientCommand(CommandType.SEND_MESSAGE, "user2", 1, "Unicast 1"));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.SEND_MESSAGE);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user2.logout();
+        messageDispatcher.resume();
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.LOGOUT);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.writeObject(new ChatClientCommand(CommandType.DISCONNECT));
+        user1Requests.flush();
+        System.out.println("-> " + CommandType.DISCONNECT);
+        Thread.currentThread().sleep(50);
+
+        user1Requests.close();
+        user1Responses.close();
+        user1Socket.close();
+        Thread.currentThread().sleep(50);
+        System.out.println("== END Simulated Client ==\n");
+
+        System.out.println("== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==\n");
+        System.out.println("== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Fail Unicast ===\n");
     }
 
     public static void testClientBasic() throws Exception {
