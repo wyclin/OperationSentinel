@@ -1272,4 +1272,10 @@ public class TestChatServer {
 	 */
 	public static void logUserMsgRecvd(String username, String msg, Date time) {
 	}
+
+    public static void logUserRegistration(String username, Date time){
+    }
+
+    public static void logUserRegistrationFailed(String username, Date time){
+    }
 }

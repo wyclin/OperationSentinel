@@ -17,6 +17,7 @@ public class ChatClient extends Thread {
 
     private Pattern connectPattern;
     private Pattern disconnectPattern;
+    private Pattern addUserPattern;
     private Pattern loginPattern;
     private Pattern logoutPattern;
     private Pattern joinPattern;
@@ -34,7 +35,8 @@ public class ChatClient extends Thread {
 
         this.connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
         this.disconnectPattern = Pattern.compile("^disconnect$");
-        this.loginPattern = Pattern.compile("^login ([^\\s]+)$");
+        this.addUserPattern = Pattern.compile("^adduser ([^\\s]+) ([^\\s]+)$");
+        this.loginPattern = Pattern.compile("^login ([^\\s]+) ([^\\s]+)$");
         this.logoutPattern = Pattern.compile("^logout$");
         this.joinPattern = Pattern.compile("^join ([^\\s]+)$");
         this.leavePattern = Pattern.compile("^leave ([^\\s]+)$");
@@ -126,6 +128,18 @@ public class ChatClient extends Thread {
             }
         } else {
             switch (response.command.commandType) {
+                case REGISTER:
+                    switch (response.responseType) {
+                        case USER_REGISTRATION_OK:
+                            localOutput.println("adduser OK");
+                            break;
+                        case SHUTTING_DOWN:
+                        case USER_REGISTRATION_WHILE_LOGGED_IN:
+                        case NAME_CONFLICT:
+                            localOutput.println("adduser REJECTED");
+                            break;
+                    }
+                    break;
                 case LOGIN:
                     switch (response.responseType) {
                         case USER_ADDED:
@@ -137,6 +151,7 @@ public class ChatClient extends Thread {
                         case SHUTTING_DOWN:
                         case USER_CAPACITY_REACHED:
                         case NAME_CONFLICT:
+                        case INVALID_USER_AND_PASSWORD:
                             localOutput.println("login REJECTED");
                             break;
                     }
@@ -201,6 +216,7 @@ public class ChatClient extends Thread {
     public ChatClientCommand parseCommand(String command) {
         Matcher connectMatcher = connectPattern.matcher(command);
         Matcher disconnectMatcher = disconnectPattern.matcher(command);
+        Matcher addUserMatcher = addUserPattern.matcher(command);
         Matcher loginMatcher = loginPattern.matcher(command);
         Matcher logoutMatcher = logoutPattern.matcher(command);
         Matcher joinMatcher = joinPattern.matcher(command);
@@ -211,8 +227,10 @@ public class ChatClient extends Thread {
             return new ChatClientCommand(CommandType.CONNECT, connectMatcher.group(1), Integer.valueOf(connectMatcher.group(2)));
         } else if (disconnectMatcher.matches()) {
             return new ChatClientCommand(CommandType.DISCONNECT);
+        } else if (addUserMatcher.matches()) {
+            return new ChatClientCommand(CommandType.REGISTER, addUserMatcher.group(1), encrypt(addUserMatcher.group(2)));
         } else if (loginMatcher.matches()) {
-            return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1));
+            return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1), encrypt(loginMatcher.group(2)));
         } else if (logoutMatcher.matches()) {
             return new ChatClientCommand(CommandType.LOGOUT);
         } else if (joinMatcher.matches()) {
@@ -265,6 +283,7 @@ public class ChatClient extends Thread {
             case SLEEP:
                 sleep(command.number);
                 break;
+            case REGISTER:
             case LOGIN:
             case LOGOUT:
             case JOIN_GROUP:
@@ -325,5 +344,10 @@ public class ChatClient extends Thread {
             Thread.sleep(time);
         } catch (Exception e) {
         }
+    }
+
+    private String encrypt(String password) {
+        // currently a stub method that doesn't encrypt
+        return password;
     }
 }

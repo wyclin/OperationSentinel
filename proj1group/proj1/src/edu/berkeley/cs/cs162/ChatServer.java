@@ -49,7 +49,7 @@ public class ChatServer {
         userManager.shutdown();
     }
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
        if (args.length == 1) {
            ChatServer newServer = new ChatServer(new Integer(args[0]));
            newServer.start();
@@ -57,6 +57,14 @@ public class ChatServer {
            System.exit(-1);
        }
    }
+
+    public ChatServerResponse registerUser(ChatUser user) {
+        if (shuttingDown) {
+            return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
+        } else {
+            return userManager.registerUser(user);
+        }
+    }
 
     public ChatServerResponse login(ChatUser user) {
         if (shuttingDown) {
