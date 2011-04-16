@@ -65,7 +65,7 @@ public class ChatUserResponder extends Thread {
             ChatServerResponse pendingResponse = response;
             while (pendingResponse != null) {
                 log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Failed to send Response: " + pendingResponse.responseType);
-                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED && message != null) {
+                if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED && message != null && message.sender != null) {
                     message.sender.receiveSendFailure(pendingResponse.message);
                 }
                 pendingResponse = pendingResponses.poll();

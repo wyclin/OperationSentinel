@@ -109,4 +109,10 @@ public class ChatServer {
             return messageDispatcher.enqueue(message);
         }
     }
+
+    public void readLog(ChatUser user) {
+        if (!shuttingDown) {
+            messageDispatcher.deliverOfflineMessages(user);
+        }
+    }
 }

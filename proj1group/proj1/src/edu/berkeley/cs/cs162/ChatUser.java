@@ -113,6 +113,9 @@ public class ChatUser extends Thread {
             case SEND_MESSAGE:
                 response = sendMessage(command.string1, command.number, command.string2);
                 break;
+            case READLOG:
+                readLog();
+                return;
             default:
                 response = new ChatServerResponse(ResponseType.COMMAND_NOT_FOUND);
                 break;
@@ -304,7 +307,7 @@ public class ChatUser extends Thread {
 
     public ChatServerResponse sendMessage(String receiver, int sqn, String messageText) {
         Date time = Calendar.getInstance().getTime();
-        Message message = new Message(this, receiver, sqn, messageText);
+        Message message = new Message(time, this, receiver, sqn, messageText);
         log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + sqn + ") -> " + receiver + " | " + message.text);
         if (loggedIn) {
             ChatServerResponse response = chatServer.send(message);
@@ -344,6 +347,12 @@ public class ChatUser extends Thread {
             TestChatServer.logUserSendMsg(loginName, message.toString());
             return new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
+    }
+
+    public void readLog() {
+        Date time = Calendar.getInstance().getTime();
+        log.offer(dateFormatter.format(time) + " | Retrieving Offline Messages");
+        chatServer.readLog(this);
     }
 
     public void receiveMessage(Message message) {

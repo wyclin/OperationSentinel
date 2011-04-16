@@ -3,10 +3,7 @@ package edu.berkeley.cs.cs162;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Properties;
-import java.util.TreeSet;
+import java.util.*;
 
 public class TestChatServer {
 
@@ -19,7 +16,7 @@ public class TestChatServer {
 	public static void main(String[] args) throws Exception {
         // Database Tests
         //testEmptyDatabase();
-        testAddUsersAndGroups();
+        //testAddUsersAndGroups();
 
         // Non-Networked Tests
         //testBasic();
@@ -87,18 +84,18 @@ public class TestChatServer {
         databaseManager.emptyDatabase();
 
         databaseManager.addUser("user1", "password");
-        Properties user1 = databaseManager.getUser("user1");
-        System.out.println("Added User: " + user1.getProperty("name") + ", " + user1.getProperty("password"));
+        HashMap<String, Object> user1 = databaseManager.getUser("user1");
+        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password"));
         databaseManager.addUser("user2", "password");
-        Properties user2 = databaseManager.getUser("user2");
-        System.out.println("Added User: " + user2.getProperty("name") + ", " + user2.getProperty("password"));
+        HashMap<String, Object> user2 = databaseManager.getUser("user2");
+        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password"));
 
         databaseManager.addGroup("group1");
-        Properties group1 = databaseManager.getGroup("group1");
+        HashMap<String, Object> group1 = databaseManager.getGroup("group1");
         databaseManager.addGroup("group2");
-        System.out.println("Added Group: " + group1.getProperty("name"));
-        Properties group2 = databaseManager.getGroup("group2");
-        System.out.println("Added Group: " + group2.getProperty("name"));
+        System.out.println("Added Group: " + group1.get("name"));
+        HashMap<String, Object> group2 = databaseManager.getGroup("group2");
+        System.out.println("Added Group: " + group2.get("name"));
 
         databaseManager.addUserToGroup("user1", "group1");
         databaseManager.addUserToGroup("user2", "group1");

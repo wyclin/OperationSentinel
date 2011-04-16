@@ -204,6 +204,7 @@ public class ChatClient extends Thread {
                             localOutput.println("send " + response.command.number + " BAD_DEST");
                             break;
                         case SHUTTING_DOWN:
+                        case DATABASE_FAILURE:
                         case MESSAGE_BUFFER_FULL:
                         case SENDER_NOT_FOUND:
                             localOutput.println("send " + response.command.number + " FAIL");

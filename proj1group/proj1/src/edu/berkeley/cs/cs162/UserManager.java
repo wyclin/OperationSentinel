@@ -48,6 +48,22 @@ class UserManager {
         return databaseManager.getUser(userName) != null;
     }
 
+    public boolean hasLoggedInUser(String userName) {
+        boolean result;
+        rwLock.readLock().lock();
+        result = loggedInUsers.containsKey(userName);
+        rwLock.readLock().unlock();
+        return result;
+    }
+
+    public ChatUser getLoggedInUser(String userName) {
+        ChatUser result;
+        rwLock.readLock().lock();
+        result = loggedInUsers.get(userName);
+        rwLock.readLock().unlock();
+        return result;
+    }
+
     private boolean hasGroup(String groupName) throws SQLException {
         return databaseManager.getGroup(groupName) != null;
     }
@@ -67,8 +83,8 @@ class UserManager {
 
     public ChatServerResponse loginUser(ChatUser user, String password) {
         try {
-            Properties userEntry = databaseManager.getUser(user.getUserName());
-            if (userEntry.getProperty("name").equals(user.getUserName()) && userEntry.getProperty("password").equals(password)) {
+            HashMap<String, Object> userEntry = databaseManager.getUser(user.getUserName());
+            if (((String)userEntry.get("name")).equals(user.getUserName()) && ((String)userEntry.get("password")).equals(password)) {
                 ChatServerResponse result;
                 rwLock.writeLock().lock();
                 if (loggedInUsers.size() >= maxLoggedInUsers) {
@@ -118,12 +134,12 @@ class UserManager {
         rwLock.readLock().unlock();
         if (loggedIn) {
             try {
-                Properties receiverEntry = databaseManager.getReceiver(groupName);
+                HashMap<String, Object> receiverEntry = databaseManager.getReceiver(groupName);
                 if (receiverEntry == null) {
                     databaseManager.addGroup(groupName);
                     databaseManager.addUserToGroup(user.getUserName(), groupName);
                     return new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
-                } else if (receiverEntry.getProperty("type").equals("group")) {
+                } else if (((String)receiverEntry.get("type")).equals("group")) {
                     if (databaseManager.getGroupUserList(groupName).contains(user.getUserName())) {
                         return new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
                     } else {
