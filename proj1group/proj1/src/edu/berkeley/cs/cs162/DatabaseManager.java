@@ -56,6 +56,28 @@ public class DatabaseManager {
         }
     }
 
+    public Properties getReceiver(String name) throws SQLException {
+        String query = "SELECT `name`,`password`,`type` FROM `MessageReceivers` WHERE `name`='" + name +"';";
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);
+            Properties receiverProperties = null;
+            if (results.next()) {
+                receiverProperties = new Properties();
+                receiverProperties.setProperty("name", results.getString(1));
+                receiverProperties.setProperty("password", results.getString(2));
+                receiverProperties.setProperty("type", results.getString(3));
+            }
+            return receiverProperties;
+        } finally {
+            if (statement != null) {statement.close();}
+            if (connection != null) {connection.close();}
+        }
+    }
+
     public Properties getUser(String userName) throws SQLException {
         String query = "SELECT `name`,`password` FROM `MessageReceivers` WHERE `name`='" + userName +"' AND `type`='user';";
         Connection connection = null;

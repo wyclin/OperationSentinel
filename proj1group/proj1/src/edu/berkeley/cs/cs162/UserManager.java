@@ -1,39 +1,34 @@
 package edu.berkeley.cs.cs162;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class UserManager {
-    public final int maxUsers;
+    public final int maxLoggedInUsers;
     public final int maxQueuedUsers;
-    public final int maxGroupUsers;
 
     private ChatServer chatServer;
     private DatabaseManager databaseManager;
-
-    private HashMap<String, ChatUser> users;
-    private LinkedList<ChatUser> userQueue;
-    private HashMap<String, ChatGroup> groups;
+    private HashMap<String, ChatUser> loggedInUsers;
+    private LinkedList<ChatUser> loginQueue;
     private ReentrantReadWriteLock rwLock;
 
-    public UserManager(ChatServer chatServer, int maxUsers, int maxGroupUsers) {
-        this.maxUsers = maxUsers;
-        this.maxQueuedUsers = maxUsers / 10;
-        this.maxGroupUsers = maxGroupUsers;
+    public UserManager(ChatServer chatServer, int maxLoggedInUsers, int maxGroupUsers) {
+        this.maxLoggedInUsers = maxLoggedInUsers;
+        this.maxQueuedUsers = maxLoggedInUsers / 10;
         this.chatServer = chatServer;
         this.databaseManager = new DatabaseManager();
-
-        this.users = new HashMap<String, ChatUser>();
-        this.userQueue = new LinkedList<ChatUser>();
-        this.groups = new HashMap<String, ChatGroup>();
+        this.loggedInUsers = new HashMap<String, ChatUser>();
+        this.loginQueue = new LinkedList<ChatUser>();
         this.rwLock = new ReentrantReadWriteLock();
     }
 
     public void shutdown() {
-        for (ChatUser user : users.values()) {
+        for (ChatUser user : loggedInUsers.values()) {
             user.shutdown();
         }
-        for (ChatUser user : users.values()) {
+        for (ChatUser user : loggedInUsers.values()) {
             try {
                 user.join();
             } catch (InterruptedException e) {
@@ -41,237 +36,75 @@ class UserManager {
         }
     }
 
-    public boolean hasName(String name) {
-        boolean result;
-        rwLock.readLock().lock();
-        result = hasGroup(name) || hasUser(name);
-        rwLock.readLock().unlock();
-        return result;
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
-    public ChatUser getUser(String userName) {
-        ChatUser result;
-        rwLock.readLock().lock();
-        result = users.get(userName);
-        rwLock.readLock().unlock();
-        return result;
+    private boolean hasName(String name) throws SQLException {
+        return databaseManager.getReceiver(name) != null;
     }
 
-    public ChatUser getFirstQueuedUser() {
-        ChatUser result;
-        rwLock.readLock().lock();
-        result = userQueue.getFirst();
-        rwLock.readLock().unlock();
-        return result;
+    private boolean hasUser(String userName) throws SQLException {
+        return databaseManager.getUser(userName) != null;
     }
 
-    public boolean hasUser(String userName) {
-        boolean result;
-        rwLock.readLock().lock();
-        result = users.containsKey(userName);
-        rwLock.readLock().unlock();
-        return result;
+    private boolean hasGroup(String groupName) throws SQLException {
+        return databaseManager.getGroup(groupName) != null;
     }
 
-    public ChatServerResponse getUserCount(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            result = new ChatServerResponse(ResponseType.DATA_SENT, users.size());
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatServerResponse getUserList(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(users.keySet()));
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatGroup getGroup(String groupName) {
-        ChatGroup result;
-        rwLock.readLock().lock();
-        result = groups.get(groupName);
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public boolean hasGroup(String groupName) {
-        boolean result;
-        rwLock.readLock().lock();
-        result = groups.containsKey(groupName);
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatServerResponse getGroupCount(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            result = new ChatServerResponse(ResponseType.DATA_SENT, groups.size());
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatServerResponse getGroupList(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(groups.keySet()));
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public TreeSet<String> getGroupUsers(String groupName) {
-        TreeSet<String> result;
-        rwLock.readLock().lock();
-        ChatGroup targetGroup = groups.get(groupName);
-        if (targetGroup == null) {
-            result = null;
-        } else {
-            result = new TreeSet<String>(targetGroup.users.keySet());
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public boolean groupHasUser(String groupName, String userName) {
-        boolean result = false;
-        rwLock.readLock().lock();
-        ChatGroup targetGroup = groups.get(groupName);
-        if (targetGroup != null) {
-            result = targetGroup.users.containsKey(userName);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatServerResponse getGroupUserCount(ChatUser user, String groupName) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        ChatGroup targetGroup = groups.get(groupName);
-        if (users.containsKey(user.getUserName())) {
-            if (targetGroup == null) {
-                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
+    public ChatServerResponse addUser(String userName, String password) {
+        try {
+            if (hasUser(userName)) {
+                return new ChatServerResponse(ResponseType.NAME_CONFLICT);
             } else {
-                result = new ChatServerResponse(ResponseType.DATA_SENT, targetGroup.users.size());
+                databaseManager.addUser(userName, password);
+                return new ChatServerResponse(ResponseType.USER_ADDED);
             }
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+        } catch (SQLException e) {
+            return new ChatServerResponse(ResponseType.DATABASE_FAILURE);
         }
-        rwLock.readLock().unlock();
-        return result;
     }
 
-    public ChatServerResponse getGroupUserList(ChatUser user, String groupName) {
-        ChatServerResponse result;
-        rwLock.readLock().lock();
-        ChatGroup targetGroup = groups.get(groupName);
-        if (users.containsKey(user.getUserName())) {
-            if (targetGroup == null) {
-                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
-            } else {
-                result = new ChatServerResponse(ResponseType.DATA_SENT, new TreeSet<String>(targetGroup.users.keySet()));
-            }
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
-        }
-        rwLock.readLock().unlock();
-        return result;
-    }
-
-    public ChatServerResponse registerUser(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (checkUserUniquenessInDatabase(user) == false) {
-            result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
-        } else {
-            try {
-                addUserToDatabase(user);
-            } catch (Exception e) {
-            }
-            result = new ChatServerResponse(ResponseType.USER_REGISTRATION_OK);
-        }
-        rwLock.writeLock().unlock();
-        return result;
-    }
-
-    private boolean checkUserUniquenessInDatabase(ChatUser user) {
-        // CURRENTLY A METHOD STUB
-        return true;
-    }
-
-    private void addUserToDatabase(ChatUser user) {
-        // CURRENTLY A METHOD STUB, use user.getEncryptedPassword() in the passwords attribute
-    }
-
-    public ChatServerResponse addUser(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (users.size() >= maxUsers) {
-            if (userQueue.size() >= maxQueuedUsers) {
-                result = new ChatServerResponse(ResponseType.USER_CAPACITY_REACHED);
-            } else {
-                userQueue.add(user);
-                result = new ChatServerResponse(ResponseType.USER_QUEUED);
-            }
-        } else if (users.containsKey(user.getUserName()) || groups.containsKey(user.getUserName())) {
-            result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
-        } else if (checkUserAndPasswordAgainstDatabase(user) == false) {
-            result = new ChatServerResponse(ResponseType.INVALID_USER_AND_PASSWORD);
-        } else {
-            users.put(user.getUserName(), user);
-            result = new ChatServerResponse(ResponseType.USER_ADDED);
-        }
-        rwLock.writeLock().unlock();
-        return result;
-    }
-
-    private boolean checkUserAndPasswordAgainstDatabase(ChatUser user) {
-        // method stub so far, use user.getEncryptedPassword() to check against database
-        return true;
-    }
-
-    public ChatServerResponse removeUser(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            TreeSet<String> groupsToRemove = new TreeSet<String>();
-            for (ChatGroup group : groups.values()) {
-                group.users.remove(user.getUserName());
-                user.leftGroup(group.name);
-                if (group.users.size() == 0) {
-                    groupsToRemove.add(group.name);
+    public ChatServerResponse loginUser(ChatUser user, String password) {
+        try {
+            Properties userEntry = databaseManager.getUser(user.getUserName());
+            if (userEntry.getProperty("name").equals(user.getUserName()) && userEntry.getProperty("password").equals(password)) {
+                ChatServerResponse result;
+                rwLock.writeLock().lock();
+                if (loggedInUsers.size() >= maxLoggedInUsers) {
+                    if (loginQueue.size() >= maxQueuedUsers) {
+                        result = new ChatServerResponse(ResponseType.USER_CAPACITY_REACHED);
+                    } else {
+                        if (!loginQueue.contains(user)) {loginQueue.add(user);}
+                        result = new ChatServerResponse(ResponseType.USER_QUEUED);
+                    }
+                } else {
+                    loggedInUsers.put(user.getUserName(), user);
+                    result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
                 }
+                rwLock.writeLock().unlock();
+                return result;
+            } else {
+                return new ChatServerResponse(ResponseType.INVALID_NAME_OR_PASSWORD);
             }
-            for (String groupName : groupsToRemove) {
-                groups.remove(groupName);
-            }
-            users.remove(user.getUserName());
-            result = new ChatServerResponse(ResponseType.USER_REMOVED);
+        } catch (SQLException e) {
+            return new ChatServerResponse(ResponseType.DATABASE_FAILURE);
+        }
+    }
+
+    public ChatServerResponse logoutUser(ChatUser user) {
+        ChatServerResponse result;
+        rwLock.writeLock().lock();
+        if (loggedInUsers.containsKey(user.getUserName())) {
+            loggedInUsers.remove(user.getUserName());
+            result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
             try {
-                ChatUser queuedUser = userQueue.remove();
-                users.put(queuedUser.getUserName(), queuedUser);
+                ChatUser queuedUser = loginQueue.remove();
+                loggedInUsers.put(queuedUser.getUserName(), queuedUser);
                 queuedUser.loggedIn();
-            } catch (NoSuchElementException e) {
-            }
-        } else if (userQueue.remove(user)) {
-            result = new ChatServerResponse(ResponseType.USER_REMOVED);
+            } catch (NoSuchElementException e) {}
+        } else if (loginQueue.remove(user)) {
+            result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
         } else {
             result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
@@ -280,59 +113,59 @@ class UserManager {
     }
 
     public ChatServerResponse addUserToGroup(ChatUser user, String groupName) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            if (users.containsKey(groupName)) {
-                result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
-            } else {
-                ChatGroup targetGroup = groups.get(groupName);
-                if (targetGroup == null) {
-                    targetGroup = new ChatGroup(groupName);
-                    groups.put(groupName, targetGroup);
-                    targetGroup.users.put(user.getUserName(), user);
-                    result = new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
-                } else {
-                    if (targetGroup.users.containsKey(user.getUserName())) {
-                        result = new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
+        rwLock.readLock().lock();
+        boolean loggedIn = loggedInUsers.containsKey(user.getUserName());
+        rwLock.readLock().unlock();
+        if (loggedIn) {
+            try {
+                Properties receiverEntry = databaseManager.getReceiver(groupName);
+                if (receiverEntry == null) {
+                    databaseManager.addGroup(groupName);
+                    databaseManager.addUserToGroup(user.getUserName(), groupName);
+                    return new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
+                } else if (receiverEntry.getProperty("type").equals("group")) {
+                    if (databaseManager.getGroupUserList(groupName).contains(user.getUserName())) {
+                        return new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
                     } else {
-                        if (targetGroup.users.size() >= maxGroupUsers) {
-                            result = new ChatServerResponse(ResponseType.GROUP_CAPACITY_REACHED);
-                        } else {
-                            targetGroup.users.put(user.getUserName(), user);
-                            result = new ChatServerResponse(ResponseType.USER_ADDED_TO_GROUP);
-                        }
+                        databaseManager.addUserToGroup(user.getUserName(), groupName);
+                        return new ChatServerResponse(ResponseType.USER_ADDED_TO_GROUP);
                     }
+                } else { // "user"
+                    return new ChatServerResponse(ResponseType.NAME_CONFLICT);
                 }
+            } catch (SQLException e) {
+                return new ChatServerResponse(ResponseType.DATABASE_FAILURE);
             }
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+            return new ChatServerResponse(ResponseType.USER_NOT_LOGGED_IN);
         }
-        rwLock.writeLock().unlock();
-        return result;
     }
 
     public ChatServerResponse removeUserFromGroup(ChatUser user, String groupName) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (users.containsKey(user.getUserName())) {
-            ChatGroup targetGroup = groups.get(groupName);
-            if (targetGroup == null) {
-                result = new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
-            } else {
-                if (targetGroup.users.remove(user.getUserName()) == null) {
-                    result = new ChatServerResponse(ResponseType.USER_NOT_MEMBER_OF_GROUP);
-                } else {
-                    result = new ChatServerResponse(ResponseType.USER_REMOVED_FROM_GROUP);
-                    if (targetGroup.users.size() == 0) {
-                        groups.remove(targetGroup.name);
+        rwLock.readLock().lock();
+        boolean loggedIn = loggedInUsers.containsKey(user.getUserName());
+        rwLock.readLock().unlock();
+        if (loggedIn) {
+            try {
+                if (hasGroup(groupName)) {
+                    TreeSet<String> groupUserList = databaseManager.getGroupUserList(groupName);
+                    if (groupUserList.contains(user.getUserName())) {
+                        databaseManager.removeUserFromGroup(user.getUserName(), groupName);
+                        if (groupUserList.size() == 1) {
+                            databaseManager.removeGroup(groupName);
+                        }
+                        return new ChatServerResponse(ResponseType.USER_REMOVED_FROM_GROUP);
+                    } else {
+                        return new ChatServerResponse(ResponseType.USER_NOT_MEMBER_OF_GROUP);
                     }
+                } else {
+                    return new ChatServerResponse(ResponseType.GROUP_NOT_FOUND);
                 }
+            } catch (SQLException e) {
+                return new ChatServerResponse(ResponseType.DATABASE_FAILURE);
             }
         } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+            return new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
-        rwLock.writeLock().unlock();
-        return result;
     }
 }

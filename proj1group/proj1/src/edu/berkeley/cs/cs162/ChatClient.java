@@ -23,6 +23,7 @@ public class ChatClient extends Thread {
     private Pattern joinPattern;
     private Pattern leavePattern;
     private Pattern sendPattern;
+    private Pattern readlogPattern;
     private Pattern sleepPattern;
 
     public ChatClient(BufferedReader localInput, PrintWriter localOutput) {
@@ -41,6 +42,7 @@ public class ChatClient extends Thread {
         this.joinPattern = Pattern.compile("^join ([^\\s]+)$");
         this.leavePattern = Pattern.compile("^leave ([^\\s]+)$");
         this.sendPattern = Pattern.compile("^send ([^\\s]+) (\\d+) \"([^\"]+)\"$");
+        this.readlogPattern = Pattern.compile("^readlog$");
         this.sleepPattern = Pattern.compile("^sleep (\\d+)$");
     }
 
@@ -105,16 +107,13 @@ public class ChatClient extends Thread {
     }
 
     public void printResponse(ChatServerResponse response) {
-        if (response.command == null) {
+        if (response.command == null) { // async
             switch (response.responseType) {
-                case USER_ADDED:
+                case USER_LOGGED_IN:
                     localOutput.println("login OK");
                     break;
-                case USER_REMOVED:
+                case USER_LOGGED_OUT:
                     localOutput.println("logout OK");
-                    break;
-                case USER_REMOVED_FROM_GROUP:
-                    localOutput.println("leave " + response.string + " OK");
                     break;
                 case MESSAGE_RECEIVED:
                     localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
@@ -126,15 +125,15 @@ public class ChatClient extends Thread {
                     localOutput.println("timeout");
                     break;
             }
-        } else {
+        } else { // Sync
             switch (response.command.commandType) {
-                case REGISTER:
+                case ADDUSER:
                     switch (response.responseType) {
-                        case USER_REGISTRATION_OK:
+                        case USER_ADDED:
                             localOutput.println("adduser OK");
                             break;
                         case SHUTTING_DOWN:
-                        case USER_REGISTRATION_WHILE_LOGGED_IN:
+                        case DATABASE_FAILURE:
                         case NAME_CONFLICT:
                             localOutput.println("adduser REJECTED");
                             break;
@@ -149,9 +148,10 @@ public class ChatClient extends Thread {
                             localOutput.println("login QUEUED");
                             break;
                         case SHUTTING_DOWN:
+                        case DATABASE_FAILURE:
                         case USER_CAPACITY_REACHED:
                         case NAME_CONFLICT:
-                        case INVALID_USER_AND_PASSWORD:
+                        case INVALID_NAME_OR_PASSWORD:
                             localOutput.println("login REJECTED");
                             break;
                     }
@@ -165,17 +165,15 @@ public class ChatClient extends Thread {
                             localOutput.println("join " + response.command.string1 + " OK_CREATE");
                             break;
                         case USER_ADDED_TO_GROUP:
+                        case USER_ALREADY_MEMBER_OF_GROUP:
                             localOutput.println("join " + response.command.string1 + " OK_JOIN");
                             break;
                         case NAME_CONFLICT:
                             localOutput.println("join " + response.command.string1 + " BAD_GROUP");
                             break;
-                        case GROUP_CAPACITY_REACHED:
-                            localOutput.println("join " + response.command.string1 + " FAIL_FULL");
-                            break;
-                        case SHUTTING_DOWN:
-                        case USER_ALREADY_MEMBER_OF_GROUP:
-                            localOutput.println("join " + response.command.string1 + " OK_JOIN");
+                        case SHUTTING_DOWN: // Unofficial
+                        case DATABASE_FAILURE:
+                            localOutput.println("join " + response.command.string1 + " FAIL");
                             break;
                     }
                     break;
@@ -189,6 +187,9 @@ public class ChatClient extends Thread {
                             break;
                         case GROUP_NOT_FOUND:
                             localOutput.println("leave " + response.command.string1 + " BAD_GROUP");
+                            break;
+                        case DATABASE_FAILURE:
+                            localOutput.println("leave " + response.command.string1 + " FAIL");
                             break;
                     }
                     break;
@@ -222,13 +223,14 @@ public class ChatClient extends Thread {
         Matcher joinMatcher = joinPattern.matcher(command);
         Matcher leaveMatcher = leavePattern.matcher(command);
         Matcher sendMatcher = sendPattern.matcher(command);
+        Matcher readlogMatcher = readlogPattern.matcher(command);
         Matcher sleepMatcher = sleepPattern.matcher(command);
         if (connectMatcher.matches()) {
             return new ChatClientCommand(CommandType.CONNECT, connectMatcher.group(1), Integer.valueOf(connectMatcher.group(2)));
         } else if (disconnectMatcher.matches()) {
             return new ChatClientCommand(CommandType.DISCONNECT);
         } else if (addUserMatcher.matches()) {
-            return new ChatClientCommand(CommandType.REGISTER, addUserMatcher.group(1), encrypt(addUserMatcher.group(2)));
+            return new ChatClientCommand(CommandType.ADDUSER, addUserMatcher.group(1), addUserMatcher.group(2));
         } else if (loginMatcher.matches()) {
             return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1), encrypt(loginMatcher.group(2)));
         } else if (logoutMatcher.matches()) {
@@ -239,6 +241,8 @@ public class ChatClient extends Thread {
             return new ChatClientCommand(CommandType.LEAVE_GROUP, leaveMatcher.group(1));
         } else if (sendMatcher.matches()) {
             return new ChatClientCommand(CommandType.SEND_MESSAGE, sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3));
+        } else if (readlogMatcher.matches()) {
+            return new ChatClientCommand(CommandType.READLOG);
         } else if (sleepMatcher.matches()) {
             return new ChatClientCommand(CommandType.SLEEP, Integer.valueOf(sleepMatcher.group(1)));
         } else {
@@ -250,8 +254,9 @@ public class ChatClient extends Thread {
         switch (command.commandType) {
             case CONNECT:
             case DISCONNECT:
-            case COMMAND_NOT_FOUND:
+            case READLOG:
             case SLEEP:
+            case COMMAND_NOT_FOUND:
                 return false;
             default:
                 return true;
@@ -283,12 +288,13 @@ public class ChatClient extends Thread {
             case SLEEP:
                 sleep(command.number);
                 break;
-            case REGISTER:
+            case ADDUSER:
             case LOGIN:
             case LOGOUT:
             case JOIN_GROUP:
             case LEAVE_GROUP:
             case SEND_MESSAGE:
+            case READLOG:
                 sendCommand(command);
                 break;
             case COMMAND_NOT_FOUND:
@@ -300,9 +306,7 @@ public class ChatClient extends Thread {
         try {
             remoteOutput.writeObject(command);
             remoteOutput.flush();
-        } catch (Exception e) {
-            // Failure message?
-        }
+        } catch (Exception e) {}
     }
 
     public void connect(String host, int port) {

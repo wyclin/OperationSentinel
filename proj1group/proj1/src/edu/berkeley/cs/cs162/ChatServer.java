@@ -25,6 +25,18 @@ public class ChatServer {
         this.networked = false;
     }
 
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return userManager.getDatabaseManager();
+    }
+
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
+    }
+
     public void start() {
         messageDispatcher.start();
         if (networked) {
@@ -58,24 +70,24 @@ public class ChatServer {
        }
    }
 
-    public ChatServerResponse registerUser(ChatUser user) {
+    public ChatServerResponse addUser(String userName, String password) {
         if (shuttingDown) {
             return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
         } else {
-            return userManager.registerUser(user);
+            return userManager.addUser(userName, password);
         }
     }
 
-    public ChatServerResponse login(ChatUser user) {
+    public ChatServerResponse login(ChatUser user, String password) {
         if (shuttingDown) {
             return new ChatServerResponse(ResponseType.SHUTTING_DOWN);
         } else {
-            return userManager.addUser(user);
+            return userManager.loginUser(user, password);
         }
     }
 
-    public ChatServerResponse logoff(ChatUser user) {
-        return userManager.removeUser(user);
+    public ChatServerResponse logout(ChatUser user) {
+        return userManager.logoutUser(user);
     }
 
     public ChatServerResponse joinGroup(ChatUser user, String groupName) {
@@ -96,37 +108,5 @@ public class ChatServer {
         } else {
             return messageDispatcher.enqueue(message);
         }
-    }
-
-    public ChatServerResponse getUserCount(ChatUser user) {
-        return userManager.getUserCount(user);
-    }
-
-    public ChatServerResponse getUserList(ChatUser user) {
-        return userManager.getUserList(user);
-    }
-
-    public ChatServerResponse getGroupCount(ChatUser user) {
-        return userManager.getGroupCount(user);
-    }
-
-    public ChatServerResponse getGroupList(ChatUser user) {
-        return userManager.getGroupList(user);
-    }
-
-    public ChatServerResponse getGroupUserCount(ChatUser user, String groupName) {
-        return userManager.getGroupUserCount(user, groupName);
-    }
-
-    public ChatServerResponse getGroupUserList(ChatUser user, String groupName) {
-        return userManager.getGroupUserList(user, groupName);
-    }
-
-    public UserManager getUserManager() {
-        return userManager;
-    }
-
-    public MessageDispatcher getMessageDispatcher() {
-        return messageDispatcher;
     }
 }
