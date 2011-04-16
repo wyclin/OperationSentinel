@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162;
 public enum CommandType {
     CONNECT,
     DISCONNECT,
+    REGISTER,
     LOGIN,
     LOGOUT,
     JOIN_GROUP,

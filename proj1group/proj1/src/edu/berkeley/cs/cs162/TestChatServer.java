@@ -2,11 +2,25 @@ package edu.berkeley.cs.cs162;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Properties;
+import java.util.TreeSet;
 
 public class TestChatServer {
 
+    public static void printSet(Collection<String> set) {
+        for (String string : set) {
+            System.out.println(string);
+        }
+    }
+
 	public static void main(String[] args) throws Exception {
+        // Database Tests
+        //testEmptyDatabase();
+        testAddUsersAndGroups();
+
         // Non-Networked Tests
         //testBasic();
         //testLogout();
@@ -34,7 +48,7 @@ public class TestChatServer {
 
         // Client-Server Tests
         //testClientBasic();
-        testClientLogout();
+        //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
         //testClientTimeout();
@@ -42,9 +56,111 @@ public class TestChatServer {
         //testClientGroupCapacity();
         //testClientSendMsgFailNotify();
         //testClientDisconnectsWhileInLoginWaitQueue();
+        //testClientDoesNotNormallyTimeout();
+        //testClientDisconnectHandledAfterLogoff();
+        //testTimerRestartedAfterEveryFailedLoginAttempt();
+        //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
+        //testInvalidClientCommandsAreSkipped();
 	}
 
-    /* Non-Networked Server Tests (Project 1) */
+    // Database Tests
+
+    public static void testEmptyDatabase() throws SQLException {
+        System.out.println("=== BEGIN DATABASE TEST Empty Database  ===");
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        System.out.println("User Count: " + databaseManager.getUserCount());
+        System.out.println("Group Count: " + databaseManager.getGroupCount());
+        System.out.println("\nUser List");
+        printSet(databaseManager.getUserList());
+        System.out.println("\nGroup List");
+        printSet(databaseManager.getGroupList());
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END DATABASE TEST Empty Database  ===\n");
+    }
+
+    public static void testAddUsersAndGroups() throws SQLException {
+        System.out.println("=== BEGIN DATABASE TEST Add Users and Groups  ===");
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addUser("user1", "password");
+        Properties user1 = databaseManager.getUser("user1");
+        System.out.println("Added User: " + user1.getProperty("name") + ", " + user1.getProperty("password"));
+        databaseManager.addUser("user2", "password");
+        Properties user2 = databaseManager.getUser("user2");
+        System.out.println("Added User: " + user2.getProperty("name") + ", " + user2.getProperty("password"));
+
+        databaseManager.addGroup("group1");
+        Properties group1 = databaseManager.getGroup("group1");
+        databaseManager.addGroup("group2");
+        System.out.println("Added Group: " + group1.getProperty("name"));
+        Properties group2 = databaseManager.getGroup("group2");
+        System.out.println("Added Group: " + group2.getProperty("name"));
+
+        databaseManager.addUserToGroup("user1", "group1");
+        databaseManager.addUserToGroup("user2", "group1");
+        databaseManager.addUserToGroup("user1", "group2");
+
+        System.out.println("User Count: " + databaseManager.getUserCount());
+        System.out.println("Group Count: " + databaseManager.getGroupCount());
+        System.out.println("group1 User Count: " + databaseManager.getGroupUserCount("group1"));
+        System.out.println("group2 User Count: " + databaseManager.getGroupUserCount("group2"));
+
+        System.out.println("\nUser List");
+        printSet(databaseManager.getUserList());
+        System.out.println("\nGroup List");
+        printSet(databaseManager.getGroupList());
+        System.out.println("\ngroup1 User List");
+        printSet(databaseManager.getGroupUserList("group1"));
+        System.out.println("\ngroup2 User List");
+        printSet(databaseManager.getGroupUserList("group2"));
+
+        System.out.println("\nRemoving user1 from group2");
+        databaseManager.removeUserFromGroup("user1", "group2");
+        System.out.println("User List");
+        printSet(databaseManager.getUserList());
+        System.out.println("\nGroup List");
+        printSet(databaseManager.getGroupList());
+        System.out.println("\ngroup1 User List");
+        printSet(databaseManager.getGroupUserList("group1"));
+        System.out.println("\ngroup2 User List");
+
+        System.out.println("\nRemoving user1");
+        databaseManager.removeUser("user1");
+        System.out.println("User List");
+        printSet(databaseManager.getUserList());
+        System.out.println("\nGroup List");
+        printSet(databaseManager.getGroupList());
+        System.out.println("\ngroup1 User List");
+        printSet(databaseManager.getGroupUserList("group1"));
+        System.out.println("\ngroup2 User List");
+
+        System.out.println("\nRemoving user2");
+        databaseManager.removeUser("user2");
+        System.out.println("User List");
+        printSet(databaseManager.getUserList());
+        System.out.println("\nGroup List");
+        printSet(databaseManager.getGroupList());
+        System.out.println("\ngroup1 User List");
+        printSet(databaseManager.getGroupUserList("group1"));
+        System.out.println("\ngroup2 User List");
+
+        System.out.println("\nRemoving group1");
+        databaseManager.removeGroup("group1");
+        System.out.println("Group List");
+        printSet(databaseManager.getGroupList());
+
+        System.out.println("\nGroup Count: " + databaseManager.getGroupCount());
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END DATABASE TEST Add Users and Groups  ===\n");
+    }
+
+/*
+    // Non-Networked Server Tests (Project 1)
 
     public static void testBasic() throws InterruptedException {
         System.out.println("=== BEGIN TEST Basic Test ===");
@@ -456,7 +572,7 @@ public class TestChatServer {
         System.out.println("=== END TEST UserManager ===\n");
     }
 
-    /* Networked Server Tests (Project 2) */
+    // Networked Server Tests (Project 2)
 
     public static void testNetworkLogin() throws Exception {
         System.out.println("=== BEGIN TEST Remote Login ===");
@@ -1055,6 +1171,155 @@ public class TestChatServer {
         System.out.println("=== END TEST Client Disconnects While In Login Wait Queue ===");
     }
 
+    public static void testClientDoesNotNormallyTimeout() throws Exception {
+        System.out.println("=== BEGIN TEST Client Does Not Normally Timeout ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        ChatUser[] users = new ChatUser[101];
+        for (int i = 1; i <= 100; i++) {
+            users[i] = new ChatUser(chatServer);
+            users[i].login("user" + Integer.toString(i));
+        }
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user101\n" +
+            "sleep 25000\n" +
+            "join group1\n" +
+            "sleep 25000\n";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(3000);
+
+        users[100].logout();
+
+        Thread.currentThread().sleep(55000);
+
+        System.out.println("\n== BEGIN LOG user101 ==");
+        ChatUser user101 = chatServer.getUserManager().getUser("user101");
+        user101.printLog();
+        System.out.println("== END LOG user101 ==\n");
+
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Does Not Normally Timeout ===\n");
+
+    }
+
+    public static void testClientDisconnectHandledAfterLogoff() throws Exception {
+        System.out.println("=== BEGIN TEST Client Disconnect is Handled After Logout ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "logout\n";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(21000);
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Disconnect is Handled After Logout ===");
+    }
+
+    public static void testTimerRestartedAfterEveryFailedLoginAttempt() throws Exception {
+        System.out.println("=== BEGIN TEST Timer is Restarted After Every Failed Login Attempt ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        ChatUser user;
+        for(int i=1; i<=3; i++) {
+            user= new ChatUser(chatServer);
+            user.login("user" + Integer.toString(i));
+        }
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "sleep 19000\n" +
+            "login user1\n" +
+            "sleep 19000\n" +
+            "login user2\n" +
+            "sleep 19000\n" +
+            "login user3\n" +
+            "login user4\n" +
+            "logout\n";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(60000);
+        chatServer.shutdown();
+
+        System.out.println("=== END TEST Timer is Restarted After Every Failed Login Attempt ===");
+    }
+
+    public static void testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn() throws Exception {
+        System.out.println("=== BEGIN TEST Reject Certain Client Commands When Disconnected or Not Logged In ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.login("user1");
+
+        String commands = "" +
+            //"login user2\n" +
+            //"join group1\n" +
+            //"leave group1\n" +
+            //"send user1 1 \"Hello user1!\"\n" +
+            "disconnect\n" +
+            "sleep 500\n" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "join group1\n" +
+            "leave group1\n" +
+            "send user2 1 \"Hello user1!\"\n" +
+            "disconnect\n";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(20000);
+        chatServer.shutdown();
+
+        System.out.println("=== BEGIN TEST Reject Certain Client Commands When Disconnected or Not Logged In ===");
+
+    }
+
+    public static void testInvalidClientCommandsAreSkipped() throws Exception {
+        System.out.println("=== BEGIN TEST Invalid Client Commands Are Gracefully Skipped ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.start();
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "login user1\n" +
+            "joing group1\n" +
+            "leeve group1\n" +
+            "joing group1\n" +
+            "join group1\n" +
+            "loggouts\n" +
+            "Chuck Norris\n" +
+            "logout\n" +
+            "disconnect\n";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+
+        Thread.currentThread().sleep(5000);
+        chatServer.shutdown();
+        System.out.println("=== BEGIN TEST Invalid Client Commands Are Gracefully Skipped ===");
+    }
+*/
+
 	/**
 	 * Logs the events of a user logging into the ChatServer.  This should only be called AFTER
 	 * the user has been accepted by the ChatServer.
@@ -1143,4 +1408,10 @@ public class TestChatServer {
 	 */
 	public static void logUserMsgRecvd(String username, String msg, Date time) {
 	}
+
+    public static void logUserRegistration(String username, Date time){
+    }
+
+    public static void logUserRegistrationFailed(String username, Date time){
+    }
 }

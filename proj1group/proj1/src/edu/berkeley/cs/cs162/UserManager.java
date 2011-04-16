@@ -8,7 +8,9 @@ class UserManager {
     public final int maxQueuedUsers;
     public final int maxGroupUsers;
 
-    public ChatServer chatServer;
+    private ChatServer chatServer;
+    private DatabaseManager databaseManager;
+
     private HashMap<String, ChatUser> users;
     private LinkedList<ChatUser> userQueue;
     private HashMap<String, ChatGroup> groups;
@@ -19,6 +21,8 @@ class UserManager {
         this.maxQueuedUsers = maxUsers / 10;
         this.maxGroupUsers = maxGroupUsers;
         this.chatServer = chatServer;
+        this.databaseManager = new DatabaseManager();
+
         this.users = new HashMap<String, ChatUser>();
         this.userQueue = new LinkedList<ChatUser>();
         this.groups = new HashMap<String, ChatGroup>();
@@ -191,6 +195,31 @@ class UserManager {
         return result;
     }
 
+    public ChatServerResponse registerUser(ChatUser user) {
+        ChatServerResponse result;
+        rwLock.writeLock().lock();
+        if (checkUserUniquenessInDatabase(user) == false) {
+            result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
+        } else {
+            try {
+                addUserToDatabase(user);
+            } catch (Exception e) {
+            }
+            result = new ChatServerResponse(ResponseType.USER_REGISTRATION_OK);
+        }
+        rwLock.writeLock().unlock();
+        return result;
+    }
+
+    private boolean checkUserUniquenessInDatabase(ChatUser user) {
+        // CURRENTLY A METHOD STUB
+        return true;
+    }
+
+    private void addUserToDatabase(ChatUser user) {
+        // CURRENTLY A METHOD STUB, use user.getEncryptedPassword() in the passwords attribute
+    }
+
     public ChatServerResponse addUser(ChatUser user) {
         ChatServerResponse result;
         rwLock.writeLock().lock();
@@ -203,12 +232,19 @@ class UserManager {
             }
         } else if (users.containsKey(user.getUserName()) || groups.containsKey(user.getUserName())) {
             result = new ChatServerResponse(ResponseType.NAME_CONFLICT);
+        } else if (checkUserAndPasswordAgainstDatabase(user) == false) {
+            result = new ChatServerResponse(ResponseType.INVALID_USER_AND_PASSWORD);
         } else {
             users.put(user.getUserName(), user);
             result = new ChatServerResponse(ResponseType.USER_ADDED);
         }
         rwLock.writeLock().unlock();
         return result;
+    }
+
+    private boolean checkUserAndPasswordAgainstDatabase(ChatUser user) {
+        // method stub so far, use user.getEncryptedPassword() to check against database
+        return true;
     }
 
     public ChatServerResponse removeUser(ChatUser user) {

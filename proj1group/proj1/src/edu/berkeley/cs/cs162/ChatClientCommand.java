@@ -24,6 +24,12 @@ public class ChatClientCommand implements Serializable {
         this.string1 = string1;
     }
 
+    ChatClientCommand(CommandType commandType, String string1, String string2) {
+        this.commandType = commandType;
+        this.string1 = string1;
+        this.string2 = string2;
+    }
+
     ChatClientCommand(CommandType commandType, String string1, int number, String string2) {
         this.commandType = commandType;
         this.string1 = string1;

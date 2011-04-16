@@ -15,6 +15,7 @@ public class ChatUser extends Thread {
     private ObjectInputStream input;
     private boolean networked;
     private String loginName;
+    private String encryptedPassword;
     private boolean loggedIn;
     private boolean queued;
     private int sendCount;
@@ -91,14 +92,21 @@ public class ChatUser extends Thread {
         return loginName;
     }
 
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
     public void executeCommand(ChatClientCommand command) {
         ChatServerResponse response;
         switch (command.commandType) {
             case DISCONNECT:
                 disconnect();
                 return;
+            case REGISTER:
+                response = registerUser(command.string1, command.string2);
+                break;
             case LOGIN:
-                response = login(command.string1);
+                response = login(command.string1, command.string2);
                 break;
             case LOGOUT:
                 response = logout();
@@ -147,7 +155,46 @@ public class ChatUser extends Thread {
         shutdown();
     }
 
-    public ChatServerResponse login(String userName) {
+    public ChatServerResponse registerUser(String userName, String password) {
+        if (networked && loginTimeout != null) {
+            loginTimeout.cancel();
+            loginTimeout = null;
+        }
+        Date time = Calendar.getInstance().getTime();
+        ChatServerResponse response = null;
+        if (loggedIn) {
+            // should fail b/c cannot make new user while logged in
+            response = new ChatServerResponse(ResponseType.USER_REGISTRATION_WHILE_LOGGED_IN);
+            TestChatServer.logUserRegistrationFailed(userName, time);
+            log.offer(dateFormatter.format(time) + " | Register User Failure | Client is currently logged in.");
+        } else {
+            loginName = userName;
+            encryptedPassword = password;
+            response = chatServer.registerUser(this);
+
+            switch (response.responseType) {
+                case SHUTTING_DOWN:
+                    TestChatServer.logUserRegistrationFailed(userName, time);
+                    log.offer(dateFormatter.format(time) + " | Register User Failure | ChatServer is shutting down.");
+                    break;
+                case NAME_CONFLICT:
+                    TestChatServer.logUserRegistrationFailed(userName, time);
+                    log.offer(dateFormatter.format(time) + " | Register User Failure | Name already taken.");
+                    break;
+                case USER_REGISTRATION_OK:
+                    TestChatServer.logUserRegistration(userName, time);
+                    log.offer(dateFormatter.format(time) + " | Register User Success | Registered as " + userName);
+                    break;
+            }
+            if (networked) {
+                // regardless of whether registration succeeded or not, clients not logged in are given 20 seconds timeout again
+                loginTimeout = new LoginTimeout(this, 20);
+            }
+        }
+        return response;
+    }
+
+    public ChatServerResponse login(String userName, String password) {
         if (networked && loginTimeout != null) {
             loginTimeout.cancel();
             loginTimeout = null;
@@ -157,6 +204,7 @@ public class ChatUser extends Thread {
             logout();
         }
         loginName = userName;
+        encryptedPassword = password;
         ChatServerResponse response = chatServer.login(this);
         switch (response.responseType) {
             case SHUTTING_DOWN:
@@ -183,6 +231,13 @@ public class ChatUser extends Thread {
                 }
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | Name already taken.");
+                break;
+            case INVALID_USER_AND_PASSWORD:
+                if (networked) {
+                    loginTimeout = new LoginTimeout(this, 20);
+                }
+                TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
+                log.offer(dateFormatter.format(time) + " | Login Failure | Wrong username and/or password.");
                 break;
             case USER_ADDED:
                 loggedIn = true;
