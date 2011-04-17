@@ -84,7 +84,7 @@ class UserManager {
     public ChatServerResponse loginUser(ChatUser user, String password) {
         try {
             HashMap<String, Object> userEntry = databaseManager.getUser(user.getUserName());
-            if (((String)userEntry.get("name")).equals(user.getUserName()) && ((String)userEntry.get("password")).equals(password)) {
+            if (userEntry != null && ((String)userEntry.get("name")).equals(user.getUserName()) && ((String)userEntry.get("password")).equals(password)) {
                 ChatServerResponse result;
                 rwLock.writeLock().lock();
                 if (loggedInUsers.size() >= maxLoggedInUsers) {

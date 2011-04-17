@@ -15,8 +15,9 @@ public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
         // Database Tests
-        //testEmptyDatabase();
-        //testAddUsersAndGroups();
+        //testDatabaseEmptyDatabase();
+        //testDatabaseAddUsersAndGroups();
+        //testDatabaseOfflineMessages();
 
         // Non-Networked Tests
         //testBasic();
@@ -24,15 +25,13 @@ public class TestChatServer {
         //testUserNameUniqueness();
         //testServerCapacity();
         //testLoginQueue();
-        //testGroupCapacity();
         //testUserJoinsMultipleGroups();
         //testUnicastMessages();
-        //testBroadcastMessages();
+        testBroadcastMessages();
         //testSelfUnicast();
         //testNonMemberBroadcast();
         //testFailUnicast();
         //testServerShutdown();
-        //testUserManager();
 
         // Networked Tests
         //testNetworkLogin();
@@ -62,7 +61,7 @@ public class TestChatServer {
 
     // Database Tests
 
-    public static void testEmptyDatabase() throws SQLException {
+    public static void testDatabaseEmptyDatabase() throws SQLException {
         System.out.println("=== BEGIN DATABASE TEST Empty Database  ===");
         DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.emptyDatabase();
@@ -78,7 +77,7 @@ public class TestChatServer {
         System.out.println("=== END DATABASE TEST Empty Database  ===\n");
     }
 
-    public static void testAddUsersAndGroups() throws SQLException {
+    public static void testDatabaseAddUsersAndGroups() throws SQLException {
         System.out.println("=== BEGIN DATABASE TEST Add Users and Groups  ===");
         DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.emptyDatabase();
@@ -92,8 +91,8 @@ public class TestChatServer {
 
         databaseManager.addGroup("group1");
         HashMap<String, Object> group1 = databaseManager.getGroup("group1");
-        databaseManager.addGroup("group2");
         System.out.println("Added Group: " + group1.get("name"));
+        databaseManager.addGroup("group2");
         HashMap<String, Object> group2 = databaseManager.getGroup("group2");
         System.out.println("Added Group: " + group2.get("name"));
 
@@ -156,40 +155,83 @@ public class TestChatServer {
         System.out.println("=== END DATABASE TEST Add Users and Groups  ===\n");
     }
 
-/*
-    // Non-Networked Server Tests (Project 1)
+    public static void testDatabaseOfflineMessages() throws Exception {
+        System.out.println("=== BEGIN DATABASE TEST Database Offline Messages  ===");
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
 
-    public static void testBasic() throws InterruptedException {
+        databaseManager.addUser("user1", "password");
+        HashMap<String, Object> user1 = databaseManager.getUser("user1");
+        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password"));
+        databaseManager.addUser("user2", "password");
+        HashMap<String, Object> user2 = databaseManager.getUser("user2");
+        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password"));
+
+        databaseManager.addGroup("group1");
+        HashMap<String, Object> group1 = databaseManager.getGroup("group1");
+        System.out.println("Added Group: " + group1.get("name"));
+        databaseManager.addGroup("group2");
+        HashMap<String, Object> group2 = databaseManager.getGroup("group2");
+        System.out.println("Added Group: " + group2.get("name"));
+        databaseManager.addUserToGroup("user1", "group1");
+        databaseManager.addUserToGroup("user2", "group1");
+
+        ChatUser chatUser2 = new ChatUser(null);
+        chatUser2.setUserName("user2");
+        databaseManager.logMessage("user1", new Message(chatUser2, "user1", 1, "Message 1"));
+        Thread.currentThread().sleep(2000);
+        databaseManager.logMessage("user1", new Message(chatUser2, "group1", 2, "Message 2"));
+
+        System.out.println("\nuser1 Offline Messages");
+        LinkedList<HashMap<String, Object>> messages = databaseManager.getOfflineMessages("user1");
+        HashMap<String, Object> messageProperties = messages.poll();
+        while (messageProperties != null) {
+            System.out.println(messageProperties.get("text"));
+            messageProperties = messages.poll();
+        }
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END DATABASE TEST Database Offline Messages  ===\n");
+    }
+
+    // Non-Networked Server Tests
+
+    public static void testBasic() throws Exception {
         System.out.println("=== BEGIN TEST Basic Test ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
         ChatUser user3 = new ChatUser(chatServer);
 
-        user1.login("User 1");
-        user2.login("User 2");
-        user3.login("User 3");
+        user1.addUser("user1", "password");
+        user2.addUser("user2", "password");
+        user3.addUser("user3", "password");
 
-        user1.sendMessage("User 2", "Message 1");
+        user1.login("user1", "password");
+        user2.login("user2", "password");
+        user3.login("user3", "password");
+
+        user1.sendMessage("user2", 1, "Message 1");
         Thread.currentThread().sleep(50);
-        user2.sendMessage("User 1", "Message 2");
+        user2.sendMessage("user1", 1, "Message 2");
         Thread.currentThread().sleep(50);
-        user1.sendMessage("User 2", "Message 3");
+        user1.sendMessage("user2", 2, "Message 3");
         Thread.currentThread().sleep(50);
-        user2.sendMessage("User 1", "Message 4");
+        user2.sendMessage("user1", 2, "Message 4");
         Thread.currentThread().sleep(50);
 
-        user1.joinGroup("Group 1");
-        user2.joinGroup("Group 1");
-        user3.joinGroup("Group 1");
+        user1.joinGroup("group1");
+        user2.joinGroup("group1");
+        user3.joinGroup("group1");
 
-        user1.sendMessage("Group 1", "Message 5");
+        user1.sendMessage("group1", 3, "Message 5");
         Thread.currentThread().sleep(50);
-        user2.sendMessage("Group 1", "Message 6");
+        user2.sendMessage("group1", 3, "Message 6");
         Thread.currentThread().sleep(50);
-        user3.sendMessage("Group 1", "Message 7");
+        user3.sendMessage("group1", 1, "Message 7");
         Thread.currentThread().sleep(50);
 
         user1.logout();
@@ -207,22 +249,26 @@ public class TestChatServer {
         System.out.println("== END LOG user3 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Basic test ===\n");
     }
 
-    public static void testLogout() throws InterruptedException {
+    public static void testLogout() throws Exception {
         System.out.println("=== BEGIN TEST Logout ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user1.joinGroup("Group 1");
-        user2.joinGroup("Group 1");
-        user1.joinGroup("Group 2");
-        user1.joinGroup("Group 3");
+        user1.addUser("user1", "password");
+        user2.addUser("user2", "password");
+        user1.login("user1", "password");
+        user2.login("user2", "password");
+        user1.joinGroup("group1");
+        user2.joinGroup("group1");
+        user1.joinGroup("group2");
+        user1.joinGroup("group3");
         user1.logout();
 
         System.out.println("\n== BEGIN LOG user1 ==");
@@ -230,19 +276,21 @@ public class TestChatServer {
         System.out.println("== END LOG user1 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Logout ===\n");
     }
 
-    public static void testUserNameUniqueness() throws InterruptedException {
+    public static void testUserNameUniqueness() throws Exception {
         System.out.println("=== BEGIN TEST User Name Uniqueness ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
 
-        user1.login("Name");
-        user2.login("Name");
+        user1.addUser("name", "password");
+        user2.addUser("Name", "password");
 
         System.out.println("\n== BEGIN LOG user1 ==");
         user1.printLog();
@@ -252,18 +300,21 @@ public class TestChatServer {
         System.out.println("== END LOG user2 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST User Name Uniqueness ===\n");
     }
 
-    public static void testServerCapacity() throws InterruptedException {
+    public static void testServerCapacity() throws Exception {
         System.out.println("=== BEGIN TEST Server Capacity ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser[] users = new ChatUser[112];
         for (int i = 1; i <= 111; i++) {
             users[i] = new ChatUser(chatServer);
-            users[i].login("User " + Integer.toString(i));
+            users[i].addUser("user" + Integer.toString(i), "password");
+            users[i].login("user" + Integer.toString(i), "password");
         }
 
         for (int i = 1; i <= 111; i++) {
@@ -273,18 +324,21 @@ public class TestChatServer {
         }
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Server Capacity ===\n");
     }
 
-    public static void testLoginQueue() throws InterruptedException {
+    public static void testLoginQueue() throws Exception {
         System.out.println("=== BEGIN TEST Login Queue ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser[] users = new ChatUser[111];
         for (int i = 1; i <= 110; i++) {
             users[i] = new ChatUser(chatServer);
-            users[i].login("User " + Integer.toString(i));
+            users[i].addUser("user" + Integer.toString(i), "password");
+            users[i].login("user" + Integer.toString(i), "password");
         }
 
         users[110].logout();
@@ -300,62 +354,47 @@ public class TestChatServer {
         }
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Login Queue ===\n");
     }
 
-    public static void testGroupCapacity() throws InterruptedException {
-        System.out.println("=== BEGIN TEST Group Capacity ===");
-        ChatServer chatServer = new ChatServer();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[12];
-        for (int i = 1; i <= 11; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].login("User " + Integer.toString(i));
-            users[i].joinGroup("Group 1");
-        }
-
-        for (int i = 1; i <= 11; i++) {
-            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
-            users[i].printLog();
-            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
-        }
-
-        chatServer.shutdown();
-        System.out.println("=== END TEST Group Capacity ===\n");
-    }
-
-    public static void testUserJoinsMultipleGroups() throws InterruptedException {
+    public static void testUserJoinsMultipleGroups() throws Exception {
         System.out.println("=== BEGIN TEST User Joins Multiple Groups ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user1.joinGroup("Group 1");
-        user1.joinGroup("Group 2");
-        user1.joinGroup("Group 3");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.joinGroup("group1");
+        user1.joinGroup("group2");
+        user1.joinGroup("group3");
 
         user1.printLog();
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
-    public static void testUnicastMessages() throws InterruptedException {
+    public static void testUnicastMessages() throws Exception {
         System.out.println("=== BEGIN TEST Unicast Messages ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user2.addUser("user2", "password");
+        user2.login("user2", "password");
 
         for (int i = 1; i <= 10; i++) {
-            user1.sendMessage("User 2", "Message " + Integer.toString(i));
+            user1.sendMessage("user2", i, "Message " + Integer.toString(i));
             Thread.currentThread().sleep(50);
-            user2.sendMessage("User 1", "Response " + Integer.toString(i));
+            user2.sendMessage("user1", i, "Response " + Integer.toString(i));
             Thread.currentThread().sleep(50);
         }
 
@@ -367,30 +406,35 @@ public class TestChatServer {
         System.out.println("== END LOG user2 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Unicast Messages ===\n");
     }
 
-    public static void testBroadcastMessages() throws InterruptedException {
+    public static void testBroadcastMessages() throws Exception {
         System.out.println("=== BEGIN TEST Broadcast Messages ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
         ChatUser user3 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user3.login("User 3");
-        user1.joinGroup("Group 1");
-        user2.joinGroup("Group 1");
-        user3.joinGroup("Group 1");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user2.addUser("user2", "password");
+        user2.login("user2", "password");
+        user3.addUser("user3", "password");
+        user3.login("user3", "password");
+        user1.joinGroup("group1");
+        user2.joinGroup("group1");
+        user3.joinGroup("group1");
 
         for (int i = 1; i <= 10; i++) {
-            user1.sendMessage("Group 1", "Message " + Integer.toString(i));
+            user1.sendMessage("group1", i, "Message " + Integer.toString(i));
             Thread.currentThread().sleep(50);
-            user2.sendMessage("Group 1", "Response " + Integer.toString(i));
+            user2.sendMessage("group1", i, "Response " + Integer.toString(i));
             Thread.currentThread().sleep(50);
-            user3.sendMessage("Group 1", "Another Response " + Integer.toString(i));
+            user3.sendMessage("group1", i, "Another Response " + Integer.toString(i));
             Thread.currentThread().sleep(50);
         }
 
@@ -405,37 +449,44 @@ public class TestChatServer {
         System.out.println("== END LOG user3 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Broadcast Messages ===\n");
     }
 
-    public static void testSelfUnicast() throws InterruptedException {
+    public static void testSelfUnicast() throws Exception {
         System.out.println("=== BEGIN TEST Non-Member Broadcast ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user1.sendMessage("User 1", "Message 1");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.sendMessage("user1", 1, "Message 1");
 
         System.out.println("\n== BEGIN LOG user1 ==");
         user1.printLog();
         System.out.println("== END LOG user1 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Non-Member Broadcast ===\n");
     }
 
-    public static void testNonMemberBroadcast() throws InterruptedException {
+    public static void testNonMemberBroadcast() throws Exception {
         System.out.println("=== BEGIN TEST Non-Member Broadcast ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user2.joinGroup("Group 1");
-        user1.sendMessage("Group 1", "Message 1");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user2.addUser("user2", "password");
+        user2.login("user 2", "password");
+        user2.joinGroup("group1");
+        user1.sendMessage("group1", 1, "Message 1");
 
         System.out.println("\n== BEGIN LOG user1 ==");
         user1.printLog();
@@ -445,21 +496,25 @@ public class TestChatServer {
         System.out.println("== END LOG user2 ==");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Non-Member Broadcast ===\n");
     }
 
-    public static void testFailUnicast() throws InterruptedException {
+    public static void testFailUnicast() throws Exception {
         System.out.println("=== BEGIN TEST Fail Unicast ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         MessageDispatcher messageDispatcher = chatServer.getMessageDispatcher();
         chatServer.start();
 
         messageDispatcher.suspend();
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user1.sendMessage("User 2", "Message 1");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.addUser("user1", "password");
+        user2.login("user2", "password");
+        user1.sendMessage("user2", 1, "Message 1");
         user2.logout();
         messageDispatcher.resume();
 
@@ -471,25 +526,30 @@ public class TestChatServer {
         System.out.println("== END LOG user2 ==\n");
 
         chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Fail Unicast ===\n");
     }
 
-    public static void testServerShutdown() throws InterruptedException {
+    public static void testServerShutdown() throws Exception {
         System.out.println("=== BEGIN TEST Server Shutdown ===");
         ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
 
         ChatUser user1 = new ChatUser(chatServer);
         ChatUser user2 = new ChatUser(chatServer);
         ChatUser user3 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user2.joinGroup("Group 2");
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.addUser("user1", "password");
+        user2.login("user2", "password");
+        user3.addUser("user3", "password");
+        user2.joinGroup("group2");
 
         chatServer.shutdown();
-        user1.sendMessage("User 2", "Message 1");
-        user1.joinGroup("Group 1");
-        user3.login("User 3");
+        user1.sendMessage("user2", 1, "Message 1");
+        user1.joinGroup("group1");
+        user3.login("user3", "password");
 
         user1.logout();
         user2.leaveGroup("Group 2");
@@ -504,71 +564,11 @@ public class TestChatServer {
         user3.printLog();
         System.out.println("== END LOG user3 ==");
 
+        chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Server Shutdown ===\n");
     }
 
-    public static void testUserManager() throws InterruptedException {
-        System.out.println("=== BEGIN TEST UserManager ===");
-        ChatServer chatServer = new ChatServer();
-        chatServer.start();
-
-        ChatUser user1 = new ChatUser(chatServer);
-        ChatUser user2 = new ChatUser(chatServer);
-        ChatUser user3 = new ChatUser(chatServer);
-        ChatUser user4 = new ChatUser(chatServer);
-        user1.login("User 1");
-        user2.login("User 2");
-        user3.login("User 3");
-
-        user4.getUserCount();
-        user4.getUserList();
-        user4.getGroupCount();
-        user4.getGroupList();
-
-        user4.login("User 4");
-        user4.logout();
-        user4.getUserCount();
-        user4.getUserList();
-        user4.getGroupCount();
-        user4.getGroupList();
-
-        user1.getGroupUserList("Group 1");
-        user1.leaveGroup("Group 1");
-        user1.getGroupUserList("Group 1");
-        user2.joinGroup("Group 1");
-        user1.leaveGroup("Group 1");
-        user1.getGroupUserList("Group 1");
-        user2.leaveGroup("Group 1");
-        user1.getGroupUserList("Group 1");
-
-        user2.joinGroup("Group 1");
-        user2.joinGroup("Group 2");
-        user2.joinGroup("Group 3");
-        user1.getGroupUserList("Group 1");
-        user1.getGroupUserList("Group 2");
-        user1.getGroupUserList("Group 3");
-        user2.logout();
-        user1.getGroupUserList("Group 1");
-        user1.getGroupUserList("Group 2");
-        user1.getGroupUserList("Group 3");
-
-        System.out.println("\n== BEGIN LOG user1 ==");
-        user1.printLog();
-        System.out.println("== END LOG user1 ==");
-        System.out.println("\n== BEGIN LOG user2 ==");
-        user2.printLog();
-        System.out.println("== END LOG user2 ==");
-        System.out.println("\n== BEGIN LOG user3 ==");
-        user3.printLog();
-        System.out.println("== END LOG user3 ==");
-        System.out.println("\n== BEGIN LOG user4 ==");
-        user4.printLog();
-        System.out.println("== END LOG user4 ==");
-
-        chatServer.shutdown();
-        System.out.println("=== END TEST UserManager ===\n");
-    }
-
+    /*
     // Networked Server Tests (Project 2)
 
     public static void testNetworkLogin() throws Exception {

@@ -89,6 +89,10 @@ public class ChatUser extends Thread {
         return loginName;
     }
 
+    public void setUserName(String userName) {
+        loginName = userName;
+    }
+
     public void executeCommand(ChatClientCommand command) {
         ChatServerResponse response;
         switch (command.commandType) {
@@ -186,6 +190,9 @@ public class ChatUser extends Thread {
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is shutting down.");
                 break;
+            case DATABASE_FAILURE:
+                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
+                log.offer(dateFormatter.format(time) + " | Login Failure | Database Failure.");
             case USER_QUEUED:
                 queued = true;
                 log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
@@ -205,7 +212,7 @@ public class ChatUser extends Thread {
                 TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | Wrong username and/or password.");
                 break;
-            case USER_ADDED:
+            case USER_LOGGED_IN:
                 loggedIn = true;
                 TestChatServer.logUserLogin(userName, time);
                 log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + userName);
