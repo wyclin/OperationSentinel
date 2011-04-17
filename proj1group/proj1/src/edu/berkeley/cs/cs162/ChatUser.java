@@ -365,7 +365,7 @@ public class ChatUser extends Thread {
     public void receiveMessage(Message message) {
         Date time = Calendar.getInstance().getTime();
         TestChatServer.logUserMsgRecvd(loginName, message.toString(), time);
-        log.offer(dateFormatter.format(time) + " | Receiving Message | " + message.sender.getUserName() + " (" + Integer.toString(message.sqn) + ") -> " + message.receiver + " | " + message.text);
+        log.offer(dateFormatter.format(time) + " | Receiving Message | " + message.senderName + " (" + Integer.toString(message.sqn) + ") -> " + message.receiver + " | " + message.text);
         pendingResponses.offer(new ChatServerResponse(ResponseType.MESSAGE_RECEIVED, message));
     }
 

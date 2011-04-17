@@ -327,7 +327,7 @@ public class DatabaseManager {
         }
     }
 
-    public LinkedList<HashMap<String, Object>> getOfflineMessages(String userName) throws SQLException {
+        public LinkedList<HashMap<String, Object>> getOfflineMessages(String userName) throws SQLException {
         String query1 = "SELECT `timestamp`,`sqn`,`sender`,`receiver`,`text` FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "') ORDER BY `timestamp` ASC;";
         String query2 = "DELETE FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "');";
         Connection connection = null;
@@ -342,8 +342,9 @@ public class DatabaseManager {
             statement2.executeUpdate(query2);
             connection.commit();
             LinkedList<HashMap<String, Object>> messages = new LinkedList<HashMap<String, Object>>();
+            HashMap<String, Object> messageProperties;
             while (results.next()) {
-                HashMap<String, Object> messageProperties = new HashMap<String, Object>();
+                messageProperties = new HashMap<String, Object>();
                 messageProperties.put("timestamp", results.getDate(1));
                 messageProperties.put("sqn", results.getInt(2));
                 messageProperties.put("sender", results.getString(3));

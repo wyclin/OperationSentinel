@@ -27,11 +27,11 @@ public class TestChatServer {
         //testLoginQueue();
         //testUserJoinsMultipleGroups();
         //testUnicastMessages();
-        testBroadcastMessages();
+        //testBroadcastMessages();
         //testSelfUnicast();
         //testNonMemberBroadcast();
-        //testFailUnicast();
         //testServerShutdown();
+        testOfflineMessages();
 
         // Networked Tests
         //testNetworkLogin();
@@ -454,7 +454,7 @@ public class TestChatServer {
     }
 
     public static void testSelfUnicast() throws Exception {
-        System.out.println("=== BEGIN TEST Non-Member Broadcast ===");
+        System.out.println("=== BEGIN TEST Self Unicast ===");
         ChatServer chatServer = new ChatServer();
         chatServer.getDatabaseManager().emptyDatabase();
         chatServer.start();
@@ -470,7 +470,7 @@ public class TestChatServer {
 
         chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
-        System.out.println("=== END TEST Non-Member Broadcast ===\n");
+        System.out.println("=== END TEST Self Unicast ===\n");
     }
 
     public static void testNonMemberBroadcast() throws Exception {
@@ -484,7 +484,7 @@ public class TestChatServer {
         user1.addUser("user1", "password");
         user1.login("user1", "password");
         user2.addUser("user2", "password");
-        user2.login("user 2", "password");
+        user2.login("user2", "password");
         user2.joinGroup("group1");
         user1.sendMessage("group1", 1, "Message 1");
 
@@ -500,36 +500,6 @@ public class TestChatServer {
         System.out.println("=== END TEST Non-Member Broadcast ===\n");
     }
 
-    public static void testFailUnicast() throws Exception {
-        System.out.println("=== BEGIN TEST Fail Unicast ===");
-        ChatServer chatServer = new ChatServer();
-        chatServer.getDatabaseManager().emptyDatabase();
-        MessageDispatcher messageDispatcher = chatServer.getMessageDispatcher();
-        chatServer.start();
-
-        messageDispatcher.suspend();
-        ChatUser user1 = new ChatUser(chatServer);
-        ChatUser user2 = new ChatUser(chatServer);
-        user1.addUser("user1", "password");
-        user1.login("user1", "password");
-        user1.addUser("user1", "password");
-        user2.login("user2", "password");
-        user1.sendMessage("user2", 1, "Message 1");
-        user2.logout();
-        messageDispatcher.resume();
-
-        System.out.println("\n== BEGIN LOG user1 ==");
-        user1.printLog();
-        System.out.println("== END LOG user1 ==");
-        System.out.println("\n== BEGIN LOG user2 ==");
-        user2.printLog();
-        System.out.println("== END LOG user2 ==\n");
-
-        chatServer.shutdown();
-        chatServer.getDatabaseManager().emptyDatabase();
-        System.out.println("=== END TEST Fail Unicast ===\n");
-    }
-
     public static void testServerShutdown() throws Exception {
         System.out.println("=== BEGIN TEST Server Shutdown ===");
         ChatServer chatServer = new ChatServer();
@@ -541,7 +511,7 @@ public class TestChatServer {
         ChatUser user3 = new ChatUser(chatServer);
         user1.addUser("user1", "password");
         user1.login("user1", "password");
-        user1.addUser("user1", "password");
+        user1.addUser("user2", "password");
         user2.login("user2", "password");
         user3.addUser("user3", "password");
         user2.joinGroup("group2");
@@ -552,7 +522,7 @@ public class TestChatServer {
         user3.login("user3", "password");
 
         user1.logout();
-        user2.leaveGroup("Group 2");
+        user2.leaveGroup("group2");
 
         System.out.println("\n== BEGIN LOG user1 ==");
         user1.printLog();
@@ -566,6 +536,38 @@ public class TestChatServer {
 
         chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Server Shutdown ===\n");
+    }
+
+    public static void testOfflineMessages() throws Exception {
+        System.out.println("=== BEGIN TEST Offline Messages ===");
+        ChatServer chatServer = new ChatServer();
+        chatServer.getDatabaseManager().emptyDatabase();
+        MessageDispatcher messageDispatcher = chatServer.getMessageDispatcher();
+        chatServer.start();
+
+        ChatUser user1 = new ChatUser(chatServer);
+        ChatUser user2 = new ChatUser(chatServer);
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user2.addUser("user2", "password");
+        user1.sendMessage("user2", 1, "Message 1");
+        user1.sendMessage("user2", 2, "Message 2");
+
+        Thread.currentThread().sleep(100);
+        user2.login("user2", "password");
+        user2.readLog();
+        Thread.currentThread().sleep(100);
+
+        System.out.println("\n== BEGIN LOG user1 ==");
+        user1.printLog();
+        System.out.println("== END LOG user1 ==");
+        System.out.println("\n== BEGIN LOG user2 ==");
+        user2.printLog();
+        System.out.println("== END LOG user2 ==\n");
+
+        chatServer.shutdown();
+        chatServer.getDatabaseManager().emptyDatabase();
+        System.out.println("=== END TEST Offline Messages ===\n");
     }
 
     /*

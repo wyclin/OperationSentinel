@@ -89,11 +89,11 @@ class MessageDispatcher extends Thread {
             LinkedList<HashMap<String, Object>> messages = databaseManager.getOfflineMessages(user.getUserName());
             HashMap<String, Object> m = messages.poll();
             while (m != null) {
-                Message message = new Message((Date)m.get("timestamp"), null, (String)m.get("receiver"), (Integer)m.get("sqn"), (String)m.get("text"));
+                Message message = new Message((Date)m.get("timestamp"), (String)m.get("sender"), (String)m.get("receiver"), (Integer)m.get("sqn"), (String)m.get("text"));
                 user.receiveMessage(message);
                 m = messages.poll();
             }
-        } catch (Exception e) {}
+        } catch (SQLException e) {}
     }
 
     public void run() {
