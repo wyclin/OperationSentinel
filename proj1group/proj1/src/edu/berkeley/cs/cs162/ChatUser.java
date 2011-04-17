@@ -141,7 +141,6 @@ public class ChatUser extends Thread {
         Date time = Calendar.getInstance().getTime();
         if (loggedIn || queued) {
             chatServer.logout(this);
-            TestChatServer.logUserLogout(loginName, time);
             log.offer(dateFormatter.format(time) + " | " + loginName + " has been force logged out.");
             queued = false;
             loggedIn = false;
@@ -160,15 +159,12 @@ public class ChatUser extends Thread {
         ChatServerResponse response = chatServer.addUser(userName, password);
         switch (response.responseType) {
             case SHUTTING_DOWN:
-                TestChatServer.logUserRegistrationFailed(userName, time);
                 log.offer(dateFormatter.format(time) + " | Register User Failure | ChatServer is shutting down.");
                 break;
             case NAME_CONFLICT:
-                TestChatServer.logUserRegistrationFailed(userName, time);
                 log.offer(dateFormatter.format(time) + " | Register User Failure | Name already taken.");
                 break;
             case USER_ADDED:
-                TestChatServer.logUserRegistration(userName, time);
                 log.offer(dateFormatter.format(time) + " | Register User Success | Registered as " + userName);
                 break;
         }
@@ -187,7 +183,6 @@ public class ChatUser extends Thread {
         switch (response.responseType) {
             case SHUTTING_DOWN:
                 if (networked) {loginTimeout = new LoginTimeout(this, 20);}
-                TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is shutting down.");
                 break;
             case DATABASE_FAILURE:
@@ -199,22 +194,18 @@ public class ChatUser extends Thread {
                 break;
             case USER_CAPACITY_REACHED:
                 if (networked) {loginTimeout = new LoginTimeout(this, 20);}
-                TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_DROPPED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is full.");
                 break;
             case NAME_CONFLICT:
                 if (networked) {loginTimeout = new LoginTimeout(this, 20);}
-                TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | Name already taken.");
                 break;
             case INVALID_NAME_OR_PASSWORD:
                 if (networked) {loginTimeout = new LoginTimeout(this, 20);}
-                TestChatServer.logUserLoginFailed(userName, time, LoginError.USER_REJECTED);
                 log.offer(dateFormatter.format(time) + " | Login Failure | Wrong username and/or password.");
                 break;
             case USER_LOGGED_IN:
                 loggedIn = true;
-                TestChatServer.logUserLogin(userName, time);
                 log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + userName);
                 break;
         }
@@ -223,7 +214,6 @@ public class ChatUser extends Thread {
 
     public void loggedIn() {
         Date time = Calendar.getInstance().getTime();
-        TestChatServer.logUserLogin(loginName, time);
         log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + loginName);
         queued = false;
         loggedIn = true;
@@ -239,7 +229,6 @@ public class ChatUser extends Thread {
                     log.offer(dateFormatter.format(time) + " | Logout Failure | " + loginName + " is not logged in.");
                     break;
                 case USER_LOGGED_OUT:
-                    TestChatServer.logUserLogout(loginName, time);
                     log.offer(dateFormatter.format(time) + " | Logout Success | " + loginName + " has been logged out.");
                     break;
             }
@@ -268,14 +257,12 @@ public class ChatUser extends Thread {
                     loggedIn = false;
                     break;
                 case USER_ADDED_TO_NEW_GROUP:
-                    TestChatServer.logUserJoinGroup(groupName, loginName, time);
                     log.offer(dateFormatter.format(time) + " | Join Group Success | " + loginName + " has joined newly created group " + groupName + ".");
                     break;
                 case USER_ALREADY_MEMBER_OF_GROUP:
                     log.offer(dateFormatter.format(time) + " | Join Group Failure | " + loginName + " has already joined " + groupName + ".");
                     break;
                 case USER_ADDED_TO_GROUP:
-                    TestChatServer.logUserJoinGroup(groupName, loginName, time);
                     log.offer(dateFormatter.format(time) + " | Join Group Success | " + loginName + " has joined group " + groupName + ".");
                     break;
             }
@@ -301,7 +288,6 @@ public class ChatUser extends Thread {
                     log.offer(dateFormatter.format(time) + " | Leave Group Failure | " + loginName + " is not a member of " + groupName + ".");
                     break;
                 case USER_REMOVED_FROM_GROUP:
-                    TestChatServer.logUserLeaveGroup(groupName, loginName, time);
                     log.offer(dateFormatter.format(time) + " | Leave Group Success | " + loginName + " has left group " + groupName + ".");
                     break;
             }
@@ -320,38 +306,30 @@ public class ChatUser extends Thread {
             ChatServerResponse response = chatServer.send(message);
             switch (response.responseType) {
                 case SHUTTING_DOWN:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | ChatServer is shutting down.");
                     break;
                 case MESSAGE_ENQUEUED:
                     log.offer(dateFormatter.format(time) + " | Message Queue Success | " + loginName + " (" + sqn + ") -> " + receiver + ".");
                     break;
                 case MESSAGE_BUFFER_FULL:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Buffer full.");
                     break;
                 case SENDER_NOT_FOUND:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender not found.");
                     break;
                 case RECEIVER_NOT_FOUND:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Receiver not found.");
                     break;
                 case RECEIVER_SAME_AS_SENDER:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender same as receiver.");
                     break;
                 case USER_NOT_MEMBER_OF_GROUP:
-                    TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
                     log.offer(dateFormatter.format(time) + " | Message Queue Failure | " + loginName + " (" + sqn + ") -> " + receiver + " | Sender not member of group " + receiver + ".");
                     break;
             }
-            TestChatServer.logUserSendMsg(loginName, message.toString());
             return response;
         } else {
             log.offer(dateFormatter.format(time) + " | Message Queue Failure | Not logged in.");
-            TestChatServer.logUserSendMsg(loginName, message.toString());
             return new ChatServerResponse(ResponseType.USER_NOT_FOUND);
         }
     }
@@ -364,14 +342,12 @@ public class ChatUser extends Thread {
 
     public void receiveMessage(Message message) {
         Date time = Calendar.getInstance().getTime();
-        TestChatServer.logUserMsgRecvd(loginName, message.toString(), time);
         log.offer(dateFormatter.format(time) + " | Receiving Message | " + message.senderName + " (" + Integer.toString(message.sqn) + ") -> " + message.receiver + " | " + message.text);
         pendingResponses.offer(new ChatServerResponse(ResponseType.MESSAGE_RECEIVED, message));
     }
 
     public void receiveSendFailure(Message message) {
         Date time = Calendar.getInstance().getTime();
-        TestChatServer.logChatServerDropMsg(message.toString(), Calendar.getInstance().getTime());
         log.offer(dateFormatter.format(time) + " | Message Send Failure | " + message.sender.getUserName() + " (" + Integer.toString(message.sqn) + ") -> " + message.receiver + ".");
         pendingResponses.offer(new ChatServerResponse(ResponseType.MESSAGE_DELIVERY_FAILURE, message));
     }
