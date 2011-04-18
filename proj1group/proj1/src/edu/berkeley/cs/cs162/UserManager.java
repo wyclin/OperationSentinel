@@ -34,6 +34,7 @@ class UserManager {
             } catch (InterruptedException e) {
             }
         }
+        databaseManager.shutdown();
     }
 
     public DatabaseManager getDatabaseManager() {

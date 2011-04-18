@@ -141,7 +141,7 @@ public class ChatClient extends Thread {
                     break;
                 case LOGIN:
                     switch (response.responseType) {
-                        case USER_ADDED:
+                        case USER_LOGGED_IN:
                             localOutput.println("login OK");
                             break;
                         case USER_QUEUED:

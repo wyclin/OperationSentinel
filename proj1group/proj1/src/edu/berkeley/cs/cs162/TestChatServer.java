@@ -42,13 +42,12 @@ public class TestChatServer {
         //testNetworkSendReceive();
 
         // Client-Server Tests
-        testClientBasic();
+        //testClientBasic();
         //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
         //testClientTimeout();
-        //testClientLoginQueue();
-        //testClientGroupCapacity();
+        testClientLoginQueue();
         //testClientSendMsgFailNotify();
         //testClientDisconnectsWhileInLoginWaitQueue();
         //testClientDoesNotNormallyTimeout();
@@ -978,8 +977,8 @@ public class TestChatServer {
         chatClient.start();
         Thread.currentThread().sleep(5000);
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Basic ===\n");
     }
 
@@ -991,7 +990,8 @@ public class TestChatServer {
 
         String commands = "" +
             "connect localhost:8080\n" +
-            "login user1\n" +
+            "adduser user1 password\n" +
+            "login user1 password\n" +
             "join group1\n" +
             "join group2\n" +
             "join group3\n" +
@@ -1002,8 +1002,8 @@ public class TestChatServer {
         chatClient.start();
         Thread.currentThread().sleep(2000);
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Logout ===\n");
     }
 
@@ -1015,7 +1015,8 @@ public class TestChatServer {
 
         String commands = "" +
             "connect localhost:8080\n" +
-            "login user1\n" +
+            "adduser user1 password\n" +
+            "login user1 password\n" +
             "join group1\n" +
             "join group2\n" +
             "join group3\n" +
@@ -1026,8 +1027,8 @@ public class TestChatServer {
         chatClient.start();
         Thread.currentThread().sleep(2000);
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Disconnect ===\n");
     }
 
@@ -1039,13 +1040,14 @@ public class TestChatServer {
 
         String commands = "" +
             "connect localhost:8080\n" +
-            "login user1\n" +
+            "adduser user1 password\n" +
+            "login user1 password\n" +
             "join group1\n" +
             "leave group1\n" +
             "logout\n" +
             "disconnect\n" +
             "connect localhost:8080\n" +
-            "login user1\n" +
+            "login user1 password\n" +
             "join group1\n" +
             "logout\n" +
             "disconnect";
@@ -1055,8 +1057,8 @@ public class TestChatServer {
         chatClient.start();
         Thread.currentThread().sleep(5000);
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Reconnect ===\n");
     }
 
@@ -1075,8 +1077,8 @@ public class TestChatServer {
         chatClient.start();
         Thread.currentThread().sleep(22000);
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Basic ===\n");
     }
 
@@ -1096,61 +1098,22 @@ public class TestChatServer {
         System.out.println("\n== BEGIN user101 ==");
         String commands = "" +
             "connect localhost:8080\n" +
-            "add user101 password\n" +
+            "adduser user101 password\n" +
             "login user101 password\n" +
-            "sleep 1000\n" +
-            "disconnect";
+            "sleep 2000";
         BufferedReader input = new BufferedReader(new StringReader(commands));
         PrintWriter output = new PrintWriter(System.out, true);
         ChatClient chatClient = new ChatClient(input, output);
         chatClient.start();
-        Thread.currentThread().sleep(500);
+        Thread.currentThread().sleep(1000);
 
         users[1].logout();
         Thread.currentThread().sleep(1000);
         System.out.println("== END user101 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Login Queue ===\n");
-    }
-
-    public static void testClientGroupCapacity() throws Exception {
-        System.out.println("=== BEGIN TEST Client Group Capacity ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[11];
-        for (int i = 1; i <= 10; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-            users[i].joinGroup("group1");
-        }
-
-        System.out.println("\n== BEGIN user11 ==");
-        String commands = "" +
-            "connect localhost:8080\n" +
-            "adduser user11 password\n" +
-            "login user11 password\n" +
-            "join group1\n" +
-            "sleep 3000\n" +
-            "join group1\n" +
-            "disconnect";
-        BufferedReader input = new BufferedReader(new StringReader(commands));
-        PrintWriter output = new PrintWriter(System.out, true);
-        ChatClient chatClient = new ChatClient(input, output);
-        chatClient.start();
-        Thread.currentThread().sleep(1000);
-
-        users[1].leaveGroup("group1");
-        Thread.currentThread().sleep(3000);
-        System.out.println("== END user101 ==\n");
-
-        chatServer.shutdown();
-        chatServer.getDatabaseManager().emptyDatabase();
-        System.out.println("=== END TEST Client Group Capacity ===\n");
     }
 
     public static void testClientSendMsgFailNotify() throws Exception {
@@ -1184,8 +1147,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Send Message Failure Notification ===");
     }
 
@@ -1229,8 +1192,8 @@ public class TestChatServer {
         Thread.currentThread().sleep(50);
         System.out.println("== END Simulated Client ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Disconnects While In Login Wait Queue ===");
     }
 
@@ -1270,8 +1233,8 @@ public class TestChatServer {
         user101.printLog();
         System.out.println("== END LOG user101 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Does Not Normally Timeout ===\n");
     }
 
@@ -1292,8 +1255,8 @@ public class TestChatServer {
         chatClient.start();
 
         Thread.currentThread().sleep(21000);
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Client Disconnect is Handled After Logout ===");
     }
 
@@ -1362,8 +1325,8 @@ public class TestChatServer {
         chatClient.start();
 
         Thread.currentThread().sleep(20000);
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== BEGIN TEST Reject Certain Client Commands When Disconnected or Not Logged In ===");
 
     }
@@ -1392,8 +1355,8 @@ public class TestChatServer {
         chatClient.start();
 
         Thread.currentThread().sleep(5000);
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== BEGIN TEST Invalid Client Commands Are Gracefully Skipped ===");
     }
 }

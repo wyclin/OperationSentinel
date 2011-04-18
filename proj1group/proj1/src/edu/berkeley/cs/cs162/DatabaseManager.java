@@ -32,6 +32,10 @@ public class DatabaseManager {
         }
     }
 
+    public void shutdown() {
+        dataSource.close();
+    }
+
     public void emptyDatabase() throws SQLException {
         String query1 = "DELETE FROM `InGroup`;";
         String query2 = "DELETE FROM `MessageReceivers`";
