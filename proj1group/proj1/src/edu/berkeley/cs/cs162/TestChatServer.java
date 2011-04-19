@@ -15,49 +15,50 @@ public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
         // Database Tests
-        //testDatabaseEmptyDatabase();
-        //testDatabaseAddUsersAndGroups();
-        //testDatabaseOfflineMessages();
+        testDatabaseEmptyDatabase();
+        testDatabaseAddUsersAndGroups();
+        testDatabaseOfflineMessages();
 
         // Non-Networked Tests
-        //testBasic();
-        //testLogout();
-        //testUserNameUniqueness();
-        //testServerCapacity();
-        //testLoginQueue();
-        //testUserJoinsMultipleGroups();
-        //testUnicastMessages();
-        //testBroadcastMessages();
-        //testSelfUnicast();
-        //testNonMemberBroadcast();
-        //testServerShutdown();
-        //testOfflineMessages();
-
+        testBasic();
+	testLogout();
+	testUserNameUniqueness();
+        testServerCapacity();
+        testLoginQueue();
+        testUserJoinsMultipleGroups();
+        testUnicastMessages();
+        testBroadcastMessages();
+        testSelfUnicast();
+        testNonMemberBroadcast();
+        testServerShutdown();
+        testOfflineMessages();
+	    
         // Networked Tests
-        //testNetworkLogin();
-        //testNetworkLoginTimeout();
-        //testNetworkUnexpectedDisconnectBeforeLogin();
-        //testNetworkUnexpectedDisconnectAfterLogin();
-        //testNetworkLoginQueue();
-        //testNetworkSendReceive();
-        //testNetworkReadlog();
+        testNetworkLogin();
+        testNetworkLoginTimeout();
+        testNetworkUnexpectedDisconnectBeforeLogin();
+        testNetworkUnexpectedDisconnectAfterLogin();
+        testNetworkLoginQueue();
+        testNetworkSendReceive();
+        testNetworkReadlog();
 
         // Client-Server Tests
-        //testClientBasic();
-        //testClientLogout();
-        //testClientDisconnect();
-        //testClientReconnect();
-        //testClientTimeout();
+        testClientBasic();
+        testClientLogout();
+        testClientDisconnect();
+        testClientReconnect();
+        testClientTimeout();
         testClientLoginQueue();
-        //testClientDisconnectsWhileInLoginWaitQueue();
-        //testClientDoesNotNormallyTimeout();
-        //testClientDisconnectHandledAfterLogoff();
-        //testTimerRestartedAfterEveryFailedLoginAttempt();
-        //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
-        //testInvalidClientCommandsAreSkipped();
-        //testClientAdduserLogin();
-        //testClientMessaging();
-        //testClientReadlog();
+        testClientDisconnectsWhileInLoginWaitQueue();
+        testClientDoesNotNormallyTimeout();
+        testClientDisconnectHandledAfterLogoff();
+        testTimerRestartedAfterEveryFailedLoginAttempt();
+        testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
+        testInvalidClientCommandsAreSkipped();
+        testClientAdduserLogin();
+        testClientMessaging();
+        testClientReadlog();
+	System.exit(0);
 	}
 
     // Database Tests
@@ -249,8 +250,8 @@ public class TestChatServer {
         user3.printLog();
         System.out.println("== END LOG user3 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Basic test ===\n");
     }
 
@@ -276,8 +277,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Logout ===\n");
     }
 
@@ -300,8 +301,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST User Name Uniqueness ===\n");
     }
 
@@ -324,8 +325,8 @@ public class TestChatServer {
             System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
         }
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Server Capacity ===\n");
     }
 
@@ -354,8 +355,8 @@ public class TestChatServer {
             System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
         }
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Login Queue ===\n");
     }
 
@@ -374,8 +375,8 @@ public class TestChatServer {
 
         user1.printLog();
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST User Joins Multiple Groups ===\n");
     }
 
@@ -406,8 +407,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Unicast Messages ===\n");
     }
 
@@ -449,8 +450,8 @@ public class TestChatServer {
         user3.printLog();
         System.out.println("== END LOG user3 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Broadcast Messages ===\n");
     }
 
@@ -469,8 +470,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Self Unicast ===\n");
     }
 
@@ -496,8 +497,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Non-Member Broadcast ===\n");
     }
 
@@ -535,7 +536,7 @@ public class TestChatServer {
         user3.printLog();
         System.out.println("== END LOG user3 ==");
 
-        chatServer.getDatabaseManager().emptyDatabase();
+        //chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST Server Shutdown ===\n");
     }
 
@@ -566,8 +567,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Offline Messages ===\n");
     }
 
@@ -642,8 +643,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Remote Login ===\n");
     }
 
@@ -694,8 +695,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Login Timeout ===\n");
     }
 
@@ -745,8 +746,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Unexpected Disconnect Before Login ===\n");
     }
 
@@ -788,8 +789,8 @@ public class TestChatServer {
         user1.printLog();
         System.out.println("== END LOG user1 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Unexpected Disconnect After Login ===\n");
     }
 
@@ -849,8 +850,8 @@ public class TestChatServer {
         user101.printLog();
         System.out.println("== END LOG user101 ==");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Login Queue ===\n");
     }
 
@@ -953,8 +954,8 @@ public class TestChatServer {
         user2.printLog();
         System.out.println("== END LOG user2 ==\n");
 
-        chatServer.shutdown();
         chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
         System.out.println("=== END TEST Send and Receive ===\n");
     }
 
@@ -1006,8 +1007,8 @@ public class TestChatServer {
         Thread.currentThread().sleep(50);
         System.out.println("== END Simulated Client ==\n");
 
+        chatServer.getDatabaseManager().emptyDatabase();
         chatServer.shutdown();
-        //chatServer.getDatabaseManager().emptyDatabase();
         System.out.println("=== END TEST readlog ===\n");
     }
 
