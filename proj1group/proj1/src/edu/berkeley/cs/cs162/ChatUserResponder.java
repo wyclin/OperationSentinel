@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -46,7 +47,7 @@ public class ChatUserResponder extends Thread {
                 if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
                     message = response.message;
                     response.messageDate = response.message.date;
-                    response.messageSender = response.message.sender.getUserName();
+                    response.messageSender = response.message.senderName;
                     response.messageReceiver = response.message.receiver;
                     response.messagesqn = response.message.sqn;
                     response.messageText = response.message.text;
@@ -66,7 +67,11 @@ public class ChatUserResponder extends Thread {
             while (pendingResponse != null) {
                 log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Failed to send Response: " + pendingResponse.responseType);
                 if (pendingResponse.responseType == ResponseType.MESSAGE_RECEIVED && message != null && message.sender != null) {
-                    message.sender.receiveSendFailure(pendingResponse.message);
+                    try {
+                        chatUser.getChatServer().getDatabaseManager().logMessage(chatUser.getUserName(), message);
+                    } catch (SQLException e) {
+                        message.sender.receiveSendFailure(pendingResponse.message);
+                    }
                 }
                 pendingResponse = pendingResponses.poll();
             }

@@ -96,8 +96,12 @@ class UserManager {
                         result = new ChatServerResponse(ResponseType.USER_QUEUED);
                     }
                 } else {
-                    loggedInUsers.put(user.getUserName(), user);
-                    result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
+                    if (loggedInUsers.get(user.getUserName()) == null) {
+                        loggedInUsers.put(user.getUserName(), user);
+                        result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
+                    } else {
+                        result = new ChatServerResponse(ResponseType.USER_ALREADY_LOGGED_IN);
+                    }
                 }
                 rwLock.writeLock().unlock();
                 return result;

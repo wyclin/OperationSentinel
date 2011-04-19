@@ -40,9 +40,10 @@ public class TestChatServer {
         //testNetworkUnexpectedDisconnectAfterLogin();
         //testNetworkLoginQueue();
         //testNetworkSendReceive();
+        //testNetworkReadlog();
 
         // Client-Server Tests
-        testClientBasic();
+        //testClientBasic();
         //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
@@ -54,6 +55,9 @@ public class TestChatServer {
         //testTimerRestartedAfterEveryFailedLoginAttempt();
         //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
         //testInvalidClientCommandsAreSkipped();
+        //testClientAdduserLogin();
+        //testClientMessaging();
+        testClientReadlog();
 	}
 
     // Database Tests
@@ -954,6 +958,59 @@ public class TestChatServer {
         System.out.println("=== END TEST Send and Receive ===\n");
     }
 
+    public static void testNetworkReadlog() throws Exception {
+        System.out.println("=== BEGIN TEST readlog ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.start();
+
+        Socket user2Socket = new Socket("localhost", 8080);
+        ObjectOutputStream user2Requests = new ObjectOutputStream(user2Socket.getOutputStream());
+        ObjectInputStream user2Responses = new ObjectInputStream(user2Socket.getInputStream());
+
+        System.out.println("\n== BEGIN Simulated Client ==");
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+
+        user2Requests.writeObject(new ChatClientCommand(CommandType.ADDUSER, "user2", "password"));
+        user2Requests.flush();
+        System.out.println("-> " + CommandType.ADDUSER);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user2Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user1.sendMessage("user2", 1, "Unicast 1");
+        user1.sendMessage("user2", 2, "Unicast 2");
+        Thread.currentThread().sleep(2000);
+
+        user2Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user2", "password"));
+        user2Requests.flush();
+        System.out.println("-> " + CommandType.LOGIN);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user2Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user2Requests.writeObject(new ChatClientCommand(CommandType.READLOG));
+        user2Requests.flush();
+        System.out.println("-> " + CommandType.READLOG);
+        Thread.currentThread().sleep(1000);
+        System.out.println("<- " + ((ChatServerResponse)user2Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+        System.out.println("<- " + ((ChatServerResponse)user2Responses.readObject()).responseType);
+        Thread.currentThread().sleep(50);
+
+        user2Requests.close();
+        user2Responses.close();
+        user2Socket.close();
+        Thread.currentThread().sleep(50);
+        System.out.println("== END Simulated Client ==\n");
+
+        chatServer.shutdown();
+        //chatServer.getDatabaseManager().emptyDatabase();
+        System.out.println("=== END TEST readlog ===\n");
+    }
+
     public static void testClientBasic() throws Exception {
         System.out.println("=== BEGIN TEST Client Basic ===");
         ChatServer chatServer = new ChatServer(8080);
@@ -1327,5 +1384,124 @@ public class TestChatServer {
         chatServer.getDatabaseManager().emptyDatabase();
         chatServer.shutdown();
         System.out.println("=== BEGIN TEST Invalid Client Commands Are Gracefully Skipped ===");
+    }
+
+    public static void testClientAdduserLogin() throws Exception {
+        System.out.println("=== BEGIN TEST Client adduser login ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.start();
+
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "adduser user1 password\n" +
+            "login user1 password\n" +
+            "login user2 password\n" +
+            "adduser user2 password\n" +
+            "login user2 wrongpassword\n" +
+            "login user2 password\n" +
+            "join group1\n" +
+            "adduser group1 password\n" +
+            "logout\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(5000);
+
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client adduser login ===\n");
+    }
+
+    public static void testClientMessaging() throws Exception {
+        System.out.println("=== BEGIN TEST Client Messaging ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.start();
+
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.joinGroup("group1");
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "adduser user2 password\n" +
+            "login user2 password\n" +
+            "join group1\n" +
+            "sleep 4000\n" +
+            "logout\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+
+        user1.sendMessage("user2", 1, "Unicast 1");
+        user1.sendMessage("group1", 1, "Broadcast 1");
+        Thread.currentThread().sleep(5000);
+
+        System.out.println("\n== BEGIN user1 log ==") ;
+        user1.printLog();
+        System.out.println("== END user1 log ==\n");
+
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client Messaging ===\n");
+    }
+
+    public static void testClientReadlog() throws Exception {
+        System.out.println("=== BEGIN TEST Client readlog ===");
+        ChatServer chatServer = new ChatServer(8080);
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.start();
+
+        ChatUser user1 = new ChatUser(chatServer);
+        user1.addUser("user1", "password");
+        user1.login("user1", "password");
+        user1.joinGroup("group1");
+
+        String commands = "" +
+            "connect localhost:8080\n" +
+            "adduser user2 password\n" +
+            "sleep 3000\n" +
+            "login user2 password\n" +
+            "readlog\n" +
+            "join group1\n" +
+            "logout\n" +
+            "disconnect\n" +
+            "sleep 3000\n" +
+            "connect localhost:8080\n" +
+            "login user2 password\n" +
+            "readlog\n" +
+            "readlog\n" +
+            "disconnect";
+        BufferedReader input = new BufferedReader(new StringReader(commands));
+        PrintWriter output = new PrintWriter(System.out, true);
+        ChatClient chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(1000);
+
+        user1.sendMessage("user2", 1, "Unicast 1");
+        user1.sendMessage("user2", 2, "Unicast 2");
+        Thread.currentThread().sleep(3000);
+        user1.sendMessage("group1", 3, "Broadcast 1");
+        user1.sendMessage("user2", 4, "Unicast 3");
+        Thread.currentThread().sleep(5000);
+
+        System.out.println("\n== BEGIN user1 log ==") ;
+        user1.printLog();
+        System.out.println("== END user1 log ==\n");
+
+        chatServer.getDatabaseManager().emptyDatabase();
+        chatServer.shutdown();
+        System.out.println("=== END TEST Client readlog ===\n");
     }
 }

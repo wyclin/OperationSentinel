@@ -51,6 +51,10 @@ public class ChatUser extends Thread {
         }
     }
 
+    public ChatServer getChatServer() {
+        return chatServer;
+    }
+
     public void start() {
         responder.start();
         super.start();
