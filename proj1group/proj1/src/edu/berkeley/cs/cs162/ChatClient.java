@@ -116,7 +116,7 @@ public class ChatClient extends Thread {
                     localOutput.println("logout OK");
                     break;
                 case MESSAGE_RECEIVED:
-                    localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
+                    localOutput.println("receive " + Long.toString(response.messageDate.getTime()/1000) + "." + Long.toString(response.messageDate.getTime() % 1000) + " " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
                     break;
                 case MESSAGE_DELIVERY_FAILURE:
                     localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");

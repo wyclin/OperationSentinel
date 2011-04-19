@@ -16,7 +16,6 @@ public class DatabaseManager {
     public static final String databaseUser = "group21";
     public static final String databasePassword = "zjKkzjSs";
     public static final String database = "group21";
-    public static final DateFormat timestampFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private ComboPooledDataSource dataSource;
 
@@ -318,7 +317,7 @@ public class DatabaseManager {
     }
 
     public void logMessage(String userName, Message message) throws SQLException {
-        String query = "INSERT INTO `OfflineMessages` (`user_id`,`timestamp`,`sqn`,`sender`,`receiver`,`text`) VALUES ((SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "' AND `type`='user'),'" + timestampFormat.format(message.date) + "','" + Integer.toString(message.sqn) + "','" + message.sender.getUserName() + "','" + message.receiver + "','" + message.text + "');";
+        String query = "INSERT INTO `OfflineMessages` (`user_id`,`timestamp`,`sqn`,`sender`,`receiver`,`text`) VALUES ((SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "' AND `type`='user'),'" + message.date.getTime() + "','" + Integer.toString(message.sqn) + "','" + message.sender.getUserName() + "','" + message.receiver + "','" + message.text + "');";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -331,7 +330,7 @@ public class DatabaseManager {
         }
     }
 
-        public LinkedList<HashMap<String, Object>> getOfflineMessages(String userName) throws SQLException {
+    public LinkedList<HashMap<String, Object>> getOfflineMessages(String userName) throws SQLException {
         String query1 = "SELECT `timestamp`,`sqn`,`sender`,`receiver`,`text` FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "') ORDER BY `timestamp` ASC;";
         String query2 = "DELETE FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "');";
         Connection connection = null;
@@ -349,7 +348,7 @@ public class DatabaseManager {
             HashMap<String, Object> messageProperties;
             while (results.next()) {
                 messageProperties = new HashMap<String, Object>();
-                messageProperties.put("timestamp", results.getDate(1));
+                messageProperties.put("timestamp", new Date(results.getLong(1)));
                 messageProperties.put("sqn", results.getInt(2));
                 messageProperties.put("sender", results.getString(3));
                 messageProperties.put("receiver", results.getString(4));

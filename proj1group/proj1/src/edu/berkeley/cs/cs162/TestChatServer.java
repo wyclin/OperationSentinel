@@ -42,7 +42,7 @@ public class TestChatServer {
         //testNetworkSendReceive();
 
         // Client-Server Tests
-        //testClientBasic();
+        testClientBasic();
         //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
@@ -965,6 +965,7 @@ public class TestChatServer {
             "adduser user1 password\n" +
             "login user1 password\n" +
             "join group1\n" +
+            "send group1 1 \"Message\"\n" +
             "leave group1\n" +
             "join user1\n" +
             "leave user1\n" +
