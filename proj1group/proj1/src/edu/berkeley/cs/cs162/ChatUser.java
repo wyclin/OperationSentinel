@@ -217,7 +217,7 @@ public class ChatUser extends Thread {
         log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + loginName);
         queued = false;
         loggedIn = true;
-        pendingResponses.offer(new ChatServerResponse(ResponseType.USER_ADDED));
+        pendingResponses.offer(new ChatServerResponse(ResponseType.USER_LOGGED_IN));
     }
 
     public ChatServerResponse logout() {

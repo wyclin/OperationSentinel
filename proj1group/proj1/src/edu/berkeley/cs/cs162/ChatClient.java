@@ -233,7 +233,7 @@ public class ChatClient extends Thread {
         } else if (addUserMatcher.matches()) {
             return new ChatClientCommand(CommandType.ADDUSER, addUserMatcher.group(1), addUserMatcher.group(2));
         } else if (loginMatcher.matches()) {
-            return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1), encrypt(loginMatcher.group(2)));
+            return new ChatClientCommand(CommandType.LOGIN, loginMatcher.group(1), loginMatcher.group(2));
         } else if (logoutMatcher.matches()) {
             return new ChatClientCommand(CommandType.LOGOUT);
         } else if (joinMatcher.matches()) {
@@ -254,13 +254,12 @@ public class ChatClient extends Thread {
     public boolean mustWait(ChatClientCommand command) {
         switch (command.commandType) {
             case CONNECT:
-            case DISCONNECT:
             case READLOG:
             case SLEEP:
             case COMMAND_NOT_FOUND:
                 return false;
             default:
-                return true;
+                return connected;
         }
     }
 
@@ -270,20 +269,22 @@ public class ChatClient extends Thread {
                 connect(command.string1, command.number);
                 break;
             case DISCONNECT:
-                sendCommand(command);
-                ChatServerResponse pendingResponse = null;
-                try {
-                    pendingResponse = pendingResponses.take();
-                } catch (Exception e) {
-                }
-                while (pendingResponse.responseType != ResponseType.TIMEOUT && pendingResponse.responseType != ResponseType.DISCONNECT) {
-                    printResponse(pendingResponse);
+                if (connected) {
+                    sendCommand(command);
+                    ChatServerResponse pendingResponse = null;
                     try {
                         pendingResponse = pendingResponses.take();
                     } catch (Exception e) {
                     }
+                    while (pendingResponse.responseType != ResponseType.TIMEOUT && pendingResponse.responseType != ResponseType.DISCONNECT) {
+                        printResponse(pendingResponse);
+                        try {
+                            pendingResponse = pendingResponses.take();
+                        } catch (Exception e) {
+                        }
+                    }
+                    printResponse(pendingResponse);
                 }
-                printResponse(pendingResponse);
                 disconnect();
                 break;
             case SLEEP:
@@ -296,7 +297,9 @@ public class ChatClient extends Thread {
             case LEAVE_GROUP:
             case SEND_MESSAGE:
             case READLOG:
-                sendCommand(command);
+                if (connected) {
+                    sendCommand(command);
+                }
                 break;
             case COMMAND_NOT_FOUND:
                 break;
@@ -349,10 +352,5 @@ public class ChatClient extends Thread {
             Thread.sleep(time);
         } catch (Exception e) {
         }
-    }
-
-    private String encrypt(String password) {
-        // currently a stub method that doesn't encrypt
-        return password;
     }
 }
