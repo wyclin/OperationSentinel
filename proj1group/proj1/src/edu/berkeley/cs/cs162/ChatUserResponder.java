@@ -36,6 +36,7 @@ public class ChatUserResponder extends Thread {
 
     public void shutdown() {
         shuttingDown = true;
+        interrupt();
     }
 
     public void run() {
@@ -43,7 +44,9 @@ public class ChatUserResponder extends Thread {
         Message message = null;
         try {
             while (!shuttingDown || pendingResponses.size() > 0) {
-                response = pendingResponses.take();
+                try {
+                    response = pendingResponses.take();
+                } catch (InterruptedException e) {}
                 if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
                     message = response.message;
                     response.messageDate = response.message.date;
