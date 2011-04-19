@@ -25,10 +25,11 @@ class UserManager {
     }
 
     public void shutdown() {
-        for (ChatUser user : loggedInUsers.values()) {
+        HashSet<ChatUser> users = new HashSet<ChatUser>(loggedInUsers.values());
+        for (ChatUser user : users) {
             user.shutdown();
         }
-        for (ChatUser user : loggedInUsers.values()) {
+        for (ChatUser user : users) {
             try {
                 user.join();
             } catch (InterruptedException e) {

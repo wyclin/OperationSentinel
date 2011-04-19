@@ -36,6 +36,7 @@ public class ChatUserResponder extends Thread {
 
     public void shutdown() {
         shuttingDown = true;
+        interrupt();
     }
 
     public void run() {

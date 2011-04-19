@@ -48,7 +48,7 @@ public class TestChatServer {
         //testClientDisconnect();
         //testClientReconnect();
         //testClientTimeout();
-        //testClientLoginQueue();
+        testClientLoginQueue();
         //testClientDisconnectsWhileInLoginWaitQueue();
         //testClientDoesNotNormallyTimeout();
         //testClientDisconnectHandledAfterLogoff();
@@ -57,7 +57,7 @@ public class TestChatServer {
         //testInvalidClientCommandsAreSkipped();
         //testClientAdduserLogin();
         //testClientMessaging();
-        testClientReadlog();
+        //testClientReadlog();
 	}
 
     // Database Tests
