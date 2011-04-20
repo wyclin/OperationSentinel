@@ -20,6 +20,16 @@ public class ChatClientResponseHandler extends Thread {
         }
     }
 
+    public ChatClientResponseHandler(BenchmarkingChatClient chatClient, Socket socket, LinkedBlockingQueue<ChatServerResponse> pendingResponses) {
+        this.socket = socket;
+        this.pendingResponses = pendingResponses;
+        try {
+            remoteInput = new ObjectInputStream(socket.getInputStream());
+        } catch (Exception e) {
+            chatClient.disconnect();
+        }
+    }
+
     public void run() {
         try {
             while (true) {
