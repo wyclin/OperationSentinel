@@ -1,0 +1,7 @@
+connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+adduser user1 passw0rd
+login user1 passw0rd
+join group1
+logout
+print RTT
+disconnect

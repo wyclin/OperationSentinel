@@ -1,0 +1,15 @@
+connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+adduser user password
+login user password
+sleep 20000
+send user1 1 "hello user1"
+send user0 2 "hello user0"
+send user1 3 "hello user1"
+send user0 4 "hello user0"
+send user1 5 "hello user1"
+send user0 6 "hello user0"
+send user1 7 "hello user1"
+send user0 8 "hello user0"
+send user1 9 "hello user1"
+send user0 10 "hello user0"
+print RTT

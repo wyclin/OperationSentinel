@@ -62,6 +62,10 @@ public class BenchmarkingChatClient extends Thread {
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter output = new PrintWriter(System.out, true);
         BenchmarkingChatClient chatClient = new BenchmarkingChatClient(input, output);
+<<<<<<< Updated upstream
+=======
+	output.println("BEFORE STARTING SHIT");
+>>>>>>> Stashed changes
         chatClient.start();
    }
 
@@ -128,12 +132,25 @@ public class BenchmarkingChatClient extends Thread {
                     localOutput.println("logout OK");
                     break;
                 case MESSAGE_RECEIVED:
+		    returnMessageBackToSender(response);
                     localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
+<<<<<<< Updated upstream
                     if (OriginatedFromMe(response))
 			messagesSent.remove((Integer)response.messagesqn);
                     //    finishTimingMessage(response);
                     else
 			returnMessageBackToSender(response);
+=======
+                    if (OriginatedFromMe(response)){
+			//    finishTimingMessage(response);
+			localOutput.println("A");
+			returnMessageBackToSender(response);
+			localOutput.println("B");}
+		    else {
+			localOutput.println("C");
+                        returnMessageBackToSender(response);
+			localOutput.println("D"); }
+>>>>>>> Stashed changes
                     break;
                 case MESSAGE_DELIVERY_FAILURE:
                     localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");
@@ -337,8 +354,16 @@ public class BenchmarkingChatClient extends Thread {
     }
 
     private void returnMessageBackToSender(ChatServerResponse response) {
+<<<<<<< Updated upstream
         ChatClientCommand command = new ChatClientCommand(CommandType.SEND_MESSAGE, response.messageSender, response.messagesqn, response.messageText);
+=======
+	localOutput.println("ENTERING PHASE 0");
+        String msgtext = response.messageText + " " + Integer.toString(clientID);
+	localOutput.println("ENTERING PHASE 1");
+        ChatClientCommand command = new ChatClientCommand(CommandType.SEND_MESSAGE, response.messageSender, response.messagesqn, msgtext);
+>>>>>>> Stashed changes
         sendCommand(command);
+	localOutput.println("FINISHED PHASES");
     }
 
     private void startTimingMessage(ChatClientCommand command) {
@@ -350,8 +375,13 @@ public class BenchmarkingChatClient extends Thread {
             Long startTime = messagesSent.get(Integer.valueOf(response.messagesqn));
             long timeElapsed = System.currentTimeMillis() - startTime.longValue();
             roundTripTimes.add(new Long(timeElapsed));
+<<<<<<< Updated upstream
             messagesSent.remove((Integer)response.messagesqn);
         } catch (Exception e) {}
+=======
+            messagesSent.remove(Integer.valueOf(response.messagesqn));
+        } catch (Exception e) { System.err.println("ARRAYLIST EMPTY?");}
+>>>>>>> Stashed changes
     }
 
     public void printRoundTripTimes() {
@@ -367,9 +397,11 @@ public class BenchmarkingChatClient extends Thread {
 
     public void sendCommand(ChatClientCommand command) {
         try {
+	    localOutput.println("IM HERE AT TOP OF TRY");
             remoteOutput.writeObject(command);
             remoteOutput.flush();
-        } catch (Exception e) {}
+	    localOutput.println("IM HERE");
+        } catch (Exception e) { localOutput.println(e); }
     }
 
     public void connect(String host, int port) {

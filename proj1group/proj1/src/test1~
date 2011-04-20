@@ -1,0 +1,8 @@
+connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+adduser user1 abc 
+sleep 5000
+login user1 abc
+join group1
+join group2
+disconnect
+disconnect

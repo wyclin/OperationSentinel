@@ -1,0 +1,10 @@
+connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+adduser userone passw0rd
+login userone passw0rd
+join group1
+sleep 1000
+send usertwo 1 "hello"
+send usertwo 2 "how are you"
+send usertwo 3 "goodbye"
+sleep 2000
+print RTT

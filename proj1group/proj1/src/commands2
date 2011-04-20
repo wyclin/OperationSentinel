@@ -1,0 +1,4 @@
+connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+adduser usertwo pass
+login usertwo pass
+sleep 5000
