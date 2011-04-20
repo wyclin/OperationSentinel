@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.regex.*;
 
 public class BenchmarkingChatClient extends Thread {
@@ -17,7 +17,7 @@ public class BenchmarkingChatClient extends Thread {
     private ObjectOutputStream remoteOutput;
     private boolean connected;
 
-    private HashMap<Integer, Long> messagesSent;
+    private ConcurrentHashMap<Integer, Long> messagesSent;
     private ArrayList<Long> roundTripTimes;
     private int clientID;
     private Pattern printRTTPattern;
@@ -41,7 +41,7 @@ public class BenchmarkingChatClient extends Thread {
         this.pendingResponses = new LinkedBlockingQueue<ChatServerResponse>();
         this.connected = false;
 
-        this.messagesSent = new HashMap<Integer, Long>();
+        this.messagesSent = new ConcurrentHashMap<Integer, Long>();
         this.roundTripTimes = new ArrayList<Long>();
         this.clientID = (int)(Math.random()*Integer.MAX_VALUE);
         this.printRTTPattern = Pattern.compile("^print RTT$");
@@ -130,9 +130,10 @@ public class BenchmarkingChatClient extends Thread {
                 case MESSAGE_RECEIVED:
                     localOutput.println("receive " + response.messageSender + " " + response.messageReceiver + " \"" + response.messageText + "\"");
                     if (OriginatedFromMe(response))
-                        finishTimingMessage(response);
+			messagesSent.remove((Integer)response.messagesqn);
+                    //    finishTimingMessage(response);
                     else
-                        returnMessageBackToSender(response);
+			returnMessageBackToSender(response);
                     break;
                 case MESSAGE_DELIVERY_FAILURE:
                     localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");
@@ -258,7 +259,7 @@ public class BenchmarkingChatClient extends Thread {
         } else if (leaveMatcher.matches()) {
             return new ChatClientCommand(CommandType.LEAVE_GROUP, leaveMatcher.group(1));
         } else if (sendMatcher.matches()) {
-            return new ChatClientCommand(CommandType.SEND_MESSAGE, sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3));
+            return new ChatClientCommand(CommandType.SEND_MESSAGE, sendMatcher.group(1), Integer.valueOf(sendMatcher.group(2)), sendMatcher.group(3) + " " + Integer.toString(clientID));
         } else if (readlogMatcher.matches()) {
             return new ChatClientCommand(CommandType.READLOG);
         } else if (sleepMatcher.matches()) {
@@ -330,19 +331,18 @@ public class BenchmarkingChatClient extends Thread {
     private boolean OriginatedFromMe(ChatServerResponse response) {
         String msgtext = response.messageText;
         String lastWordOfMessage = msgtext.substring(msgtext.lastIndexOf(" ") + 1);
-        if ((messagesSent.get(Integer.valueOf(response.messagesqn)) != null) && (Integer.valueOf(lastWordOfMessage) == clientID))
+        if ((messagesSent.get((Integer)response.messagesqn) != null) && (Integer.valueOf(lastWordOfMessage) == clientID))
             return true;
         return false;
     }
 
     private void returnMessageBackToSender(ChatServerResponse response) {
-        String msgtext = response.messageText + " " + Integer.toString(clientID);
-        ChatClientCommand command = new ChatClientCommand(CommandType.SEND_MESSAGE, response.messageSender, response.messagesqn, msgtext);
+        ChatClientCommand command = new ChatClientCommand(CommandType.SEND_MESSAGE, response.messageSender, response.messagesqn, response.messageText);
         sendCommand(command);
     }
 
     private void startTimingMessage(ChatClientCommand command) {
-        messagesSent.put(Integer.valueOf(command.number), new Long(System.currentTimeMillis()));
+        messagesSent.put((Integer)command.number, new Long(System.currentTimeMillis()));
     }
 
     private void finishTimingMessage(ChatServerResponse response) {
@@ -350,7 +350,7 @@ public class BenchmarkingChatClient extends Thread {
             Long startTime = messagesSent.get(Integer.valueOf(response.messagesqn));
             long timeElapsed = System.currentTimeMillis() - startTime.longValue();
             roundTripTimes.add(new Long(timeElapsed));
-            messagesSent.remove(Integer.valueOf(response.messagesqn));
+            messagesSent.remove((Integer)response.messagesqn);
         } catch (Exception e) {}
     }
 
@@ -358,7 +358,7 @@ public class BenchmarkingChatClient extends Thread {
         try {
             System.err.println("Round Trip Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
             for (Long timeElapsed : roundTripTimes) {
-                System.err.println(timeElapsed.longValue() + "\n");
+                System.err.println(timeElapsed.longValue());
             }
         } catch (Exception e) {
             System.err.println("ERROR - COULD NOT WRITE RTT TO FILE");
@@ -380,7 +380,7 @@ public class BenchmarkingChatClient extends Thread {
             socket = new Socket(host, port);
             remoteOutput = new ObjectOutputStream(socket.getOutputStream());
             connected = true;
-            responseHandler = new ChatClientResponseHandler(this, socket, pendingResponses);
+            responseHandler = new ChatClientResponseHandler(this, socket, pendingResponses, messagesSent, roundTripTimes, clientID);
             responseHandler.start();
             localOutput.println("connect OK");
         } catch (Exception e) {
