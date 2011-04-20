@@ -356,7 +356,7 @@ public class BenchmarkingChatClient extends Thread {
 
     public void printRoundTripTimes() {
         try {
-            FileWriter file = new FileWriter("roundtriptimes_" + clientID + ".txt");
+            FileWriter file = new FileWriter("~/roundtriptimes_" + clientID + ".txt");
             BufferedWriter output = new BufferedWriter(file);
             output.write("Round Trip Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
             for (Long timeElapsed : roundTripTimes) {
