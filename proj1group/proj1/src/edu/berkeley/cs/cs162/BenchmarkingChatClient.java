@@ -356,15 +356,17 @@ public class BenchmarkingChatClient extends Thread {
 
     public void printRoundTripTimes() {
         try {
-            FileWriter file = new FileWriter("~/roundtriptimes_" + clientID + ".txt");
-            BufferedWriter output = new BufferedWriter(file);
-            output.write("Round Trip Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
+            //FileWriter file = new FileWriter("~/roundtriptimes_" + clientID + ".txt");
+            //BufferedWriter output = new BufferedWriter(file);
+            //output.write("Round Trip Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
+            System.err.println("Round Trip Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
             for (Long timeElapsed : roundTripTimes) {
-                output.write(timeElapsed.longValue() + "\n");
+                //output.write(timeElapsed.longValue() + "\n");
+                System.err.println(timeElapsed.longValue() + "\n");
             }
-            file.close();
+            //file.close();
         } catch (Exception e) {
-            System.out.println("ERROR - COULD NOT WRITE RTT TO FILE");
+            System.err.println("ERROR - COULD NOT WRITE RTT TO FILE");
         }
     }
 
