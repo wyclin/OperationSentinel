@@ -10,6 +10,6 @@ for i in 1..1
     `ruby generate_commands.rb #{i}`
      command_file = File.open("commands/command#{i}", "r")
      command_string = command_file.read
-    #`java #{client_path}#{client_filename} << #{command_string}`
-    `cat << commands/command#{i}`
+    `java #{client_path}#{client_filename} << #{command_string}`
+    #`cat << commands/command#{i}`
 end
