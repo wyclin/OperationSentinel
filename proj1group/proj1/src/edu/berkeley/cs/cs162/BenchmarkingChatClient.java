@@ -21,6 +21,9 @@ public class BenchmarkingChatClient extends Thread {
     private ArrayList<Long> roundTripTimes;
     private int clientID;
     private Pattern printRTTPattern;
+    private Pattern printDBTimePattern;
+    private ArrayList<Long> DBEndTimes;
+    private long DBStartTime;
 
     private Pattern connectPattern;
     private Pattern disconnectPattern;
@@ -45,6 +48,9 @@ public class BenchmarkingChatClient extends Thread {
         this.roundTripTimes = new ArrayList<Long>();
         this.clientID = (int)(Math.random()*Integer.MAX_VALUE);
         this.printRTTPattern = Pattern.compile("^print RTT$");
+	this.printDBTimePattern = Pattern.compile("^print DBT$");
+	this.DBEndTimes = new ArrayList<Long>();
+	this.DBStartTime = 0;
 
         this.connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
         this.disconnectPattern = Pattern.compile("^disconnect$");
@@ -135,6 +141,7 @@ public class BenchmarkingChatClient extends Thread {
 			messagesSent.remove((Integer)response.messagesqn);
                     //    finishTimingMessage(response);
                     else
+			finishTimingDB();
 			returnMessageBackToSender(response);
                     break;
                 case MESSAGE_DELIVERY_FAILURE:
@@ -246,6 +253,7 @@ public class BenchmarkingChatClient extends Thread {
         Matcher readlogMatcher = readlogPattern.matcher(command);
         Matcher sleepMatcher = sleepPattern.matcher(command);
         Matcher printRTTMatcher = printRTTPattern.matcher(command);
+	Matcher printDBTimeMatcher = printDBTimePattern.matcher(command);
         if (connectMatcher.matches()) {
             return new ChatClientCommand(CommandType.CONNECT, connectMatcher.group(1), Integer.valueOf(connectMatcher.group(2)));
         } else if (disconnectMatcher.matches()) {
@@ -269,7 +277,10 @@ public class BenchmarkingChatClient extends Thread {
         } else if (printRTTMatcher.matches()) {
             printRoundTripTimes();
             return new ChatClientCommand(CommandType.COMMAND_NOT_FOUND);
-        }
+        } else if (printDBTimeMatcher.matches()) {
+	    printDBTimes();
+            return new ChatClientCommand(CommandType.COMMAND_NOT_FOUND);
+	}
         else {
             return new ChatClientCommand(CommandType.COMMAND_NOT_FOUND);
         }
@@ -317,12 +328,15 @@ public class BenchmarkingChatClient extends Thread {
                 startTimingMessage(command);
                 sendCommand(command);
                 break;
+	    case READLOG:
+	        sendCommand(command);
+	        startTimingDB();
+		break;
             case ADDUSER:
             case LOGIN:
             case LOGOUT:
             case JOIN_GROUP:
             case LEAVE_GROUP:
-            case READLOG:
                 sendCommand(command);
                 break;
             case COMMAND_NOT_FOUND:
@@ -412,6 +426,23 @@ public class BenchmarkingChatClient extends Thread {
         try {
             Thread.sleep(time);
         } catch (Exception e) {
+        }
+    }
+
+    private void startTimingDB() { DBStartTime = System.currentTimeMillis(); }
+
+    private void finishTimingDB() { 
+	DBEndTimes.add(new Long(System.currentTimeMillis() - DBStartTime)); 
+    }
+
+    private void printDBTimes() {
+	try {
+            System.err.println("DB Access Times for BenchmarkingChatClient " + clientID + " (in milliseconds):\n");
+            for (Long timeElapsed : DBEndTimes) {
+                System.err.println(timeElapsed.longValue());
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR - COULD NOT WRITE DB TIMES TO FILE");
         }
     }
 
