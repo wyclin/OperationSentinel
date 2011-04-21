@@ -1,7 +1,13 @@
 #!/bin/bash
 cd ~/162/proj1group/proj1/src
-ruby setup_commands.rb 10 1 10
-for i in {1..10}
+
+TOTAL=100
+START=51
+FINISH=100
+
+ruby setup_commands.rb $TOTAL $START $FINISH
+
+for i in {$START..$FINISH}
 do
 java edu/berkeley/cs/cs162/BenchmarkingChatClient < commands/command$i >screenoutput$i 2> client$i &
 done
