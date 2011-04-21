@@ -4,7 +4,7 @@
 #
 string_id = ARGV[0]
 value = ARGV[1].to_i
-command_string = "connect ec2-50-16-127-141.compute-1.amazonaws.com:8080\n"
+command_string = "connect ec2-204-236-192-255.compute-1.amazonaws.com:4747\n"
 command_string += "adduser user#{string_id} password\n"
 command_string += "login user#{string_id} password\n"
 command_string += "sleep 20000\n"

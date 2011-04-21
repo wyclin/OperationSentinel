@@ -1,4 +1,4 @@
-connect ec2-50-16-127-141.compute-1.amazonaws.com:8080
+connect ec2-204-236-192-255.compute-1.amazonaws.com:4747
 adduser user8 password
 login user8 password
 sleep 20000

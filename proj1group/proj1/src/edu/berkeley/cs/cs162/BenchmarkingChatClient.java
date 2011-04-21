@@ -339,10 +339,8 @@ public class BenchmarkingChatClient extends Thread {
     }
 
     private void returnMessageBackToSender(ChatServerResponse response) {
-
         ChatClientCommand command = new ChatClientCommand(CommandType.SEND_MESSAGE, response.messageSender, response.messagesqn, response.messageText);
         sendCommand(command);
-	localOutput.println("FINISHED PHASES");
     }
 
     private void startTimingMessage(ChatClientCommand command) {
@@ -371,10 +369,8 @@ public class BenchmarkingChatClient extends Thread {
 
     public void sendCommand(ChatClientCommand command) {
         try {
-	    localOutput.println("IM HERE AT TOP OF TRY");
             remoteOutput.writeObject(command);
             remoteOutput.flush();
-	    localOutput.println("IM HERE");
         } catch (Exception e) { localOutput.println(e); }
     }
 
