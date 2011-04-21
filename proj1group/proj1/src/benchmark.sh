@@ -2,8 +2,8 @@
 cd ~/162/proj1group/proj1/src
 
 TOTAL=100
-START=1
-FINISH=50
+START=51
+FINISH=100
 
 ruby setup_commands.rb $TOTAL $START $FINISH
 
