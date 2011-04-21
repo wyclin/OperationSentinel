@@ -12,7 +12,7 @@ do
 java edu/berkeley/cs/cs162/BenchmarkingChatClient < commands/command$i >screenoutput$i 2> client$i &
 done
 
-sleep 300
-killall -9 java
-cat client* > results/superclient
-rm client* screenoutput*
+#sleep 300
+#killall -9 java
+#cat client* > results/superclient
+#rm client* screenoutput*
