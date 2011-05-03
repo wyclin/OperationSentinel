@@ -32,7 +32,6 @@ public enum ResponseType {
     MESSAGE_DELIVERY_FAILURE,
 
     DISCONNECT,
-    TIMEOUT,
 
     COMMAND_NOT_FOUND
 }

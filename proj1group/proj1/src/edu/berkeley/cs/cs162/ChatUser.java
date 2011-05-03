@@ -20,7 +20,6 @@ public class ChatUser extends Thread {
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
     private LinkedBlockingQueue<String> log;
     private SimpleDateFormat dateFormatter;
-    private LoginTimeout loginTimeout;
 
     public ChatUser(ChatServer chatServer) {
         this.chatServer = chatServer;
@@ -46,9 +45,6 @@ public class ChatUser extends Thread {
             } catch(IOException f) {
             }
         }
-        if (networked) {
-            loginTimeout = new LoginTimeout(this, 20);
-        }
     }
 
     public ChatServer getChatServer() {
@@ -65,10 +61,6 @@ public class ChatUser extends Thread {
         log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Shutting Down");
         if (networked) {
             responder.shutdown();
-            if (loginTimeout != null) {
-                loginTimeout.cancel();
-                loginTimeout = null;
-            }
         }
     }
 
@@ -152,12 +144,6 @@ public class ChatUser extends Thread {
         log.offer(dateFormatter.format(time) + " | Client force disconnected.");
     }
 
-    public void timeout() {
-        pendingResponses.offer(new ChatServerResponse(ResponseType.TIMEOUT));
-        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Login Timeout");
-        shutdown();
-    }
-
     public ChatServerResponse addUser(String userName, String password) {
         Date time = Calendar.getInstance().getTime();
         ChatServerResponse response = chatServer.addUser(userName, password);
@@ -176,36 +162,27 @@ public class ChatUser extends Thread {
     }
 
     public ChatServerResponse login(String userName, String password) {
-        if (networked && loginTimeout != null) {
-            loginTimeout.cancel();
-            loginTimeout = null;
-        }
         Date time = Calendar.getInstance().getTime();
         if (loggedIn) {logout();}
         loginName = userName;
         ChatServerResponse response = chatServer.login(this, password);
         switch (response.responseType) {
             case SHUTTING_DOWN:
-                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is shutting down.");
                 break;
             case DATABASE_FAILURE:
-                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
                 log.offer(dateFormatter.format(time) + " | Login Failure | Database Failure.");
             case USER_QUEUED:
                 queued = true;
                 log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
                 break;
             case USER_CAPACITY_REACHED:
-                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
                 log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is full.");
                 break;
             case NAME_CONFLICT:
-                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
                 log.offer(dateFormatter.format(time) + " | Login Failure | Name already taken.");
                 break;
             case INVALID_NAME_OR_PASSWORD:
-                if (networked) {loginTimeout = new LoginTimeout(this, 20);}
                 log.offer(dateFormatter.format(time) + " | Login Failure | Wrong username and/or password.");
                 break;
             case USER_LOGGED_IN:
@@ -238,9 +215,6 @@ public class ChatUser extends Thread {
             }
             queued = false;
             loggedIn = false;
-            if (networked) {
-                loginTimeout = new LoginTimeout(this, 20);
-            }
             return response;
         } else {
             log.offer(dateFormatter.format(time) + " | Logout Failure | Not logged in.");

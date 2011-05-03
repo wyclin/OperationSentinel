@@ -36,7 +36,6 @@ public class TestChatServer {
 	    
         // Networked Tests
         //testNetworkLogin();
-        //testNetworkLoginTimeout();
         //testNetworkUnexpectedDisconnectBeforeLogin();
         //testNetworkUnexpectedDisconnectAfterLogin();
         //testNetworkLoginQueue();
@@ -48,12 +47,9 @@ public class TestChatServer {
         //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
-        //testClientTimeout();
         //testClientLoginQueue();
         //testClientDisconnectsWhileInLoginWaitQueue();
-        //testClientDoesNotNormallyTimeout();
         //testClientDisconnectHandledAfterLogoff();
-        //testTimerRestartedAfterEveryFailedLoginAttempt();
         //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
         //testInvalidClientCommandsAreSkipped();
         //testClientAdduserLogin();
@@ -681,58 +677,6 @@ public class TestChatServer {
         System.out.println("=== END TEST Remote Login ===\n");
     }
 
-    public static void testNetworkLoginTimeout() throws Exception {
-        System.out.println("=== BEGIN TEST Login Timeout ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        Socket user1Socket = new Socket("localhost", 8080);
-        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
-        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.ADDUSER, "user1", "password"));
-        user1Requests.flush();
-        Thread.currentThread().sleep(50);
-        System.out.println("-> " + CommandType.ADDUSER);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-        Thread.currentThread().sleep(50);
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user1", "password"));
-        user1Requests.flush();
-        Thread.currentThread().sleep(50);
-        System.out.println("-> " + CommandType.LOGIN);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-        Thread.currentThread().sleep(50);
-
-        Thread.currentThread().sleep(100);
-        ChatUser user1 = chatServer.getUserManager().getLoggedInUser("user1");
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGOUT));
-        user1Requests.flush();
-        Thread.currentThread().sleep(50);
-        System.out.println("-> " + CommandType.LOGOUT);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-        Thread.currentThread().sleep(50);
-
-        Thread.currentThread().sleep(21000);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-        user1Requests.close();
-        user1Responses.close();
-        user1Socket.close();
-
-        System.out.println("\n== BEGIN LOG user1 ==");
-        user1.printLog();
-        System.out.println("== END LOG user1 ==\n");
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Login Timeout ===\n");
-    }
-
     public static void testNetworkUnexpectedDisconnectBeforeLogin() throws Exception {
         System.out.println("=== BEGIN TEST Unexpected Disconnect Before Login ===");
         ChatServer chatServer = new ChatServer(8080);
@@ -1153,26 +1097,6 @@ public class TestChatServer {
         System.out.println("=== END TEST Client Reconnect ===\n");
     }
 
-    public static void testClientTimeout() throws Exception {
-        System.out.println("=== BEGIN TEST Client Basic ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        String commands = "" +
-            "connect localhost:8080\n" +
-            "sleep 21000";
-        BufferedReader input = new BufferedReader(new StringReader(commands));
-        PrintWriter output = new PrintWriter(System.out, true);
-        ChatClient chatClient = new ChatClient(input, output);
-        chatClient.start();
-        Thread.currentThread().sleep(22000);
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Client Basic ===\n");
-    }
-
     public static void testClientLoginQueue() throws Exception {
         System.out.println("=== BEGIN TEST Client Login Queue ===");
         ChatServer chatServer = new ChatServer(8080);
@@ -1257,47 +1181,6 @@ public class TestChatServer {
         System.out.println("=== END TEST Client Disconnects While In Login Wait Queue ===");
     }
 
-    public static void testClientDoesNotNormallyTimeout() throws Exception {
-        System.out.println("=== BEGIN TEST Client Does Not Normally Timeout ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[101];
-        for (int i = 1; i <= 100; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        String commands = "" +
-            "connect localhost:8080\n" +
-            "adduser user101 password\n" +
-            "login user101 password\n" +
-            "sleep 25000\n" +
-            "join group1\n" +
-            "sleep 25000\n";
-        BufferedReader input = new BufferedReader(new StringReader(commands));
-        PrintWriter output = new PrintWriter(System.out, true);
-        ChatClient chatClient = new ChatClient(input, output);
-        chatClient.start();
-
-        Thread.currentThread().sleep(3000);
-
-        users[100].logout();
-
-        Thread.currentThread().sleep(55000);
-
-        System.out.println("\n== BEGIN LOG user101 ==");
-        ChatUser user101 = chatServer.getUserManager().getLoggedInUser("user101");
-        user101.printLog();
-        System.out.println("== END LOG user101 ==\n");
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Client Does Not Normally Timeout ===\n");
-    }
-
     public static void testClientDisconnectHandledAfterLogoff() throws Exception {
         System.out.println("=== BEGIN TEST Client Disconnect is Handled After Logout ===");
         ChatServer chatServer = new ChatServer(8080);
@@ -1318,40 +1201,6 @@ public class TestChatServer {
         chatServer.getDatabaseManager().emptyDatabase();
         chatServer.shutdown();
         System.out.println("=== END TEST Client Disconnect is Handled After Logout ===");
-    }
-
-    public static void testTimerRestartedAfterEveryFailedLoginAttempt() throws Exception {
-        System.out.println("=== BEGIN TEST Timer is Restarted After Every Failed Login Attempt ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser user;
-        for(int i=1; i<=3; i++) {
-            user = new ChatUser(chatServer);
-            user.addUser("user" + Integer.toString(i), "password");
-            user.login("user" + Integer.toString(i), "password");
-        }
-
-        String commands = "" +
-            "connect localhost:8080\n" +
-            "sleep 19000\n" +
-            "login user1 wrongpassword\n" +
-            "sleep 19000\n" +
-            "login user2 wrongpassword\n" +
-            "sleep 19000\n" +
-            "login user3 wrongpassword\n" +
-            "login user4 wrongpassword\n" +
-            "logout\n";
-        BufferedReader input = new BufferedReader(new StringReader(commands));
-        PrintWriter output = new PrintWriter(System.out, true);
-        ChatClient chatClient = new ChatClient(input, output);
-        chatClient.start();
-
-        Thread.currentThread().sleep(60000);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Timer is Restarted After Every Failed Login Attempt ===");
     }
 
     public static void testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn() throws Exception {

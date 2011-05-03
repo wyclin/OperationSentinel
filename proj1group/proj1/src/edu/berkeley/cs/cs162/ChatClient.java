@@ -74,7 +74,7 @@ public class ChatClient extends Thread {
                         pendingResponse = pendingResponses.take();
                     } catch (Exception e) {
                     }
-                    while (pendingResponse.responseType != ResponseType.TIMEOUT && !isResponse(command, pendingResponse)) {
+                    while (!isResponse(command, pendingResponse)) {
                         printResponse(pendingResponse);
                         try {
                             pendingResponse = pendingResponses.take();
@@ -120,9 +120,6 @@ public class ChatClient extends Thread {
                     break;
                 case MESSAGE_DELIVERY_FAILURE:
                     localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");
-                    break;
-                case TIMEOUT:
-                    localOutput.println("timeout");
                     break;
             }
         } else { // Sync
@@ -277,7 +274,7 @@ public class ChatClient extends Thread {
                         pendingResponse = pendingResponses.take();
                     } catch (Exception e) {
                     }
-                    while (pendingResponse.responseType != ResponseType.TIMEOUT && pendingResponse.responseType != ResponseType.DISCONNECT) {
+                    while (pendingResponse.responseType != ResponseType.DISCONNECT) {
                         printResponse(pendingResponse);
                         try {
                             pendingResponse = pendingResponses.take();
