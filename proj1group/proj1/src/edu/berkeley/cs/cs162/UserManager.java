@@ -7,18 +7,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 class UserManager {
     private ChatServer chatServer;
     private DatabaseManager databaseManager;
-    private HashMap<String, ChatUser> loggedInUsers;
+    private HashMap<String, ChatUser> localUsers;
     private ReentrantReadWriteLock rwLock;
 
     public UserManager(ChatServer chatServer) {
         this.chatServer = chatServer;
         this.databaseManager = new DatabaseManager();
-        this.loggedInUsers = new HashMap<String, ChatUser>();
+        this.localUsers = new HashMap<String, ChatUser>();
         this.rwLock = new ReentrantReadWriteLock();
     }
 
     public void shutdown() {
-        HashSet<ChatUser> users = new HashSet<ChatUser>(loggedInUsers.values());
+        HashSet<ChatUser> users = new HashSet<ChatUser>(localUsers.values());
         for (ChatUser user : users) {
             user.shutdown();
         }
@@ -43,18 +43,18 @@ class UserManager {
         return databaseManager.getUser(userName) != null;
     }
 
-    public boolean hasLoggedInUser(String userName) {
+    public boolean hasLocalUser(String userName) {
         boolean result;
         rwLock.readLock().lock();
-        result = loggedInUsers.containsKey(userName);
+        result = localUsers.containsKey(userName);
         rwLock.readLock().unlock();
         return result;
     }
 
-    public ChatUser getLoggedInUser(String userName) {
+    public ChatUser getLocalUser(String userName) {
         ChatUser result;
         rwLock.readLock().lock();
-        result = loggedInUsers.get(userName);
+        result = localUsers.get(userName);
         rwLock.readLock().unlock();
         return result;
     }
@@ -82,8 +82,9 @@ class UserManager {
             if (userEntry != null && ((String)userEntry.get("name")).equals(user.getUserName()) && ((String)userEntry.get("password")).equals(password)) {
                 ChatServerResponse result;
                 rwLock.writeLock().lock();
-                if (loggedInUsers.get(user.getUserName()) == null) {
-                    loggedInUsers.put(user.getUserName(), user);
+                if (localUsers.get(user.getUserName()) == null) {
+                    localUsers.put(user.getUserName(), user);
+                    databaseManager.loginUser(user.getUserName());
                     result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
                 } else {
                     result = new ChatServerResponse(ResponseType.USER_ALREADY_LOGGED_IN);
@@ -99,21 +100,26 @@ class UserManager {
     }
 
     public ChatServerResponse logoutUser(ChatUser user) {
-        ChatServerResponse result;
-        rwLock.writeLock().lock();
-        if (loggedInUsers.containsKey(user.getUserName())) {
-            loggedInUsers.remove(user.getUserName());
-            result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
-        } else {
-            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+        try {
+            ChatServerResponse result;
+            rwLock.writeLock().lock();
+            if (localUsers.containsKey(user.getUserName())) {
+                localUsers.remove(user.getUserName());
+                databaseManager.logoutUser(user.getUserName());
+                result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
+            } else {
+                result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+            }
+            rwLock.writeLock().unlock();
+            return result;
+        } catch (SQLException e) {
+            return new ChatServerResponse(ResponseType.DATABASE_FAILURE);
         }
-        rwLock.writeLock().unlock();
-        return result;
     }
 
     public ChatServerResponse addUserToGroup(ChatUser user, String groupName) {
         rwLock.readLock().lock();
-        boolean loggedIn = loggedInUsers.containsKey(user.getUserName());
+        boolean loggedIn = localUsers.containsKey(user.getUserName());
         rwLock.readLock().unlock();
         if (loggedIn) {
             try {
@@ -141,7 +147,7 @@ class UserManager {
 
     public ChatServerResponse removeUserFromGroup(ChatUser user, String groupName) {
         rwLock.readLock().lock();
-        boolean loggedIn = loggedInUsers.containsKey(user.getUserName());
+        boolean loggedIn = localUsers.containsKey(user.getUserName());
         rwLock.readLock().unlock();
         if (loggedIn) {
             try {
