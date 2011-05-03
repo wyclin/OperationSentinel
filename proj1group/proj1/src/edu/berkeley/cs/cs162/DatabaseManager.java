@@ -36,27 +36,37 @@ public class DatabaseManager {
     }
 
     public void emptyDatabase() throws SQLException {
-        String query1 = "DELETE FROM `InGroup`;";
-        String query2 = "DELETE FROM `MessageReceivers`";
-        String query3 = "DELETE FROM `OfflineMessages`";
+        String query1 = "DELETE FROM `users`;";
+        String query2 = "DELETE FROM `groups`;";
+        String query3 = "DELETE FROM `group_users`;";
+        String query4 = "DELETE FROM `offline_messages`;";
+        String query5 = "DELETE FROM `server_info`;";
         Connection connection = null;
         Statement statement1 = null;
         Statement statement2 = null;
         Statement statement3 = null;
+        Statement statement4 = null;
+        Statement statement5 = null;
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             statement1 = connection.createStatement();
             statement2 = connection.createStatement();
             statement3 = connection.createStatement();
+            statement4 = connection.createStatement();
+            statement5 = connection.createStatement();
             statement1.executeUpdate(query1);
             statement2.executeUpdate(query2);
             statement3.executeUpdate(query3);
+            statement4.executeUpdate(query4);
+            statement5.executeUpdate(query5);
             connection.commit();
         } finally {
             if (statement1 != null) {statement1.close();}
             if (statement2 != null) {statement2.close();}
             if (statement3 != null) {statement3.close();}
+            if (statement4 != null) {statement4.close();}
+            if (statement5 != null) {statement5.close();}
             if (connection != null) {
                 connection.setAutoCommit(true);
                 connection.close();
@@ -64,22 +74,60 @@ public class DatabaseManager {
         }
     }
 
-    public HashMap<String, Object> getReceiver(String name) throws SQLException {
-        String query = "SELECT `name`,`password`,`type` FROM `MessageReceivers` WHERE `name`='" + name +"';";
+    public HashMap<String, Object> getServer(String serverName) throws SQLException {
+        String query = "SELECT `name`,`host`,`port` FROM `server_info` WHERE `name`='" + serverName +"';";
         Connection connection = null;
         Statement statement = null;
         try {
             connection = dataSource.getConnection();
             statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query);
-            HashMap<String, Object> receiverProperties = null;
+            HashMap<String, Object> serverProperties = null;
             if (results.next()) {
-                receiverProperties = new HashMap<String, Object>();
-                receiverProperties.put("name", results.getString(1));
-                receiverProperties.put("password", results.getString(2));
-                receiverProperties.put("type", results.getString(3));
+                serverProperties = new HashMap<String, Object>();
+                serverProperties.put("name", results.getString(1));
+                serverProperties.put("host", results.getString(2));
+                serverProperties.put("port", results.getInt(3));
             }
-            return receiverProperties;
+            return serverProperties;
+        } finally {
+            if (statement != null) {statement.close();}
+            if (connection != null) {connection.close();}
+        }
+    }
+
+    public LinkedList<HashMap<String, Object>> getServerList() throws SQLException {
+        String query = "SELECT `name`,`host`,`port` FROM `server_info`";
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);
+            LinkedList<HashMap<String, Object>> servers = new LinkedList<HashMap<String, Object>>();
+            HashMap<String, Object> serverProperties;
+            while (results.next()) {
+                serverProperties = new HashMap<String, Object>();
+                serverProperties.put("name", results.getString(1));
+                serverProperties.put("host", results.getString(2));
+                serverProperties.put("port", results.getInt(3));
+                servers.add(serverProperties);
+            }
+            return servers;
+        } finally {
+            if (statement != null) {statement.close();}
+            if (connection != null) {connection.close();}
+        }
+    }
+
+    public void addServer(String name, String host, int port) throws SQLException {
+        String query = "INSERT INTO `server_info` (`name`, `host`, `port`) VALUES ('" + name + "','" + host + "','" + Integer.toString(port) + "');";
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
         } finally {
             if (statement != null) {statement.close();}
             if (connection != null) {connection.close();}
@@ -87,7 +135,7 @@ public class DatabaseManager {
     }
 
     public HashMap<String, Object> getUser(String userName) throws SQLException {
-        String query = "SELECT `name`,`password` FROM `MessageReceivers` WHERE `name`='" + userName +"' AND `type`='user';";
+        String query = "SELECT `name`,`password`,`logged_in` FROM `users` WHERE `name`='" + userName +"';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -99,6 +147,7 @@ public class DatabaseManager {
                 userProperties = new HashMap<String, Object>();
                 userProperties.put("name", results.getString(1));
                 userProperties.put("password", results.getString(2));
+                userProperties.put("logged_in", results.getBoolean(3));
             }
             return userProperties;
         } finally {
@@ -108,7 +157,7 @@ public class DatabaseManager {
     }
 
     public int getUserCount() throws SQLException {
-        String query = "SELECT COUNT(*) FROM `MessageReceivers` WHERE `type`='user';";
+        String query = "SELECT COUNT(*) FROM `users`;";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -124,7 +173,7 @@ public class DatabaseManager {
     }
 
     public TreeSet<String> getUserList() throws SQLException {
-        String query = "SELECT `name` FROM `MessageReceivers` WHERE `type`='user';";
+        String query = "SELECT `name` FROM `users`;";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -143,7 +192,7 @@ public class DatabaseManager {
     }
 
     public HashMap<String, Object> getGroup(String groupName) throws SQLException {
-        String query = "SELECT `name` FROM `MessageReceivers` WHERE `name`='" + groupName +"' AND `type`='group';";
+        String query = "SELECT `name` FROM `groups` WHERE `name`='" + groupName +"';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -163,7 +212,7 @@ public class DatabaseManager {
     }
 
     public int getGroupCount() throws SQLException {
-        String query = "SELECT COUNT(*) FROM `MessageReceivers` WHERE `type`='group';";
+        String query = "SELECT COUNT(*) FROM `groups`;";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -179,7 +228,7 @@ public class DatabaseManager {
     }
 
     public TreeSet<String> getGroupList() throws SQLException {
-        String query = "SELECT `name` FROM `MessageReceivers` WHERE `type`='group';";
+        String query = "SELECT `name` FROM `groups`;";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -198,7 +247,7 @@ public class DatabaseManager {
     }
 
     public int getGroupUserCount(String groupName) throws SQLException {
-        String query = "SELECT COUNT(*) FROM `InGroup` WHERE `group_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + groupName + "');";
+        String query = "SELECT COUNT(*) FROM `group_users` WHERE `group_id`=(SELECT `id` FROM `groups` WHERE `name`='" + groupName + "');";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -214,7 +263,7 @@ public class DatabaseManager {
     }
 
     public TreeSet<String> getGroupUserList(String groupName) throws SQLException {
-        String query = "SELECT t2.`name` FROM `InGroup` AS t1 INNER JOIN `MessageReceivers` AS t2 ON t1.`user_id`=t2.`receiver_id` WHERE `group_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + groupName + "' AND `type`='group') AND `type`='user';";
+        String query = "SELECT t2.`name` FROM `group_users` AS t1 INNER JOIN `users` AS t2 ON t1.`user_id`=t2.`id` WHERE `group_id`=(SELECT `id` FROM `groups` WHERE `name`='" + groupName + "');";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -233,7 +282,35 @@ public class DatabaseManager {
     }
 
     public void addUser(String userName, String password) throws SQLException {
-        String query = "INSERT INTO `MessageReceivers` (`name`,`password`,`type`) VALUES ('" + userName + "','" + password + "','user')";
+        String query = "INSERT INTO `users` (`name`,`password`,`logged_in`) VALUES ('" + userName + "','" + password + "','0');";
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } finally {
+            if (statement != null) {statement.close();}
+            if (connection != null) {connection.close();}
+        }
+    }
+
+    public void loginUser(String userName) throws SQLException {
+        String query = "UPDATE `users` SET `logged_in`='1' WHERE `name`='" + userName + "';";
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } finally {
+            if (statement != null) {statement.close();}
+            if (connection != null) {connection.close();}
+        }
+    }
+
+    public void logoutUser(String userName) throws SQLException {
+        String query = "UPDATE `users` SET `logged_in`='0' WHERE `name`='" + userName + "';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -247,7 +324,7 @@ public class DatabaseManager {
     }
 
     public void removeUser(String userName) throws SQLException {
-        String query = "DELETE FROM `MessageReceivers` WHERE `NAME`='" + userName + "' AND `type`='user';";
+        String query = "DELETE FROM `users` WHERE `name`='" + userName + "';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -261,7 +338,7 @@ public class DatabaseManager {
     }
 
     public void addUserToGroup(String userName, String groupName) throws SQLException {
-        String query = "INSERT INTO `InGroup` (`group_id`,`user_id`) VALUES ((SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + groupName + "' AND `type`='group'), (SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "' AND `type`='user'));";
+        String query = "INSERT INTO `group_users` (`group_id`,`user_id`) VALUES ((SELECT `id` FROM `groups` WHERE `name`='" + groupName + "'), (SELECT `id` FROM `users` WHERE `name`='" + userName + "'));";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -275,7 +352,7 @@ public class DatabaseManager {
     }
 
     public void removeUserFromGroup(String userName, String groupName) throws SQLException {
-        String query = "DELETE FROM `InGroup` WHERE `group_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + groupName + "' AND `type`='group') AND `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "' AND `type`='user')";
+        String query = "DELETE FROM `group_users` WHERE `group_id`=(SELECT `id` FROM `groups` WHERE `name`='" + groupName + "') AND `user_id`=(SELECT `id` FROM `groups` WHERE `name`='" + userName + "')";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -289,7 +366,7 @@ public class DatabaseManager {
     }
 
     public void addGroup(String groupName) throws SQLException {
-        String query = "INSERT INTO `MessageReceivers` (`name`,`type`) VALUES ('" + groupName + "','group')";
+        String query = "INSERT INTO `groups` (`name`) VALUES ('" + groupName + "')";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -303,7 +380,7 @@ public class DatabaseManager {
     }
 
     public void removeGroup(String groupName) throws SQLException {
-        String query = "DELETE FROM `MessageReceivers` WHERE `NAME`='" + groupName + "' AND `type`='group';";
+        String query = "DELETE FROM `groups` WHERE `NAME`='" + groupName + "';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -317,7 +394,7 @@ public class DatabaseManager {
     }
 
     public void logMessage(String userName, Message message) throws SQLException {
-        String query = "INSERT INTO `OfflineMessages` (`user_id`,`timestamp`,`sqn`,`sender`,`receiver`,`text`) VALUES ((SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "' AND `type`='user'),'" + message.date.getTime() + "','" + Integer.toString(message.sqn) + "','" + message.sender.getUserName() + "','" + message.receiver + "','" + message.text + "');";
+        String query = "INSERT INTO `offline_messages` (`user_id`,`timestamp`,`sqn`,`sender`,`receiver`,`text`) VALUES ((SELECT `id` FROM `users` WHERE `name`='" + userName + "'),'" + message.date.getTime() + "','" + Integer.toString(message.sqn) + "','" + message.sender.getUserName() + "','" + message.receiver + "','" + message.text + "');";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -331,8 +408,8 @@ public class DatabaseManager {
     }
 
     public LinkedList<HashMap<String, Object>> getOfflineMessages(String userName) throws SQLException {
-        String query1 = "SELECT `timestamp`,`sqn`,`sender`,`receiver`,`text` FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "') ORDER BY `timestamp` ASC;";
-        String query2 = "DELETE FROM `OfflineMessages` WHERE `user_id`=(SELECT `receiver_id` FROM `MessageReceivers` WHERE `name`='" + userName + "');";
+        String query1 = "SELECT `timestamp`,`sqn`,`sender`,`receiver`,`text` FROM `offline_messages` WHERE `user_id`=(SELECT `id` FROM `users` WHERE `name`='" + userName + "') ORDER BY `timestamp` ASC;";
+        String query2 = "DELETE FROM `offline_messages` WHERE `user_id`=(SELECT `id` FROM `users` WHERE `name`='" + userName + "');";
         Connection connection = null;
         Statement statement1 = null;
         Statement statement2 = null;

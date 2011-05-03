@@ -43,7 +43,7 @@ class UserManager {
     }
 
     private boolean hasName(String name) throws SQLException {
-        return databaseManager.getReceiver(name) != null;
+        return hasUser(name) || hasGroup(name);
     }
 
     private boolean hasUser(String userName) throws SQLException {
@@ -140,20 +140,19 @@ class UserManager {
         rwLock.readLock().unlock();
         if (loggedIn) {
             try {
-                HashMap<String, Object> receiverEntry = databaseManager.getReceiver(groupName);
-                if (receiverEntry == null) {
-                    databaseManager.addGroup(groupName);
-                    databaseManager.addUserToGroup(user.getUserName(), groupName);
-                    return new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
-                } else if (((String)receiverEntry.get("type")).equals("group")) {
+                if (hasUser(groupName)) {
+                    return new ChatServerResponse(ResponseType.NAME_CONFLICT);
+                } else if (hasGroup(groupName)) {
                     if (databaseManager.getGroupUserList(groupName).contains(user.getUserName())) {
                         return new ChatServerResponse(ResponseType.USER_ALREADY_MEMBER_OF_GROUP);
                     } else {
                         databaseManager.addUserToGroup(user.getUserName(), groupName);
                         return new ChatServerResponse(ResponseType.USER_ADDED_TO_GROUP);
                     }
-                } else { // "user"
-                    return new ChatServerResponse(ResponseType.NAME_CONFLICT);
+                } else {
+                    databaseManager.addGroup(groupName);
+                    databaseManager.addUserToGroup(user.getUserName(), groupName);
+                    return new ChatServerResponse(ResponseType.USER_ADDED_TO_NEW_GROUP);
                 }
             } catch (SQLException e) {
                 return new ChatServerResponse(ResponseType.DATABASE_FAILURE);

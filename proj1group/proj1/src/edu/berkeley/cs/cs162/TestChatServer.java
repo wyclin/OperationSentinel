@@ -15,50 +15,51 @@ public class TestChatServer {
 
 	public static void main(String[] args) throws Exception {
         // Database Tests
-        testDatabaseEmptyDatabase();
-        testDatabaseAddUsersAndGroups();
-        testDatabaseOfflineMessages();
+        //testDatabaseEmptyDatabase();
+        //testDatabaseAddUsersAndGroups();
+        //testDatabaseOfflineMessages();
+        testDatabaseAddServers();
 
         // Non-Networked Tests
-        testBasic();
-	testLogout();
-	testUserNameUniqueness();
-        testServerCapacity();
-        testLoginQueue();
-        testUserJoinsMultipleGroups();
-        testUnicastMessages();
-        testBroadcastMessages();
-        testSelfUnicast();
-        testNonMemberBroadcast();
-        testServerShutdown();
-        testOfflineMessages();
+        //testBasic();
+        //testLogout();
+        //testUserNameUniqueness();
+        //testServerCapacity();
+        //testLoginQueue();
+        //testUserJoinsMultipleGroups();
+        //testUnicastMessages();
+        //testBroadcastMessages();
+        //testSelfUnicast();
+        //testNonMemberBroadcast();
+        //testServerShutdown();
+        //testOfflineMessages();
 	    
         // Networked Tests
-        testNetworkLogin();
-        testNetworkLoginTimeout();
-        testNetworkUnexpectedDisconnectBeforeLogin();
-        testNetworkUnexpectedDisconnectAfterLogin();
-        testNetworkLoginQueue();
-        testNetworkSendReceive();
-        testNetworkReadlog();
+        //testNetworkLogin();
+        //testNetworkLoginTimeout();
+        //testNetworkUnexpectedDisconnectBeforeLogin();
+        //testNetworkUnexpectedDisconnectAfterLogin();
+        //testNetworkLoginQueue();
+        //testNetworkSendReceive();
+        //testNetworkReadlog();
 
         // Client-Server Tests
-        testClientBasic();
-        testClientLogout();
-        testClientDisconnect();
-        testClientReconnect();
-        testClientTimeout();
-        testClientLoginQueue();
-        testClientDisconnectsWhileInLoginWaitQueue();
-        testClientDoesNotNormallyTimeout();
-        testClientDisconnectHandledAfterLogoff();
-        testTimerRestartedAfterEveryFailedLoginAttempt();
-        testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
-        testInvalidClientCommandsAreSkipped();
-        testClientAdduserLogin();
-        testClientMessaging();
-        testClientReadlog();
-	System.exit(0);
+        //testClientBasic();
+        //testClientLogout();
+        //testClientDisconnect();
+        //testClientReconnect();
+        //testClientTimeout();
+        //testClientLoginQueue();
+        //testClientDisconnectsWhileInLoginWaitQueue();
+        //testClientDoesNotNormallyTimeout();
+        //testClientDisconnectHandledAfterLogoff();
+        //testTimerRestartedAfterEveryFailedLoginAttempt();
+        //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
+        //testInvalidClientCommandsAreSkipped();
+        //testClientAdduserLogin();
+        //testClientMessaging();
+        //testClientReadlog();
+        System.exit(0);
 	}
 
     // Database Tests
@@ -86,10 +87,18 @@ public class TestChatServer {
 
         databaseManager.addUser("user1", "password");
         HashMap<String, Object> user1 = databaseManager.getUser("user1");
-        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password"));
+        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password") + ", " + ((Boolean)user1.get("logged_in") ? "logged_in" : "not_logged_in"));
         databaseManager.addUser("user2", "password");
         HashMap<String, Object> user2 = databaseManager.getUser("user2");
-        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password"));
+        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password") + ", " + ((Boolean)user2.get("logged_in") ? "logged_in" : "not_logged_in"));
+
+        databaseManager.loginUser("user1");
+        user1 = databaseManager.getUser("user1");
+        System.out.println("user1 is " + ((Boolean)user1.get("logged_in") ? "logged_in" : "not_logged_in"));
+
+        databaseManager.logoutUser("user1");
+        user1 = databaseManager.getUser("user1");
+        System.out.println("user1 is " + ((Boolean)user1.get("logged_in") ? "logged_in" : "not_logged_in"));
 
         databaseManager.addGroup("group1");
         HashMap<String, Object> group1 = databaseManager.getGroup("group1");
@@ -164,10 +173,10 @@ public class TestChatServer {
 
         databaseManager.addUser("user1", "password");
         HashMap<String, Object> user1 = databaseManager.getUser("user1");
-        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password"));
+        System.out.println("Added User: " + user1.get("name") + ", " + user1.get("password") + ", " + ((Boolean)user1.get("logged_in") ? "logged_in" : "not_logged_in"));
         databaseManager.addUser("user2", "password");
         HashMap<String, Object> user2 = databaseManager.getUser("user2");
-        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password"));
+        System.out.println("Added User: " + user2.get("name") + ", " + user2.get("password") + ", " + ((Boolean)user2.get("logged_in") ? "logged_in" : "not_logged_in"));
 
         databaseManager.addGroup("group1");
         HashMap<String, Object> group1 = databaseManager.getGroup("group1");
@@ -194,6 +203,30 @@ public class TestChatServer {
 
         databaseManager.emptyDatabase();
         System.out.println("=== END DATABASE TEST Database Offline Messages  ===\n");
+    }
+
+    public static void testDatabaseAddServers() throws Exception {
+        System.out.println("=== BEGIN DATABASE TEST Database Add Servers  ===");
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addServer("server1", "localhost", 4747);
+        HashMap<String, Object> server1 = databaseManager.getServer("server1");
+        System.out.println("Added Server: " + server1.get("name") + ", " + server1.get("host") + ", " + Integer.toString((Integer)server1.get("port")));
+        databaseManager.addServer("server2", "localhost", 4748);
+        HashMap<String, Object> server2 = databaseManager.getServer("server1");
+        System.out.println("Added Server: " + server2.get("name") + ", " + server2.get("host") + ", " + Integer.toString((Integer)server2.get("port")));
+
+        System.out.println("\nServer List");
+        LinkedList<HashMap<String, Object>> serverList = databaseManager.getServerList();
+        HashMap<String, Object> serverProperties = serverList.poll();
+        while (serverProperties != null) {
+            System.out.println(serverProperties.get("name"));
+            serverProperties = serverList.poll();
+        }
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END DATABASE TEST Database Add Servers  ===\n");
     }
 
     // Non-Networked Server Tests
