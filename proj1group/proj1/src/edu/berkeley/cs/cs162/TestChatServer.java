@@ -18,14 +18,12 @@ public class TestChatServer {
         //testDatabaseEmptyDatabase();
         //testDatabaseAddUsersAndGroups();
         //testDatabaseOfflineMessages();
-        testDatabaseAddServers();
+        //testDatabaseAddServers();
 
         // Non-Networked Tests
         //testBasic();
         //testLogout();
         //testUserNameUniqueness();
-        //testServerCapacity();
-        //testLoginQueue();
         //testUserJoinsMultipleGroups();
         //testUnicastMessages();
         //testBroadcastMessages();
@@ -38,7 +36,6 @@ public class TestChatServer {
         //testNetworkLogin();
         //testNetworkUnexpectedDisconnectBeforeLogin();
         //testNetworkUnexpectedDisconnectAfterLogin();
-        //testNetworkLoginQueue();
         //testNetworkSendReceive();
         //testNetworkReadlog();
 
@@ -47,8 +44,6 @@ public class TestChatServer {
         //testClientLogout();
         //testClientDisconnect();
         //testClientReconnect();
-        //testClientLoginQueue();
-        //testClientDisconnectsWhileInLoginWaitQueue();
         //testClientDisconnectHandledAfterLogoff();
         //testCertainClientCommandsRejectedWhenNotConnectedOrLoggedIn();
         //testInvalidClientCommandsAreSkipped();
@@ -333,60 +328,6 @@ public class TestChatServer {
         chatServer.getDatabaseManager().emptyDatabase();
         chatServer.shutdown();
         System.out.println("=== END TEST User Name Uniqueness ===\n");
-    }
-
-    public static void testServerCapacity() throws Exception {
-        System.out.println("=== BEGIN TEST Server Capacity ===");
-        ChatServer chatServer = new ChatServer();
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[112];
-        for (int i = 1; i <= 111; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        for (int i = 1; i <= 111; i++) {
-            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
-            users[i].printLog();
-            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
-        }
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Server Capacity ===\n");
-    }
-
-    public static void testLoginQueue() throws Exception {
-        System.out.println("=== BEGIN TEST Login Queue ===");
-        ChatServer chatServer = new ChatServer();
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[111];
-        for (int i = 1; i <= 110; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        users[110].logout();
-
-        for (int i = 1; i <= 10; i++) {
-            users[i].logout();
-        }
-
-        for (int i = 1; i <= 110; i++) {
-            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
-            users[i].printLog();
-            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
-        }
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Login Queue ===\n");
     }
 
     public static void testUserJoinsMultipleGroups() throws Exception {
@@ -771,67 +712,6 @@ public class TestChatServer {
         System.out.println("=== END TEST Unexpected Disconnect After Login ===\n");
     }
 
-    public static void testNetworkLoginQueue() throws Exception {
-        System.out.println("=== BEGIN TEST Login Queue ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[101];
-        for (int i = 1; i <= 100; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        Socket user1Socket = new Socket("localhost", 8080);
-        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
-        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
-
-        System.out.println("\n== BEGIN Simulated Client ==");
-        user1Requests.writeObject(new ChatClientCommand(CommandType.ADDUSER, "user101", "password"));
-        user1Requests.flush();
-        System.out.println("-> " + CommandType.ADDUSER);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user101", "password"));
-        user1Requests.flush();
-        System.out.println("-> " + CommandType.LOGIN);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-
-        users[1].logout();
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-
-        ChatUser user101 = chatServer.getUserManager().getLoggedInUser("user101");
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.DISCONNECT));
-        user1Requests.flush();
-        System.out.println("-> " + CommandType.DISCONNECT);
-        Thread.currentThread().sleep(50);
-
-        user1Requests.close();
-        user1Responses.close();
-        user1Socket.close();
-        Thread.currentThread().sleep(50);
-        System.out.println("== END Simulated Client ==\n");
-
-        for (int i = 1; i <= 100; i++) {
-            System.out.println("\n== BEGIN LOG user[" + Integer.toString(i) + "] ==");
-            users[i].printLog();
-            System.out.println("== END LOG user[" + Integer.toString(i) + "] ==");
-        }
-        System.out.println("\n== BEGIN LOG user101 ==");
-        user101.printLog();
-        System.out.println("== END LOG user101 ==");
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Login Queue ===\n");
-    }
-
     public static void testNetworkSendReceive() throws Exception {
         System.out.println("=== BEGIN TEST Send and Receive ===");
         ChatServer chatServer = new ChatServer(8080);
@@ -1095,90 +975,6 @@ public class TestChatServer {
         chatServer.getDatabaseManager().emptyDatabase();
         chatServer.shutdown();
         System.out.println("=== END TEST Client Reconnect ===\n");
-    }
-
-    public static void testClientLoginQueue() throws Exception {
-        System.out.println("=== BEGIN TEST Client Login Queue ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[101];
-        for (int i = 1; i <= 100; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        System.out.println("\n== BEGIN user101 ==");
-        String commands = "" +
-            "connect localhost:8080\n" +
-            "adduser user101 password\n" +
-            "login user101 password\n" +
-            "sleep 2000";
-        BufferedReader input = new BufferedReader(new StringReader(commands));
-        PrintWriter output = new PrintWriter(System.out, true);
-        ChatClient chatClient = new ChatClient(input, output);
-        chatClient.start();
-        Thread.currentThread().sleep(1000);
-
-        users[1].logout();
-        Thread.currentThread().sleep(2000);
-        System.out.println("== END user101 ==");
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Client Login Queue ===\n");
-    }
-
-    public static void testClientDisconnectsWhileInLoginWaitQueue() throws Exception {
-        System.out.println("=== BEGIN TEST Client Disconnects While In Login Wait Queue ===");
-        ChatServer chatServer = new ChatServer(8080);
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.start();
-
-        ChatUser[] users = new ChatUser[101];
-        for (int i = 1; i <= 100; i++) {
-            users[i] = new ChatUser(chatServer);
-            users[i].addUser("user" + Integer.toString(i), "password");
-            users[i].login("user" + Integer.toString(i), "password");
-        }
-
-        Socket user1Socket = new Socket("localhost", 8080);
-        ObjectOutputStream user1Requests = new ObjectOutputStream(user1Socket.getOutputStream());
-        ObjectInputStream user1Responses = new ObjectInputStream(user1Socket.getInputStream());
-
-        System.out.println("\n== BEGIN Simulated Client ==");
-        user1Requests.writeObject(new ChatClientCommand(CommandType.ADDUSER, "user101", "password"));
-        user1Requests.flush();
-        System.out.println("-> " + CommandType.ADDUSER);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-
-        user1Requests.writeObject(new ChatClientCommand(CommandType.LOGIN, "user101", "password"));
-        user1Requests.flush();
-        System.out.println("-> " + CommandType.LOGIN);
-        Thread.currentThread().sleep(50);
-        System.out.println("<- " + ((ChatServerResponse)user1Responses.readObject()).responseType);
-
-        user1Requests.close();
-        user1Responses.close();
-        user1Socket.close();
-
-        Thread.currentThread().sleep(50);
-        users[99].logout();
-
-        Thread.currentThread().sleep(100);
-        ChatUser user101 = chatServer.getUserManager().getLoggedInUser("user101");
-        if (user101 == null)
-            System.out.println("user101 was NOT added to chat server.  Hooray, test passed!");
-
-        Thread.currentThread().sleep(50);
-        System.out.println("== END Simulated Client ==\n");
-
-        chatServer.getDatabaseManager().emptyDatabase();
-        chatServer.shutdown();
-        System.out.println("=== END TEST Client Disconnects While In Login Wait Queue ===");
     }
 
     public static void testClientDisconnectHandledAfterLogoff() throws Exception {

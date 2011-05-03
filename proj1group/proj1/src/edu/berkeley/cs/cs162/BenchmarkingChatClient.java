@@ -48,9 +48,9 @@ public class BenchmarkingChatClient extends Thread {
         this.roundTripTimes = new ArrayList<Long>();
         this.clientID = (int)(Math.random()*Integer.MAX_VALUE);
         this.printRTTPattern = Pattern.compile("^print RTT$");
-	this.printDBTimePattern = Pattern.compile("^print DBT$");
-	this.DBEndTimes = new ArrayList<Long>();
-	this.DBStartTime = 0;
+        this.printDBTimePattern = Pattern.compile("^print DBT$");
+        this.DBEndTimes = new ArrayList<Long>();
+        this.DBStartTime = 0;
 
         this.connectPattern = Pattern.compile("^connect ([^:\\s]+):(\\d{1,5})$");
         this.disconnectPattern = Pattern.compile("^disconnect$");
@@ -92,7 +92,7 @@ public class BenchmarkingChatClient extends Thread {
                         pendingResponse = pendingResponses.take();
                     } catch (Exception e) {
                     }
-                    while (pendingResponse.responseType != ResponseType.TIMEOUT && !isResponse(command, pendingResponse)) {
+                    while (!isResponse(command, pendingResponse)) {
                         printResponse(pendingResponse);
                         try {
                             pendingResponse = pendingResponses.take();
@@ -147,9 +147,6 @@ public class BenchmarkingChatClient extends Thread {
                 case MESSAGE_DELIVERY_FAILURE:
                     localOutput.println("sendack " + Integer.toString(response.messagesqn) + " FAILED");
                     break;
-                case TIMEOUT:
-                    localOutput.println("timeout");
-                    break;
             }
         } else { // Sync
             switch (response.command.commandType) {
@@ -170,12 +167,8 @@ public class BenchmarkingChatClient extends Thread {
                         case USER_LOGGED_IN:
                             localOutput.println("login OK");
                             break;
-                        case USER_QUEUED:
-                            localOutput.println("login QUEUED");
-                            break;
                         case SHUTTING_DOWN:
                         case DATABASE_FAILURE:
-                        case USER_CAPACITY_REACHED:
                         case NAME_CONFLICT:
                         case INVALID_NAME_OR_PASSWORD:
                             localOutput.println("login REJECTED");
@@ -311,7 +304,7 @@ public class BenchmarkingChatClient extends Thread {
                     pendingResponse = pendingResponses.take();
                 } catch (Exception e) {
                 }
-                while (pendingResponse.responseType != ResponseType.TIMEOUT && pendingResponse.responseType != ResponseType.DISCONNECT) {
+                while (pendingResponse.responseType != ResponseType.DISCONNECT) {
                     printResponse(pendingResponse);
                     try {
                         pendingResponse = pendingResponses.take();

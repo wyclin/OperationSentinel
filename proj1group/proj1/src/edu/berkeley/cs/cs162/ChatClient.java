@@ -141,12 +141,8 @@ public class ChatClient extends Thread {
                         case USER_LOGGED_IN:
                             localOutput.println("login OK");
                             break;
-                        case USER_QUEUED:
-                            localOutput.println("login QUEUED");
-                            break;
                         case SHUTTING_DOWN:
                         case DATABASE_FAILURE:
-                        case USER_CAPACITY_REACHED:
                         case NAME_CONFLICT:
                         case INVALID_NAME_OR_PASSWORD:
                         case USER_ALREADY_LOGGED_IN:

@@ -5,22 +5,15 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class UserManager {
-    public final int maxLoggedInUsers;
-    public final int maxQueuedUsers;
-
     private ChatServer chatServer;
     private DatabaseManager databaseManager;
     private HashMap<String, ChatUser> loggedInUsers;
-    private LinkedList<ChatUser> loginQueue;
     private ReentrantReadWriteLock rwLock;
 
-    public UserManager(ChatServer chatServer, int maxLoggedInUsers, int maxGroupUsers) {
-        this.maxLoggedInUsers = maxLoggedInUsers;
-        this.maxQueuedUsers = maxLoggedInUsers / 10;
+    public UserManager(ChatServer chatServer) {
         this.chatServer = chatServer;
         this.databaseManager = new DatabaseManager();
         this.loggedInUsers = new HashMap<String, ChatUser>();
-        this.loginQueue = new LinkedList<ChatUser>();
         this.rwLock = new ReentrantReadWriteLock();
     }
 
@@ -89,20 +82,11 @@ class UserManager {
             if (userEntry != null && ((String)userEntry.get("name")).equals(user.getUserName()) && ((String)userEntry.get("password")).equals(password)) {
                 ChatServerResponse result;
                 rwLock.writeLock().lock();
-                if (loggedInUsers.size() >= maxLoggedInUsers) {
-                    if (loginQueue.size() >= maxQueuedUsers) {
-                        result = new ChatServerResponse(ResponseType.USER_CAPACITY_REACHED);
-                    } else {
-                        if (!loginQueue.contains(user)) {loginQueue.add(user);}
-                        result = new ChatServerResponse(ResponseType.USER_QUEUED);
-                    }
+                if (loggedInUsers.get(user.getUserName()) == null) {
+                    loggedInUsers.put(user.getUserName(), user);
+                    result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
                 } else {
-                    if (loggedInUsers.get(user.getUserName()) == null) {
-                        loggedInUsers.put(user.getUserName(), user);
-                        result = new ChatServerResponse(ResponseType.USER_LOGGED_IN);
-                    } else {
-                        result = new ChatServerResponse(ResponseType.USER_ALREADY_LOGGED_IN);
-                    }
+                    result = new ChatServerResponse(ResponseType.USER_ALREADY_LOGGED_IN);
                 }
                 rwLock.writeLock().unlock();
                 return result;
@@ -119,13 +103,6 @@ class UserManager {
         rwLock.writeLock().lock();
         if (loggedInUsers.containsKey(user.getUserName())) {
             loggedInUsers.remove(user.getUserName());
-            result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
-            try {
-                ChatUser queuedUser = loginQueue.remove();
-                loggedInUsers.put(queuedUser.getUserName(), queuedUser);
-                queuedUser.loggedIn();
-            } catch (NoSuchElementException e) {}
-        } else if (loginQueue.remove(user)) {
             result = new ChatServerResponse(ResponseType.USER_LOGGED_OUT);
         } else {
             result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);

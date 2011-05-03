@@ -2,9 +2,6 @@ package edu.berkeley.cs.cs162;
 
 public class ChatServer {
 
-    public static final int MAX_CHAT_USERS = 100;
-    public static final int MAX_GROUP_USERS = 10;
-
     private UserManager userManager;
 	private MessageDispatcher messageDispatcher;
     private ConnectionManager connectionManager;
@@ -18,7 +15,7 @@ public class ChatServer {
 	}
 
     public ChatServer() {
-        this.userManager = new UserManager(this, MAX_CHAT_USERS, MAX_GROUP_USERS);
+        this.userManager = new UserManager(this);
         this.messageDispatcher = new MessageDispatcher(this);
         this.connectionManager = null;
         this.shuttingDown = false;

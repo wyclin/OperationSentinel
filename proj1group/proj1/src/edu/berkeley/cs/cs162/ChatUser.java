@@ -16,7 +16,6 @@ public class ChatUser extends Thread {
     private boolean networked;
     private String loginName;
     private boolean loggedIn;
-    private boolean queued;
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
     private LinkedBlockingQueue<String> log;
     private SimpleDateFormat dateFormatter;
@@ -26,7 +25,6 @@ public class ChatUser extends Thread {
         this.networked = false;
         this.loginName = null;
         this.loggedIn = false;
-        this.queued = false;
         this.pendingResponses = new LinkedBlockingQueue<ChatServerResponse>();
         this.log = new LinkedBlockingQueue<String>();
         this.dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -125,7 +123,7 @@ public class ChatUser extends Thread {
     }
 
     public void disconnect() {
-        if (loggedIn || queued) {
+        if (loggedIn) {
             pendingResponses.offer(logout());
         }
         pendingResponses.offer(new ChatServerResponse(ResponseType.DISCONNECT));
@@ -135,10 +133,9 @@ public class ChatUser extends Thread {
 
     public void forceDisconnect() {
         Date time = Calendar.getInstance().getTime();
-        if (loggedIn || queued) {
+        if (loggedIn) {
             chatServer.logout(this);
             log.offer(dateFormatter.format(time) + " | " + loginName + " has been force logged out.");
-            queued = false;
             loggedIn = false;
         }
         log.offer(dateFormatter.format(time) + " | Client force disconnected.");
@@ -172,13 +169,6 @@ public class ChatUser extends Thread {
                 break;
             case DATABASE_FAILURE:
                 log.offer(dateFormatter.format(time) + " | Login Failure | Database Failure.");
-            case USER_QUEUED:
-                queued = true;
-                log.offer(dateFormatter.format(time) + " | Login Queued | Placed on waiting queue.");
-                break;
-            case USER_CAPACITY_REACHED:
-                log.offer(dateFormatter.format(time) + " | Login Failure | ChatServer is full.");
-                break;
             case NAME_CONFLICT:
                 log.offer(dateFormatter.format(time) + " | Login Failure | Name already taken.");
                 break;
@@ -193,17 +183,9 @@ public class ChatUser extends Thread {
         return response;
     }
 
-    public void loggedIn() {
-        Date time = Calendar.getInstance().getTime();
-        log.offer(dateFormatter.format(time) + " | Login Success | Logged in as " + loginName);
-        queued = false;
-        loggedIn = true;
-        pendingResponses.offer(new ChatServerResponse(ResponseType.USER_LOGGED_IN));
-    }
-
     public ChatServerResponse logout() {
         Date time = Calendar.getInstance().getTime();
-        if (loggedIn || queued) {
+        if (loggedIn) {
             ChatServerResponse response = chatServer.logout(this);
             switch (response.responseType) {
                 case USER_NOT_FOUND:
@@ -213,7 +195,6 @@ public class ChatUser extends Thread {
                     log.offer(dateFormatter.format(time) + " | Logout Success | " + loginName + " has been logged out.");
                     break;
             }
-            queued = false;
             loggedIn = false;
             return response;
         } else {
