@@ -8,10 +8,12 @@ public class PeerServerManager {
 
     private HashMap<String, PeerServer> peerServers;
     private ReentrantReadWriteLock rwLock;
+    private String serverName;
 
-    public PeerServerManager() {
+    public PeerServerManager(String serverName) {
         this.peerServers = new HashMap<String, PeerServer>();
         this.rwLock = new ReentrantReadWriteLock();
+        this.serverName = serverName;
     }
 
     public void shutdown() {

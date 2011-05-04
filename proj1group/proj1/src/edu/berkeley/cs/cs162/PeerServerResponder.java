@@ -7,11 +7,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PeerServerResponder extends Thread {
 
     private PeerServer peerServer;
-    private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
+    private LinkedBlockingQueue<ChatClientCommand> pendingResponses;
     private Socket socket;
     private ObjectOutputStream output;
 
-    public PeerServerResponder(PeerServer peerServer, Socket socket, LinkedBlockingQueue<ChatServerResponse> pendingResponses) {
+    public PeerServerResponder(PeerServer peerServer, Socket socket, LinkedBlockingQueue<ChatClientCommand> pendingResponses) {
         this.peerServer = peerServer;
         this.socket = socket;
         try {
@@ -25,19 +25,9 @@ public class PeerServerResponder extends Thread {
     }
 
     public void run () {
-        ChatServerResponse response;
         try {
             while(true) {
-                response = pendingResponses.take();
-                if (response.responseType == ResponseType.MESSAGE_RECEIVED || response.responseType == ResponseType.MESSAGE_DELIVERY_FAILURE) {
-                    response.messageDate = response.message.date;
-                    response.messageSender = response.message.senderName;
-                    response.messageReceiver = response.message.receiver;
-                    response.messagesqn = response.message.sqn;
-                    response.messageText = response.message.text;
-                    response.message = null;
-                }
-                output.writeObject(response);
+                output.writeObject(pendingResponses.take());
                 output.flush();
             }
         } catch (Exception e) {

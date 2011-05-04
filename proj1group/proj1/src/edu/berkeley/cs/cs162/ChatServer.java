@@ -13,9 +13,9 @@ public class ChatServer {
 
     public ChatServer(String name, int clientPort, int serverPort) {
         this();
-        this.peerServerManager = new PeerServerManager();
+        this.peerServerManager = new PeerServerManager(name);
         this.clientConnectionManager = new ClientConnectionManager(this, clientPort);
-        this.serverConnectionManager = new ServerConnectionManager(this, serverPort);
+        this.serverConnectionManager = new ServerConnectionManager(this, name, serverPort);
         this.name = name;
         this.networked = true;
 	}

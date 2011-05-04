@@ -97,7 +97,7 @@ public class DatabaseManager {
     }
 
     public LinkedList<HashMap<String, Object>> getServerList() throws SQLException {
-        String query = "SELECT `name`,`host`,`port` FROM `server_info`";
+        String query = "SELECT `name`,`host`,`port`,`sport` FROM `server_info`";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -111,6 +111,7 @@ public class DatabaseManager {
                 serverProperties.put("name", results.getString(1));
                 serverProperties.put("host", results.getString(2));
                 serverProperties.put("port", results.getInt(3));
+                serverProperties.put("sport", results.getInt(4));
                 servers.add(serverProperties);
             }
             return servers;

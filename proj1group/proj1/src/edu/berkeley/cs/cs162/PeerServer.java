@@ -11,17 +11,16 @@ public class PeerServer extends Thread {
     private PeerServerResponder responder;
     private Socket socket;
     private ObjectInputStream input;
-    private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
+    private LinkedBlockingQueue<ChatClientCommand> pendingResponses;
+    private String localName;
     private String name;
-    private String hostName;
-    private int clientPort;
-    private int serverPort;
+    private boolean wait;
 
-    public PeerServer(ChatServer chatServer, Socket socket) {
+    public PeerServer(ChatServer chatServer, String localName, Socket socket) {
         this.chatServer = chatServer;
         this.peerServerManager = chatServer.getPeerServerManager();
         this.socket = socket;
-        this.pendingResponses = new LinkedBlockingQueue<ChatServerResponse>();
+        this.pendingResponses = new LinkedBlockingQueue<ChatClientCommand>();
         this.responder = new PeerServerResponder(this, socket, pendingResponses);
         try {
             this.input = new ObjectInputStream(socket.getInputStream());
@@ -30,7 +29,16 @@ public class PeerServer extends Thread {
                 socket.close();
             } catch (IOException f) {}
         }
+        this.localName = localName;
         this.name = null;
+        this.wait = true;
+    }
+
+    public PeerServer(ChatServer chatServer, String localName, Socket socket, String remoteName) {
+        this(chatServer, localName, socket);
+        this.name = remoteName;
+        this.wait = false;
+        peerServerManager.addServer(this);
     }
 
     public void start() {
@@ -48,16 +56,18 @@ public class PeerServer extends Thread {
 
     public void run() {
         try {
-            ChatClientCommand command = (ChatClientCommand)input.readObject();
-            while (command.commandType != CommandType.ADD_SERVER) {
-                command = (ChatClientCommand)input.readObject();
+            if (wait) {
+                ChatClientCommand command = (ChatClientCommand)input.readObject();
+                while (command.commandType != CommandType.ADD_SERVER) {
+                    command = (ChatClientCommand)input.readObject();
+                }
+                name = command.string1;
+                peerServerManager.addServer(this);
+            } else {
+                pendingResponses.add(new ChatClientCommand(CommandType.ADD_SERVER, localName));
             }
-            name = command.string1;
-            hostName = command.string2;
-            clientPort = command.number1;
-            serverPort = command.number2;
-            peerServerManager.addServer(this);
 
+            ChatClientCommand command;
             while(true) {
                 command = (ChatClientCommand)input.readObject();
                 if (command.commandType == CommandType.SEND_MESSAGE) {
