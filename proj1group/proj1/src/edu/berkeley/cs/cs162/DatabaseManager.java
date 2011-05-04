@@ -75,7 +75,7 @@ public class DatabaseManager {
     }
 
     public HashMap<String, Object> getServer(String serverName) throws SQLException {
-        String query = "SELECT `name`,`host`,`port` FROM `server_info` WHERE `name`='" + serverName +"';";
+        String query = "SELECT `name`,`host`,`port`,`sport` FROM `server_info` WHERE `name`='" + serverName +"';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -88,6 +88,7 @@ public class DatabaseManager {
                 serverProperties.put("name", results.getString(1));
                 serverProperties.put("host", results.getString(2));
                 serverProperties.put("port", results.getInt(3));
+                serverProperties.put("sport", results.getInt(4));
             }
             return serverProperties;
         } finally {

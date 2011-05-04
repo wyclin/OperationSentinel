@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 
 public class ChatClientResponseHandler extends Thread {
 
+    private ChatClient chatClient;
     private Socket socket;
     private ObjectInputStream remoteInput;
     private LinkedBlockingQueue<ChatServerResponse> pendingResponses;
@@ -17,6 +18,7 @@ public class ChatClientResponseHandler extends Thread {
     private int clientID;
 
     public ChatClientResponseHandler(ChatClient chatClient, Socket socket, LinkedBlockingQueue<ChatServerResponse> pendingResponses) {
+        this.chatClient = chatClient;
         this.socket = socket;
         this.pendingResponses = pendingResponses;
         try {
@@ -44,13 +46,13 @@ public class ChatClientResponseHandler extends Thread {
     public void run() {
         try {
             while (true) {
-		ChatServerResponse response = (ChatServerResponse)remoteInput.readObject();
-		if (benchmarkingChatClient instanceof BenchmarkingChatClient) {
-		    if (response.responseType == ResponseType.MESSAGE_RECEIVED) {
-			if (OriginatedFromMe(response))
-			    finishTimingMessage(response);			    
-		    }			
-		}
+                ChatServerResponse response = (ChatServerResponse)remoteInput.readObject();
+                if (benchmarkingChatClient instanceof BenchmarkingChatClient) {
+                    if (response.responseType == ResponseType.MESSAGE_RECEIVED) {
+                        if (OriginatedFromMe(response))
+                            finishTimingMessage(response);
+                    }
+                }
 		
                 pendingResponses.offer(response);
             }
@@ -59,8 +61,9 @@ public class ChatClientResponseHandler extends Thread {
             try {
                 remoteInput.close();
                 socket.close();
-            } catch (Exception f) {
-            }
+            } catch (Exception f) {}
+            chatClient.flagReconnect();
+            pendingResponses.offer(new ChatServerResponse(ResponseType.INTERRUPT));
         }
     }
     

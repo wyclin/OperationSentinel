@@ -21,10 +21,17 @@ public class TestChatServer {
         //testDatabaseAddServers();
 
         // Consistent Hashing Tests
-        testConsistentHashing();
+        //testConsistentHashing();
 
         // ServerConnectionManager Tests
         //testServerConnectionManagerAddRemove();
+
+        // Distributed Client Tests
+        //testDistributedClientLogin();
+        testDistributedClientReconnect();
+
+
+        // OLD tests. Somebody update them.
 
         // Non-Networked Tests
         //testBasic();
@@ -58,8 +65,6 @@ public class TestChatServer {
         //testClientReadlog();
         System.exit(0);
 	}
-
-    /*
 
     // Database Tests
 
@@ -200,6 +205,14 @@ public class TestChatServer {
             messageProperties = messages.poll();
         }
 
+        System.out.println("\nuser1 Offline Messages");
+        messages = databaseManager.getOfflineMessages("user1");
+        messageProperties = messages.poll();
+        while (messageProperties != null) {
+            System.out.println(messageProperties.get("text"));
+            messageProperties = messages.poll();
+        }
+
         databaseManager.emptyDatabase();
         System.out.println("=== END DATABASE TEST Database Offline Messages  ===\n");
     }
@@ -209,12 +222,12 @@ public class TestChatServer {
         DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.emptyDatabase();
 
-        databaseManager.addServer("server1", "localhost", 4747);
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
         HashMap<String, Object> server1 = databaseManager.getServer("server1");
-        System.out.println("Added Server: " + server1.get("name") + ", " + server1.get("host") + ", " + Integer.toString((Integer)server1.get("port")));
-        databaseManager.addServer("server2", "localhost", 4748);
+        System.out.println("Added Server: " + server1.get("name") + ", " + server1.get("host") + ", " + Integer.toString((Integer)server1.get("port")) + ", " + Integer.toString((Integer)server1.get("sport")));
+        databaseManager.addServer("server2", "localhost", 4748, 8081);
         HashMap<String, Object> server2 = databaseManager.getServer("server1");
-        System.out.println("Added Server: " + server2.get("name") + ", " + server2.get("host") + ", " + Integer.toString((Integer)server2.get("port")));
+        System.out.println("Added Server: " + server2.get("name") + ", " + server2.get("host") + ", " + Integer.toString((Integer)server2.get("port")) + ", " + Integer.toString((Integer)server1.get("sport")));
 
         System.out.println("\nServer List");
         LinkedList<HashMap<String, Object>> serverList = databaseManager.getServerList();
@@ -227,7 +240,6 @@ public class TestChatServer {
         databaseManager.emptyDatabase();
         System.out.println("=== END DATABASE TEST Database Add Servers  ===\n");
     }
-    */
 
     // Consistent Hashing Tests
 
@@ -347,6 +359,125 @@ public class TestChatServer {
         Thread.currentThread().sleep(500);
         databaseManager.emptyDatabase();
         System.out.println("=== END TEST ServerConnectionManager AddRemove ===\n");
+    }
+
+    // Distributed Client Tests
+
+    public static void testDistributedClientLogin() throws Exception {
+        System.out.println("=== BEGIN TEST DistributedClient Login ===");
+        ChatClient chatClient;
+        String commands;
+        BufferedReader input;
+        PrintWriter output;
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        System.out.println("\nNo Servers in Database");
+        commands = "login user1 password\n";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        System.out.println("\nOne Offline Server in Database");
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
+        commands = "login user1 password\n";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        System.out.println("\nOne Online Server in Database");
+        ChatServer chatServer1 = new ChatServer("server1", 4747, 8080);
+        chatServer1.start();
+        Thread.currentThread().sleep(2000);
+        commands = "" +
+                "login user1 password\n" +
+                "join group1\n";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        System.out.println("\nOne Online Server in Database, User Already Added");
+        databaseManager.addUser("user2", "password");
+        commands = "" +
+                "login user2 password\n" +
+                "join group1";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        System.out.println("\nOne Online Server in Database, User Already Added, Invalid Password");
+        databaseManager.addUser("user3", "password");
+        commands = "" +
+                "login user3 invalidPassword\n" +
+                "join group1";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        System.out.println("\nOne Online Server in Database, User Already Logged In");
+        commands = "" +
+                "login user1 password\n" +
+                "join group1";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+        System.out.println("---");
+
+        chatServer1.shutdown();
+        databaseManager.emptyDatabase();
+        System.out.println("=== END TEST DistributedClient Login ===\n");
+    }
+
+    public static void testDistributedClientReconnect() throws Exception {
+        System.out.println("=== BEGIN TEST DistributedClient Reconnect ===");
+        ChatClient chatClient;
+        String commands;
+        BufferedReader input;
+        PrintWriter output;
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
+        databaseManager.addServer("server2", "localhost", 4748, 8081);
+        ChatServer chatServer1 = new ChatServer("server1", 4747, 8080);
+        chatServer1.start();
+        ChatServer chatServer2 = new ChatServer("server2", 4748, 8181);
+        chatServer2.start();
+        Thread.currentThread().sleep(2000);
+        commands = "" +
+                "login user1 password\n" +
+                "join group1\n";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(2000);
+
+        chatServer2.shutdown();
+        Thread.currentThread().sleep(5000);
+
+        chatServer1.shutdown();
+        Thread.currentThread().sleep(5000);
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END TEST DistributedClient Reconnect ===\n");
     }
 
     /*

@@ -257,8 +257,7 @@ public class ChatUser extends Thread {
     }
 
     public ChatServerResponse sendMessage(String receiver, int sqn, String messageText) {
-	System.out.println("SENDING A NEW MSG");
-Date time = Calendar.getInstance().getTime();
+        Date time = Calendar.getInstance().getTime();
         Message message = new Message(time, this, receiver, sqn, messageText);
         log.offer(dateFormatter.format(time) + " | Sending Message | " + loginName + " (" + sqn + ") -> " + receiver + " | " + message.text);
         if (loggedIn) {

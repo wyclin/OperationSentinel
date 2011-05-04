@@ -31,5 +31,6 @@ public enum ResponseType {
 
     DISCONNECT,
 
+    INTERRUPT,
     COMMAND_NOT_FOUND
 }

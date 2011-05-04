@@ -31,6 +31,10 @@ public class ConsistentHash<T> {
 			circle.remove(MD5.hash(node.toString() + i));
 		}
 	}
+
+    public void clear() {
+        circle.clear();
+    }
 	
 	public T get(String key) {
 		if (circle.isEmpty()) {
