@@ -20,6 +20,12 @@ public class TestChatServer {
         //testDatabaseOfflineMessages();
         //testDatabaseAddServers();
 
+        // Consistent Hashing Tests
+        testConsistentHashing();
+
+        // ServerConnectionManager Tests
+        //testServerConnectionManagerAddRemove();
+
         // Non-Networked Tests
         //testBasic();
         //testLogout();
@@ -221,7 +227,129 @@ public class TestChatServer {
         databaseManager.emptyDatabase();
         System.out.println("=== END DATABASE TEST Database Add Servers  ===\n");
     }
+    */
 
+    // Consistent Hashing Tests
+
+    public static void testConsistentHashing() throws Exception {
+        PeerServerManager serverManager = new PeerServerManager("server1");
+        System.out.println("user1 connects to: " + serverManager.findUser("user1"));
+        System.out.println("user2 connects to: " + serverManager.findUser("user2"));
+        System.out.println("user3 connects to: " + serverManager.findUser("user3"));
+        System.out.println("user4 connects to: " + serverManager.findUser("user4"));
+        System.out.println("user5 connects to: " + serverManager.findUser("user5"));
+        System.out.println();
+
+        serverManager.addName("server2");
+        System.out.println("user1 connects to: " + serverManager.findUser("user1"));
+        System.out.println("user2 connects to: " + serverManager.findUser("user2"));
+        System.out.println("user3 connects to: " + serverManager.findUser("user3"));
+        System.out.println("user4 connects to: " + serverManager.findUser("user4"));
+        System.out.println("user5 connects to: " + serverManager.findUser("user5"));
+        System.out.println();
+
+        serverManager.addName("server3");
+        System.out.println("user1 connects to: " + serverManager.findUser("user1"));
+        System.out.println("user2 connects to: " + serverManager.findUser("user2"));
+        System.out.println("user3 connects to: " + serverManager.findUser("user3"));
+        System.out.println("user4 connects to: " + serverManager.findUser("user4"));
+        System.out.println("user5 connects to: " + serverManager.findUser("user5"));
+        System.out.println();
+
+        serverManager.addName("server4");
+        System.out.println("user1 connects to: " + serverManager.findUser("user1"));
+        System.out.println("user2 connects to: " + serverManager.findUser("user2"));
+        System.out.println("user3 connects to: " + serverManager.findUser("user3"));
+        System.out.println("user4 connects to: " + serverManager.findUser("user4"));
+        System.out.println("user5 connects to: " + serverManager.findUser("user5"));
+        System.out.println();
+    }
+
+    // ServerConnectionManager Tests
+
+    public static void testServerConnectionManagerAddRemove() throws Exception {
+        System.out.println("=== BEGIN TEST ServerConnectionManager AddRemove ===");
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
+        databaseManager.addServer("server2", "localhost", 4748, 8081);
+        databaseManager.addServer("server3", "localhost", 4749, 8082);
+
+        ChatServer chatServer1 = new ChatServer("server1", 4747, 8080);
+        chatServer1.start();
+        Thread.currentThread().sleep(4000);
+        HashSet<PeerServer> servers1 = chatServer1.getPeerServerManager().getServers();
+        System.out.println("\nserver1's Server List");
+        for (PeerServer server : servers1) {
+            System.out.println(server.getServerName());
+        }
+        System.out.println("---");
+
+        ChatServer chatServer2 = new ChatServer("server2", 4748, 8081);
+        chatServer2.start();
+        Thread.currentThread().sleep(4000);
+        servers1 = chatServer1.getPeerServerManager().getServers();
+        System.out.println("\nserver1's Server List");
+        for (PeerServer server : servers1) {
+            System.out.println(server.getServerName());
+        }
+        HashSet<PeerServer> servers2 = chatServer2.getPeerServerManager().getServers();
+        System.out.println("\nserver2's Server List");
+        for (PeerServer server : servers2) {
+            System.out.println(server.getServerName());
+        }
+        System.out.println("---");
+
+        ChatServer chatServer3 = new ChatServer("server3", 4749, 8082);
+        chatServer3.start();
+        Thread.currentThread().sleep(4000);
+        servers1 = chatServer1.getPeerServerManager().getServers();
+        System.out.println("\nserver1's Server List");
+        for (PeerServer server : servers1) {
+            System.out.println(server.getServerName());
+        }
+        servers2 = chatServer2.getPeerServerManager().getServers();
+        System.out.println("\nserver2's Server List");
+        for (PeerServer server : servers2) {
+            System.out.println(server.getServerName());
+        }
+        HashSet<PeerServer> servers3 = chatServer3.getPeerServerManager().getServers();
+        System.out.println("\nserver3's Server List");
+        for (PeerServer server : servers3) {
+            System.out.println(server.getServerName());
+        }
+        System.out.println("---");
+
+        chatServer1.shutdown();
+        Thread.currentThread().sleep(5000);
+        servers2 = chatServer2.getPeerServerManager().getServers();
+        System.out.println("\nserver2's Server List");
+        for (PeerServer server : servers2) {
+            System.out.println(server.getServerName());
+        }
+        servers3 = chatServer3.getPeerServerManager().getServers();
+        System.out.println("\nserver3's Server List");
+        for (PeerServer server : servers3) {
+            System.out.println(server.getServerName());
+        }
+        System.out.println("---");
+
+        chatServer2.shutdown();
+        Thread.currentThread().sleep(5000);
+        servers3 = chatServer3.getPeerServerManager().getServers();
+        System.out.println("\nserver3's Server List");
+        for (PeerServer server : servers3) {
+            System.out.println(server.getServerName());
+        }
+
+        chatServer3.shutdown();
+        Thread.currentThread().sleep(500);
+        databaseManager.emptyDatabase();
+        System.out.println("=== END TEST ServerConnectionManager AddRemove ===\n");
+    }
+
+    /*
     // Non-Networked Server Tests
 
     public static void testBasic() throws Exception {

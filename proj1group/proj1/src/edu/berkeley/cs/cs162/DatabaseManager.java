@@ -121,8 +121,8 @@ public class DatabaseManager {
         }
     }
 
-    public void addServer(String name, String host, int port) throws SQLException {
-        String query = "INSERT INTO `server_info` (`name`, `host`, `port`) VALUES ('" + name + "','" + host + "','" + Integer.toString(port) + "');";
+    public void addServer(String name, String host, int port, int sport) throws SQLException {
+        String query = "INSERT INTO `server_info` (`name`, `host`, `port`,`sport`) VALUES ('" + name + "','" + host + "','" + Integer.toString(port) + "','" + Integer.toString(sport) +"');";
         Connection connection = null;
         Statement statement = null;
         try {

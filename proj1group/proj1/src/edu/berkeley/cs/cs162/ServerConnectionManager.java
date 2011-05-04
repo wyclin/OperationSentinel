@@ -33,9 +33,11 @@ public class ServerConnectionManager extends Thread {
         try {
             serverList = databaseManager.getServerList();
             for (HashMap<String, Object> server : serverList) {
-                try {
-                    new PeerServer(chatServer, name, new Socket((String)server.get("host"), (Integer)server.get("sport")), (String)server.get("name")).start();
-                } catch (Exception f) {}
+                if (!((String)server.get("name")).equals(name)) {
+                    try {
+                        new PeerServer(chatServer, name, new Socket((String)server.get("host"), (Integer)server.get("sport")), (String)server.get("name")).start();
+                    } catch (Exception f) {}
+                }
             }
         } catch (SQLException e) {}
     }

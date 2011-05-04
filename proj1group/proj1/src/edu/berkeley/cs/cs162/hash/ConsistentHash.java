@@ -6,9 +6,12 @@ import java.security.*;
 
 public class ConsistentHash<T> {
 	
-	private final MD5 hashFunction = new MD5();
 	private final int numberOfReplicas;
 	private final SortedMap<Integer, T> circle = new TreeMap<Integer, T>();
+
+    public ConsistentHash() {
+        this.numberOfReplicas = 200;
+    }
 	
 	public ConsistentHash(int numberOfReplicas, Collection<T> nodes) {
 		this.numberOfReplicas = numberOfReplicas;
@@ -19,13 +22,13 @@ public class ConsistentHash<T> {
 	
 	public void add(T node) {
 		for (int i = 0; i < numberOfReplicas; i++) {
-			circle.put(hashFunction.hash(node.toString() + i), node);
+			circle.put(MD5.hash(node.toString() + i), node);
 		}
 	}
 	
 	public void remove(T node) {
 		for (int i = 0; i < numberOfReplicas; i++) {
-			circle.remove(hashFunction.hash(node.toString() + i));
+			circle.remove(MD5.hash(node.toString() + i));
 		}
 	}
 	
@@ -33,7 +36,7 @@ public class ConsistentHash<T> {
 		if (circle.isEmpty()) {
 			return null;
 		}
-		int hash = hashFunction.hash(key);
+		int hash = MD5.hash(key);
 		if (!circle.containsKey(hash)) {
 			SortedMap<Integer, T> tailMap = circle.tailMap(hash);
 			hash = tailMap.isEmpty() ? circle.firstKey() : tailMap.firstKey();
@@ -45,14 +48,14 @@ public class ConsistentHash<T> {
         
 		String[] clients={"chanan","tapan","Amar","santosh","deepak", "philip","vinson","wayne","benson","jacky"};
 		
-		ArrayList<String> myServers = new ArrayList();
+		ArrayList<String> myServers = new ArrayList<String>();
 		
 		myServers.add("ec2-10-16-127-141.compute-1.amazonaws.com:8080");
 		myServers.add("ec2-50-16-127-143.compute-1.amazonaws.com:9463");
 		myServers.add("ec2-50-16-147-141.compute-1.amazonaws.com:4747");
 		
 		
-		ConsistentHash<String> ring = new ConsistentHash(200, myServers);
+		ConsistentHash<String> ring = new ConsistentHash<String>(200, myServers);
 		System.out.println();
 		
 		for (String client : clients){

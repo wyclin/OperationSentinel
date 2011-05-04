@@ -81,6 +81,7 @@ public class PeerServer extends Thread {
                 socket.close();
                 responder.interrupt();
             } catch (Exception f) {}
+            peerServerManager.removeServer(this);
         }
     }
 
