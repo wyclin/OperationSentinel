@@ -3,18 +3,17 @@ package edu.berkeley.cs.cs162;
 import java.io.*;
 import java.net.*;
 
-public class ConnectionManager extends Thread {
+public class ClientConnectionManager extends Thread {
 
     private ChatServer chatServer;
     private ServerSocket serverSocket;
     private boolean shuttingDown;
 
-    public ConnectionManager(ChatServer chatServer, int port) {
+    public ClientConnectionManager(ChatServer chatServer, int port) {
         this.chatServer = chatServer;
         try {
             this.serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-        }
+        } catch (IOException e) {}
         this.shuttingDown = false;
     }
 
@@ -22,20 +21,17 @@ public class ConnectionManager extends Thread {
         shuttingDown = true;
         try {
             serverSocket.close();
-        } catch (IOException e) {
-        }
+        } catch (IOException e) {}
     }
 
     public void run() {
         while(!shuttingDown) {
             try {
                 new ChatUser(chatServer, serverSocket.accept()).start();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
         try {
             serverSocket.close();
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 }

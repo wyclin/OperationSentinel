@@ -12,5 +12,7 @@ public enum CommandType {
     SEND_MESSAGE,
     SLEEP,
 
+    ADD_SERVER,
+
     COMMAND_NOT_FOUND
 }

@@ -30,7 +30,7 @@ class MessageDispatcher extends Thread {
         if (message.sender.getUserName().equals(message.receiver)) {
             return new ChatServerResponse(ResponseType.RECEIVER_SAME_AS_SENDER);
         }
-        if (userManager.hasLoggedInUser(message.sender.getUserName())) {
+        if (userManager.hasLocalUser(message.sender.getUserName())) {
             try {
                 TreeSet<String> groupUsers = databaseManager.getGroupUserList(message.receiver);
                 if (databaseManager.getUser(message.receiver) != null) {
@@ -67,7 +67,7 @@ class MessageDispatcher extends Thread {
         boolean hasFailed = false;
         for (String receivingUserName : message.receivingUsers) {
             try {
-                ChatUser receivingUser = userManager.getLoggedInUser(receivingUserName);
+                ChatUser receivingUser = userManager.getLocalUser(receivingUserName);
                 if (receivingUser != null) {
                     receivingUser.receiveMessage(message);
                 } else if (databaseManager.getUser(receivingUserName) != null) {

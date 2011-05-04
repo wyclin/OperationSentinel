@@ -40,8 +40,7 @@ public class ChatUser extends Thread {
         } catch (IOException e) {
             try {
                 socket.close();
-            } catch(IOException f) {
-            }
+            } catch(IOException f) {}
         }
     }
 
@@ -109,7 +108,7 @@ public class ChatUser extends Thread {
                 response = leaveGroup(command.string1);
                 break;
             case SEND_MESSAGE:
-                response = sendMessage(command.string1, command.number, command.string2);
+                response = sendMessage(command.string1, command.number1, command.string2);
                 break;
             case READLOG:
                 readLog();

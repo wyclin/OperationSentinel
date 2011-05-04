@@ -215,18 +215,18 @@ public class BenchmarkingChatClient extends Thread {
                 case SEND_MESSAGE:
                     switch (response.responseType) {
                         case MESSAGE_ENQUEUED:
-                            localOutput.println("send " + response.command.number + " OK");
+                            localOutput.println("send " + response.command.number1 + " OK");
                             break;
                         case RECEIVER_NOT_FOUND:
                         case USER_NOT_MEMBER_OF_GROUP:
                         case RECEIVER_SAME_AS_SENDER:
-                            localOutput.println("send " + response.command.number + " BAD_DEST");
+                            localOutput.println("send " + response.command.number1 + " BAD_DEST");
                             break;
                         case SHUTTING_DOWN:
                         case DATABASE_FAILURE:
                         case MESSAGE_BUFFER_FULL:
                         case SENDER_NOT_FOUND:
-                            localOutput.println("send " + response.command.number + " FAIL");
+                            localOutput.println("send " + response.command.number1 + " FAIL");
                             break;
                     }
                     break;
@@ -295,7 +295,7 @@ public class BenchmarkingChatClient extends Thread {
     public void executeCommand(ChatClientCommand command) {
         switch (command.commandType) {
             case CONNECT:
-                connect(command.string1, command.number);
+                connect(command.string1, command.number1);
                 break;
             case DISCONNECT:
                 sendCommand(command);
@@ -315,7 +315,7 @@ public class BenchmarkingChatClient extends Thread {
                 disconnect();
                 break;
             case SLEEP:
-                sleep(command.number);
+                sleep(command.number1);
                 break;
             case SEND_MESSAGE:
                 startTimingMessage(command);
@@ -351,7 +351,7 @@ public class BenchmarkingChatClient extends Thread {
     }
 
     private void startTimingMessage(ChatClientCommand command) {
-        messagesSent.put((Integer)command.number, new Long(System.currentTimeMillis()));
+        messagesSent.put((Integer)command.number1, new Long(System.currentTimeMillis()));
     }
 
     private void finishTimingMessage(ChatServerResponse response) {

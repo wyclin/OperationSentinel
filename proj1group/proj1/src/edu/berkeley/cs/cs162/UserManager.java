@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class UserManager {
+
     private ChatServer chatServer;
     private DatabaseManager databaseManager;
     private HashMap<String, ChatUser> localUsers;
@@ -18,7 +19,9 @@ class UserManager {
     }
 
     public void shutdown() {
+        rwLock.readLock().lock();
         HashSet<ChatUser> users = new HashSet<ChatUser>(localUsers.values());
+        rwLock.readLock().unlock();
         for (ChatUser user : users) {
             user.shutdown();
         }

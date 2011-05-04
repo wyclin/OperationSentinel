@@ -4,20 +4,28 @@ public class ChatServer {
 
     private UserManager userManager;
 	private MessageDispatcher messageDispatcher;
-    private ConnectionManager connectionManager;
+    private PeerServerManager peerServerManager;
+    private ClientConnectionManager clientConnectionManager;
+    private ServerConnectionManager serverConnectionManager;
+    private String name;
     private boolean shuttingDown;
     private boolean networked;
 
-    public ChatServer(int port) {
+    public ChatServer(String name, int clientPort, int serverPort) {
         this();
-        this.connectionManager = new ConnectionManager(this, port);
+        this.peerServerManager = new PeerServerManager();
+        this.clientConnectionManager = new ClientConnectionManager(this, clientPort);
+        this.serverConnectionManager = new ServerConnectionManager(this, serverPort);
+        this.name = name;
         this.networked = true;
 	}
 
     public ChatServer() {
         this.userManager = new UserManager(this);
         this.messageDispatcher = new MessageDispatcher(this);
-        this.connectionManager = null;
+        this.peerServerManager = null;
+        this.clientConnectionManager = null;
+        this.serverConnectionManager = null;
         this.shuttingDown = false;
         this.networked = false;
     }
@@ -30,25 +38,36 @@ public class ChatServer {
         return userManager.getDatabaseManager();
     }
 
+    public PeerServerManager getPeerServerManager() {
+        return peerServerManager;
+    }
+
     public MessageDispatcher getMessageDispatcher() {
         return messageDispatcher;
+    }
+
+    public ServerConnectionManager getServerConnectionManager() {
+        return serverConnectionManager;
     }
 
     public void start() {
         messageDispatcher.start();
         if (networked) {
-            connectionManager.start();
+            clientConnectionManager.start();
+            serverConnectionManager.start();
         }
     }
 
 	public void shutdown() {
         shuttingDown = true;
         if (networked) {
-            connectionManager.shutdown();
+            clientConnectionManager.shutdown();
+            serverConnectionManager.shutdown();
             try {
-                connectionManager.join();
-            } catch (InterruptedException e) {
-            }
+                clientConnectionManager.join();
+                serverConnectionManager.join();
+            } catch (InterruptedException e) {}
+            peerServerManager.shutdown();
         }
         messageDispatcher.shutdown();
         try {
@@ -59,8 +78,8 @@ public class ChatServer {
     }
 
     public static void main(String[] args) {
-       if (args.length == 1) {
-           ChatServer newServer = new ChatServer(new Integer(args[0]));
+       if (args.length == 6) {
+           ChatServer newServer = new ChatServer(args[1], Integer.valueOf(args[3]), Integer.valueOf(args[5]));
            newServer.start();
        } else {
            System.exit(-1);

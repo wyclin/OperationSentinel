@@ -53,6 +53,8 @@ public class TestChatServer {
         System.exit(0);
 	}
 
+    /*
+
     // Database Tests
 
     public static void testDatabaseEmptyDatabase() throws SQLException {
@@ -1183,4 +1185,5 @@ public class TestChatServer {
         chatServer.shutdown();
         System.out.println("=== END TEST Client readlog ===\n");
     }
+    */
 }

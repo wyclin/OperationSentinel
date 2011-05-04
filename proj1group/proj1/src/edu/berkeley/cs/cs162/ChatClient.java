@@ -190,18 +190,18 @@ public class ChatClient extends Thread {
                 case SEND_MESSAGE:
                     switch (response.responseType) {
                         case MESSAGE_ENQUEUED:
-                            localOutput.println("send " + response.command.number + " OK");
+                            localOutput.println("send " + response.command.number1 + " OK");
                             break;
                         case RECEIVER_NOT_FOUND:
                         case USER_NOT_MEMBER_OF_GROUP:
                         case RECEIVER_SAME_AS_SENDER:
-                            localOutput.println("send " + response.command.number + " BAD_DEST");
+                            localOutput.println("send " + response.command.number1 + " BAD_DEST");
                             break;
                         case SHUTTING_DOWN:
                         case DATABASE_FAILURE:
                         case MESSAGE_BUFFER_FULL:
                         case SENDER_NOT_FOUND:
-                            localOutput.println("send " + response.command.number + " FAIL");
+                            localOutput.println("send " + response.command.number1 + " FAIL");
                             break;
                     }
                     break;
@@ -260,7 +260,7 @@ public class ChatClient extends Thread {
     public void executeCommand(ChatClientCommand command) {
         switch (command.commandType) {
             case CONNECT:
-                connect(command.string1, command.number);
+                connect(command.string1, command.number1);
                 break;
             case DISCONNECT:
                 if (connected) {
@@ -282,7 +282,7 @@ public class ChatClient extends Thread {
                 disconnect();
                 break;
             case SLEEP:
-                sleep(command.number);
+                sleep(command.number1);
                 break;
             case ADDUSER:
             case LOGIN:
