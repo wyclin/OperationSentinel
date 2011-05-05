@@ -86,6 +86,7 @@ public class ChatServer {
            ChatServer newServer = new ChatServer(args[1], Integer.valueOf(args[3]), Integer.valueOf(args[5]));
            newServer.start();
        } else {
+           System.out.println("Please enter all arguments as listed in the spec.");
            System.exit(-1);
        }
    }
