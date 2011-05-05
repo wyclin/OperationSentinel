@@ -29,7 +29,8 @@ public class TestChatServer {
         // Distributed Client Tests
         //testDistributedClientLogin();
         //testDistributedClientReconnect();
-        testDistributedClientPoll();
+        //testDistributedClientPoll();
+        testDistributedClientMessages();
 
 
         // OLD tests. Somebody update them.
@@ -517,6 +518,50 @@ public class TestChatServer {
 
         databaseManager.emptyDatabase();
         System.out.println("=== END TEST DistributedClient Poll ===\n");
+    }
+
+    public static void testDistributedClientMessages() throws Exception {
+        System.out.println("=== BEGIN TEST DistributedClient Messsages ===");
+        ChatClient chatClient1;
+        ChatClient chatClient2;
+        String commands;
+        BufferedReader input;
+        PrintWriter output;
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
+        databaseManager.addServer("server2", "localhost", 4748, 8081);
+        ChatServer chatServer1 = new ChatServer("server1", 4747, 8080);
+        chatServer1.start();
+        ChatServer chatServer2 = new ChatServer("server2", 4748, 8181);
+        chatServer2.start();
+        Thread.currentThread().sleep(2000);
+
+        String commands1 = "" +
+                "login user1 password\n" +
+                "join group1\n" +
+                "sleep 5000\n" +
+                "send user2 1 \"ping\"";
+        BufferedReader input1 = new BufferedReader(new StringReader(commands1));
+        PrintWriter output1 = new PrintWriter(System.out, true);
+        chatClient1 = new ChatClient(input1, output1);
+        chatClient1.start();
+
+        String commands2 = "" +
+                "login user2 password\n" +
+                "join group1\n" +
+                "sleep 5000";
+        BufferedReader input2 = new BufferedReader(new StringReader(commands2));
+        PrintWriter output2 = new PrintWriter(System.out, true);
+        chatClient2 = new ChatClient(input2, output2);
+        chatClient2.start();
+        Thread.currentThread().sleep(20000);
+
+        chatServer1.shutdown();
+        chatServer2.shutdown();
+        databaseManager.emptyDatabase();
+        System.out.println("=== END TEST DistributedClient Messages ===\n");
     }
 
     /*

@@ -35,6 +35,10 @@ public class PeerServerManager {
         }
     }
 
+    public String getServerName() {
+        return serverName;
+    }
+
     public HashSet<PeerServer> getServers() {
         HashSet<PeerServer> result;
         rwLock.readLock().lock();

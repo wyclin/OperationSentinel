@@ -36,7 +36,7 @@ public class ChatUserResponder extends Thread {
 
     public void shutdown() {
         shuttingDown = true;
-        interrupt();
+        //interrupt(); Check for memory leak!!
     }
 
     public void run() {

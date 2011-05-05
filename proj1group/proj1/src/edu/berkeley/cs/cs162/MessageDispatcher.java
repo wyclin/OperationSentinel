@@ -1,22 +1,20 @@
 package edu.berkeley.cs.cs162;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.Calendar;
-import java.util.TreeSet;
 
 class MessageDispatcher extends Thread {
     private UserManager userManager;
     private DatabaseManager databaseManager;
+    private PeerServerManager peerServerManager;
     private LinkedBlockingQueue<Message> messages;
     private boolean shuttingDown;
 
-    MessageDispatcher(ChatServer chatServer){
+    MessageDispatcher(ChatServer chatServer) {
         this.userManager = chatServer.getUserManager();
         this.databaseManager = userManager.getDatabaseManager();
+        this.peerServerManager = chatServer.getPeerServerManager();
         this.messages = new LinkedBlockingQueue<Message>();
         this.shuttingDown = false;
     }
@@ -32,23 +30,18 @@ class MessageDispatcher extends Thread {
         }
         if (userManager.hasLocalUser(message.sender.getUserName())) {
             try {
+                HashMap<String, Object> receiver = databaseManager.getUser(message.receiver);
                 TreeSet<String> groupUsers = databaseManager.getGroupUserList(message.receiver);
-                if (databaseManager.getUser(message.receiver) != null) {
+                if (receiver != null) {
                     message.receivingUsers = new TreeSet<String>();
                     message.receivingUsers.add(message.receiver);
-                    if (messages.offer(message)) {
-                        return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
-                    } else {
-                        return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
-                    }
+                    routeMessage(message);
+                    return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                 } else if (groupUsers != null) {
                     if (groupUsers.contains(message.sender.getUserName())) {
                         message.receivingUsers = groupUsers;
-                        if (messages.offer(message)) {
-                            return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
-                        } else {
-                            return new ChatServerResponse(ResponseType.MESSAGE_BUFFER_FULL);
-                        }
+                        routeMessage(message);
+                        return new ChatServerResponse(ResponseType.MESSAGE_ENQUEUED);
                     } else {
                         return new ChatServerResponse(ResponseType.USER_NOT_MEMBER_OF_GROUP);
                     }
@@ -63,15 +56,47 @@ class MessageDispatcher extends Thread {
         }
     }
 
-    private void deliver(Message message) {
+    private void routeMessage(Message message) {
+        HashSet<PeerServer> servers = peerServerManager.getServers();
+        HashMap<String, TreeSet<String>> routingList = new HashMap<String, TreeSet<String>>();
+        routingList.put(peerServerManager.getServerName(), new TreeSet<String>());
+        for (PeerServer server : servers) {
+            routingList.put(server.getServerName(), new TreeSet<String>());
+        }
+        for (String user : message.receivingUsers) {
+            TreeSet<String> bucket = routingList.get(peerServerManager.findUser(user));
+            if (bucket != null) {
+                bucket.add(user);
+            }
+        }
+
+        TreeSet<String> localReceivers = routingList.get(peerServerManager.getServerName());
+        if (!localReceivers.isEmpty()) {
+            message.receivingUsers = localReceivers;
+            messages.offer(message);
+        }
+
+        TreeSet<String> remoteUsers;
+        for (PeerServer server : servers) {
+            remoteUsers = routingList.get(server.getServerName());
+            if (!remoteUsers.isEmpty()) {
+                server.sendMessage(message.senderName, message.receiver, remoteUsers, message.date, message.sqn, message.text);
+            }
+        }
+    }
+
+    public void deliver(Message message) {
         boolean hasFailed = false;
         for (String receivingUserName : message.receivingUsers) {
             try {
                 ChatUser receivingUser = userManager.getLocalUser(receivingUserName);
+                HashMap<String, Object> databaseUser = databaseManager.getUser(receivingUserName);
                 if (receivingUser != null) {
                     receivingUser.receiveMessage(message);
-                } else if (databaseManager.getUser(receivingUserName) != null) {
-                    databaseManager.logMessage(receivingUserName, message);
+                } else if (databaseUser != null) {
+                    if (!(Boolean)databaseUser.get("logged_in")) {
+                        databaseManager.logMessage(receivingUserName, message);
+                    }
                 } else {
                     hasFailed = true;
                 }
@@ -80,7 +105,9 @@ class MessageDispatcher extends Thread {
             }
         }
         if (hasFailed) {
-            message.sender.receiveSendFailure(message);
+            if (message.sender != null) {
+                message.sender.receiveSendFailure(message);
+            }
         }
     }
 

@@ -2,26 +2,30 @@ package edu.berkeley.cs.cs162;
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
+import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class PeerServer extends Thread {
 
     private ChatServer chatServer;
+    private MessageDispatcher messageDispatcher;
     private PeerServerManager peerServerManager;
     private PeerServerResponder responder;
     private Socket socket;
     private ObjectInputStream input;
-    private LinkedBlockingQueue<ChatClientCommand> pendingResponses;
+    private LinkedBlockingQueue<ServerMessage> pendingMessages;
     private String localName;
     private String name;
     private boolean wait;
 
     public PeerServer(ChatServer chatServer, String localName, Socket socket) {
         this.chatServer = chatServer;
+        this.messageDispatcher = messageDispatcher;
         this.peerServerManager = chatServer.getPeerServerManager();
         this.socket = socket;
-        this.pendingResponses = new LinkedBlockingQueue<ChatClientCommand>();
-        this.responder = new PeerServerResponder(this, socket, pendingResponses);
+        this.pendingMessages = new LinkedBlockingQueue<ServerMessage>();
+        this.responder = new PeerServerResponder(this, socket, pendingMessages);
         try {
             this.input = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
@@ -55,23 +59,23 @@ public class PeerServer extends Thread {
     }
 
     public void run() {
+        ServerMessage serverMessage;
         try {
             if (wait) {
-                ChatClientCommand command = (ChatClientCommand)input.readObject();
-                while (command.commandType != CommandType.ADD_SERVER) {
-                    command = (ChatClientCommand)input.readObject();
+                serverMessage = (ServerMessage)input.readObject();
+                while (serverMessage.messageType != ServerMessageType.ADD_SERVER) {
+                    serverMessage = (ServerMessage)input.readObject();
                 }
-                name = command.string1;
+                name = serverMessage.serverName;
                 peerServerManager.addServer(this);
             } else {
-                pendingResponses.add(new ChatClientCommand(CommandType.ADD_SERVER, localName));
+                pendingMessages.offer(new ServerMessage(ServerMessageType.ADD_SERVER, localName));
             }
 
-            ChatClientCommand command;
             while(true) {
-                command = (ChatClientCommand)input.readObject();
-                if (command.commandType == CommandType.SEND_MESSAGE) {
-                    // Enqueue messages.
+                serverMessage = (ServerMessage)input.readObject();
+                if (serverMessage.messageType == ServerMessageType.SEND_MESSAGE) {
+                    messageDispatcher.deliver(serverMessage.serializedMessage.toMessage());
                 }
             }
         } catch (Exception e) {
@@ -87,5 +91,9 @@ public class PeerServer extends Thread {
 
     public String getServerName() {
         return name;
+    }
+
+    public void sendMessage(String sender, String receiver, TreeSet<String> receivingUsers, Date date, int sqn, String text) {
+        pendingMessages.offer(new ServerMessage(ServerMessageType.SEND_MESSAGE, new SerializedMessage(sender, receiver, receivingUsers, date, sqn, text)));
     }
 }

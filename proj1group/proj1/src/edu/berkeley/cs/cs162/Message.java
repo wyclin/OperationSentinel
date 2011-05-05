@@ -34,6 +34,15 @@ class Message {
         this.sqn = sqn;
     }
 
+    Message(Date date, String sender, String receiver, TreeSet<String> receivingUsers, int sqn, String text) {
+        this.receiver = receiver;
+        this.receivingUsers = receivingUsers;
+        this.senderName = sender;
+        this.text = text;
+        this.date = date;
+        this.sqn = sqn;
+    }
+
     Message(String receiver, int sqn, String text) {
         this(null, receiver, sqn, text);
     }

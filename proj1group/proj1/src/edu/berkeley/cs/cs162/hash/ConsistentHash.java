@@ -49,6 +49,13 @@ public class ConsistentHash<T> {
 	}
 	
 	public static void main(String[] args) throws NoSuchAlgorithmException {
+        ConsistentHash<String> hash = new ConsistentHash<String>();
+        hash.add("server1");
+        hash.add("server2");
+        System.out.println(hash.get("user1"));
+        System.out.println(hash.get("user2"));
+
+        System.out.println("----");
         
 		String[] clients={"chanan","tapan","Amar","santosh","deepak", "philip","vinson","wayne","benson","jacky"};
 		
