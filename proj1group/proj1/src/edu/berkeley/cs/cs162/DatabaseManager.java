@@ -354,7 +354,7 @@ public class DatabaseManager {
     }
 
     public void removeUserFromGroup(String userName, String groupName) throws SQLException {
-        String query = "DELETE FROM `group_users` WHERE `group_id`=(SELECT `id` FROM `groups` WHERE `name`='" + groupName + "') AND `user_id`=(SELECT `id` FROM `groups` WHERE `name`='" + userName + "')";
+        String query = "DELETE FROM `group_users` WHERE `group_id`=(SELECT `id` FROM `groups` WHERE `name`='" + groupName + "') AND `user_id`=(SELECT `id` FROM `users` WHERE `name`='" + userName + "')";
         Connection connection = null;
         Statement statement = null;
         try {
