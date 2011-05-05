@@ -120,6 +120,19 @@ class UserManager {
         }
     }
 
+    public ChatServerResponse migrateUser(ChatUser user) {
+        ChatServerResponse result;
+        rwLock.writeLock().lock();
+        if (localUsers.containsKey(user.getUserName())) {
+            localUsers.remove(user.getUserName());
+            result = new ChatServerResponse(ResponseType.MIGRATE);
+        } else {
+            result = new ChatServerResponse(ResponseType.USER_NOT_FOUND);
+        }
+        rwLock.writeLock().unlock();
+        return result;
+    }
+
     public ChatServerResponse addUserToGroup(ChatUser user, String groupName) {
         rwLock.readLock().lock();
         boolean loggedIn = localUsers.containsKey(user.getUserName());

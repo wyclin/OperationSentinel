@@ -29,6 +29,7 @@ public enum ResponseType {
     MESSAGE_RECEIVED,
     MESSAGE_DELIVERY_FAILURE,
 
+    MIGRATE,
     DISCONNECT,
 
     INTERRUPT,

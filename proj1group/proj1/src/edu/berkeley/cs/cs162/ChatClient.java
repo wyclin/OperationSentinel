@@ -13,6 +13,8 @@ import java.util.regex.*;
 
 public class ChatClient extends Thread {
 
+    public static final int POLL_PERIOD = 15;
+
     private ChatClientCommandHandler commandHandler;
     private ChatClientResponseHandler responseHandler;
     private DatabaseManager databaseManager;
@@ -24,11 +26,14 @@ public class ChatClient extends Thread {
     private ObjectOutputStream remoteOutput;
     private boolean connected;
     private AtomicBoolean reconnectFlag;
+    private AtomicBoolean pollFlag;
+    private PollTimer pollTimer;
     private ConsistentHash<String> consistentHash;
     private HashMap<String, HashMap<String, Object>> servers;
 
     private String userName;
     private String password;
+    private String serverName;
 
     private Pattern loginPattern;
     private Pattern logoutPattern;
@@ -49,12 +54,18 @@ public class ChatClient extends Thread {
         this.connected = false;
         this.reconnectFlag = new AtomicBoolean(false);
 
+        this.userName = null;
+        this.password = null;
+        this.serverName = null;
+
+        this.pollFlag = new AtomicBoolean(true);
+        this.pollTimer = new PollTimer(this, POLL_PERIOD);
+
         this.commandHandler = new ChatClientCommandHandler(this.localInput, this.pendingCommands);
         this.commandHandler.start();
 
         this.consistentHash = new ConsistentHash<String>();
         this.servers = new HashMap<String, HashMap<String, Object>>();
-        updateServers();
 
         this.loginPattern = Pattern.compile("^login ([^\\s]+) ([^\\s]+)$");
         this.logoutPattern = Pattern.compile("^logout$");
@@ -72,11 +83,33 @@ public class ChatClient extends Thread {
         chatClient.start();
    }
 
+    public void start() {
+        super.start();
+    }
+
     public void run() {
         String commandString;
         ChatClientCommand command;
         ChatServerResponse response;
         while(true) {
+            if (reconnectFlag.getAndSet(false)) {
+                disconnect();
+                pollTimer.cancel();
+                updateServers();
+                pollFlag.set(false);
+                pollTimer = new PollTimer(this, POLL_PERIOD);
+                login(userName,  password);
+            }
+            if (pollFlag.get()) {
+                pollTimer.cancel();
+                updateServers();
+                pollFlag.set(false);
+                if (connected && !consistentHash.get(userName).equals(serverName)) {
+                    migrate();
+                }
+                pollTimer = new PollTimer(this, POLL_PERIOD);
+            }
+
             response = pendingResponses.poll();
             while (response != null) {
                 printResponse(response);
@@ -98,12 +131,6 @@ public class ChatClient extends Thread {
                     }
                 }
             } catch (InterruptedException e) {}
-
-            if (reconnectFlag.getAndSet(false)) {
-                disconnect();
-                updateServers();
-                login(userName,  password);
-            }
         }
     }
 
@@ -125,6 +152,10 @@ public class ChatClient extends Thread {
 
     public void flagReconnect() {
         reconnectFlag.set(true);
+    }
+
+    public void flagPoll() {
+        pollFlag.set(true);
     }
 
     public boolean isResponse(ChatClientCommand command, ChatServerResponse response) {
@@ -310,13 +341,28 @@ public class ChatClient extends Thread {
         } catch (Exception e) {}
     }
 
+    public void migrate() {
+        sendCommand(new ChatClientCommand(CommandType.MIGRATE));
+        ChatServerResponse response = null;
+        try {
+            response = pendingResponses.take();
+            while (response.responseType != ResponseType.MIGRATE) {
+                printResponse(response);
+                response = pendingResponses.take();
+            }
+        } catch (InterruptedException e) {}
+        login(userName, password);
+        reconnectFlag.set(!connected);
+    }
+
     public void login(String userName, String password) {
         if (connected) {
             disconnect();
         }
 
         // Connect
-        HashMap<String, Object> serverProperties = servers.get(consistentHash.get(userName));
+        serverName = consistentHash.get(userName);
+        HashMap<String, Object> serverProperties = servers.get(serverName);
         if (serverProperties == null) {
             localOutput.println("connect REJECTED");
             return;
@@ -375,7 +421,6 @@ public class ChatClient extends Thread {
                     printResponse(response);
                     response = pendingResponses.take();
                 }
-                printResponse(response);
             } catch (InterruptedException e) {}
         }
         disconnect();

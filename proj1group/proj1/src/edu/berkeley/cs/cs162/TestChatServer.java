@@ -28,7 +28,8 @@ public class TestChatServer {
 
         // Distributed Client Tests
         //testDistributedClientLogin();
-        testDistributedClientReconnect();
+        //testDistributedClientReconnect();
+        testDistributedClientPoll();
 
 
         // OLD tests. Somebody update them.
@@ -478,6 +479,44 @@ public class TestChatServer {
 
         databaseManager.emptyDatabase();
         System.out.println("=== END TEST DistributedClient Reconnect ===\n");
+    }
+
+    public static void testDistributedClientPoll() throws Exception {
+        System.out.println("=== BEGIN TEST DistributedClient Poll ===");
+        ChatClient chatClient;
+        String commands;
+        BufferedReader input;
+        PrintWriter output;
+        DatabaseManager databaseManager = new DatabaseManager();
+        databaseManager.emptyDatabase();
+
+        databaseManager.addServer("server1", "localhost", 4747, 8080);
+        databaseManager.addServer("server2", "localhost", 4748, 8081);
+        ChatServer chatServer1 = new ChatServer("server1", 4747, 8080);
+        chatServer1.start();
+        ChatServer chatServer2 = new ChatServer("server2", 4748, 8181);
+        chatServer2.start();
+        Thread.currentThread().sleep(2000);
+        commands = "" +
+                "login user1 password\n" +
+                "join group1\n";
+        input = new BufferedReader(new StringReader(commands));
+        output = new PrintWriter(System.out, true);
+        chatClient = new ChatClient(input, output);
+        chatClient.start();
+        Thread.currentThread().sleep(3000);
+
+        System.out.println("Shutting Down server2");
+        chatServer2.shutdown();
+        Thread.currentThread().sleep(5000);
+
+        System.out.println("Starting server2");
+        chatServer2 = new ChatServer("server2", 4748, 8181);
+        chatServer2.start();
+        Thread.currentThread().sleep(20000);
+
+        databaseManager.emptyDatabase();
+        System.out.println("=== END TEST DistributedClient Poll ===\n");
     }
 
     /*

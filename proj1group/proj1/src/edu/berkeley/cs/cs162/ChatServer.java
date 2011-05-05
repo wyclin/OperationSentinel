@@ -106,6 +106,10 @@ public class ChatServer {
         return userManager.logoutUser(user);
     }
 
+    public ChatServerResponse migrate(ChatUser user) {
+        return userManager.migrateUser(user);
+    }
+
     public ChatServerResponse joinGroup(ChatUser user, String groupName) {
         if (shuttingDown) {
             return new ChatServerResponse(ResponseType.SHUTTING_DOWN);

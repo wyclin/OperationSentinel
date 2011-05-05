@@ -89,6 +89,9 @@ public class ChatUser extends Thread {
     public void executeCommand(ChatClientCommand command) {
         ChatServerResponse response;
         switch (command.commandType) {
+            case MIGRATE:
+                migrate();
+                return;
             case DISCONNECT:
                 disconnect();
                 return;
@@ -119,6 +122,15 @@ public class ChatUser extends Thread {
         }
         response.command = command;
         pendingResponses.offer(response);
+    }
+
+    public void migrate() {
+        if (loggedIn) {
+            chatServer.migrate(this);
+        }
+        pendingResponses.offer(new ChatServerResponse(ResponseType.MIGRATE));
+        log.offer(dateFormatter.format(Calendar.getInstance().getTime()) + " | Client Migrated");
+        shutdown();
     }
 
     public void disconnect() {
