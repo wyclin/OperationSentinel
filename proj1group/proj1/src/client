@@ -1,0 +1,2 @@
+javac -classpath c3p0-0.9.1.jar:mysql-connector-java-5.1.15-bin.jar:. edu/berkeley/cs/cs162/*.java
+java -classpath c3p0-0.9.1.jar:mysql-connector-java-5.1.15-bin.jar:. edu.berkeley.cs.cs162.ChatClient

@@ -1,5 +1,4 @@
-
-package edu.berkeley.cs.cs162.hash;
+package edu.berkeley.cs.cs162;
 
 import java.util.*;
 import java.security.*;
@@ -50,11 +49,14 @@ public class ConsistentHash<T> {
 	
 	public static void main(String[] args) throws NoSuchAlgorithmException {
         ConsistentHash<String> hash = new ConsistentHash<String>();
-        hash.add("server1");
-        hash.add("server2");
+        hash.add("s1");
+        hash.add("s2");
+        hash.add("s3");
         System.out.println(hash.get("user1"));
         System.out.println(hash.get("user2"));
+        System.out.println(hash.get("user6"));
 
+        /*
         System.out.println("----");
         
 		String[] clients={"chanan","tapan","Amar","santosh","deepak", "philip","vinson","wayne","benson","jacky"};
@@ -89,6 +91,7 @@ public class ConsistentHash<T> {
 			System.out.println(client + " connects to " + ring.get(client));
 		}
 		System.out.println();
+		*/
 	}
 	
 }

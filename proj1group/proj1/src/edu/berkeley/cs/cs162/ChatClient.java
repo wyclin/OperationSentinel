@@ -1,7 +1,5 @@
 package edu.berkeley.cs.cs162;
 
-import edu.berkeley.cs.cs162.hash.ConsistentHash;
-
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
@@ -143,8 +141,8 @@ public class ChatClient extends Thread {
                 try {
                     Socket socket = new Socket((String)server.get("host"), (Integer)server.get("port"));
                     socket.close();
-                    servers.put((String)server.get("name"), server);
-                    consistentHash.add((String)server.get("name"));
+                    servers.put((String) server.get("name"), server);
+                    consistentHash.add((String) server.get("name"));
                 } catch (Exception f) {}
             }
         } catch (SQLException e) {}

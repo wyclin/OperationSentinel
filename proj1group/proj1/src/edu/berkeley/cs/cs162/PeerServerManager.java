@@ -1,7 +1,5 @@
 package edu.berkeley.cs.cs162;
 
-import edu.berkeley.cs.cs162.hash.ConsistentHash;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

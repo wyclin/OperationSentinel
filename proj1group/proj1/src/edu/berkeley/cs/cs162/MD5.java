@@ -1,5 +1,4 @@
-
-package edu.berkeley.cs.cs162.hash;
+package edu.berkeley.cs.cs162;
 
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
