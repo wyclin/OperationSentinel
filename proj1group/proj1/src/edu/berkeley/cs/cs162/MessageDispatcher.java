@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class MessageDispatcher extends Thread {
+public class MessageDispatcher extends Thread {
     private UserManager userManager;
     private DatabaseManager databaseManager;
     private PeerServerManager peerServerManager;

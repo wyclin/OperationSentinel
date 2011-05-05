@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TreeSet;
 
-class Message {
+public class Message {
     public String receiver;
     public TreeSet<String> receivingUsers;
     public ChatUser sender;

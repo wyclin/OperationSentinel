@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-class UserManager {
+public class UserManager {
 
     private ChatServer chatServer;
     private DatabaseManager databaseManager;
