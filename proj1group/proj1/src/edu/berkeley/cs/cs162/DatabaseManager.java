@@ -75,7 +75,7 @@ public class DatabaseManager {
     }
 
     public HashMap<String, Object> getServer(String serverName) throws SQLException {
-        String query = "SELECT `name`,`host`,`port`,`sport` FROM `server_info` WHERE `name`='" + serverName +"';";
+        String query = "SELECT `name`,`host`,`c_port`,`s_port` FROM `server_info` WHERE `name`='" + serverName +"';";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -98,7 +98,7 @@ public class DatabaseManager {
     }
 
     public LinkedList<HashMap<String, Object>> getServerList() throws SQLException {
-        String query = "SELECT `name`,`host`,`port`,`sport` FROM `server_info`";
+        String query = "SELECT `name`,`host`,`c_port`,`s_port` FROM `server_info`";
         Connection connection = null;
         Statement statement = null;
         try {
@@ -123,7 +123,7 @@ public class DatabaseManager {
     }
 
     public void addServer(String name, String host, int port, int sport) throws SQLException {
-        String query = "INSERT INTO `server_info` (`name`, `host`, `port`,`sport`) VALUES ('" + name + "','" + host + "','" + Integer.toString(port) + "','" + Integer.toString(sport) +"');";
+        String query = "INSERT INTO `server_info` (`name`, `host`, `c_port`,`s_port`) VALUES ('" + name + "','" + host + "','" + Integer.toString(port) + "','" + Integer.toString(sport) +"');";
         Connection connection = null;
         Statement statement = null;
         try {
