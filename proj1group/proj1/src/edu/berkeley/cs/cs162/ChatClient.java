@@ -104,7 +104,7 @@ public class ChatClient extends Thread {
                 pollTimer.cancel();
                 updateServers();
                 pollFlag.set(false);
-                if (connected && !consistentHash.get(userName).equals(serverName)) {
+                if (connected && consistentHash.get(userName) != null && !consistentHash.get(userName).equals(serverName)) {
                     migrate();
                 }
                 pollTimer = new PollTimer(this, POLL_PERIOD);

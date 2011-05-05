@@ -12,14 +12,17 @@ public class ChatServer {
     private boolean networked;
 
     public ChatServer(String name, int clientPort, int serverPort) {
-        this();
+        this.userManager = new UserManager(this);
         this.peerServerManager = new PeerServerManager(name);
+        this.messageDispatcher = new MessageDispatcher(this);
         this.clientConnectionManager = new ClientConnectionManager(this, clientPort);
         this.serverConnectionManager = new ServerConnectionManager(this, name, serverPort);
         this.name = name;
         this.networked = true;
+        this.shuttingDown = false;
 	}
 
+    /* No longer usable, MessageDispatcher relies on PeerServerManager
     public ChatServer() {
         this.userManager = new UserManager(this);
         this.messageDispatcher = new MessageDispatcher(this);
@@ -29,6 +32,7 @@ public class ChatServer {
         this.shuttingDown = false;
         this.networked = false;
     }
+    */
 
     public UserManager getUserManager() {
         return userManager;

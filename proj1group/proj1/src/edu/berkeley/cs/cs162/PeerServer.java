@@ -21,7 +21,7 @@ public class PeerServer extends Thread {
 
     public PeerServer(ChatServer chatServer, String localName, Socket socket) {
         this.chatServer = chatServer;
-        this.messageDispatcher = messageDispatcher;
+        this.messageDispatcher = chatServer.getMessageDispatcher();
         this.peerServerManager = chatServer.getPeerServerManager();
         this.socket = socket;
         this.pendingMessages = new LinkedBlockingQueue<ServerMessage>();

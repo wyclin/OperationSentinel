@@ -540,9 +540,11 @@ public class TestChatServer {
 
         String commands1 = "" +
                 "login user1 password\n" +
+                "sleep 5000\n" +
+                "send user2 11 \"ping\"\n" +
                 "join group1\n" +
                 "sleep 5000\n" +
-                "send user2 1 \"ping\"";
+                "send group1 12 \"ping\"";
         BufferedReader input1 = new BufferedReader(new StringReader(commands1));
         PrintWriter output1 = new PrintWriter(System.out, true);
         chatClient1 = new ChatClient(input1, output1);
@@ -550,14 +552,23 @@ public class TestChatServer {
 
         String commands2 = "" +
                 "login user2 password\n" +
+                "sleep 10000\n" +
+                "send user1 21 \"pong\"\n" +
                 "join group1\n" +
-                "sleep 5000";
+                "sleep 5000\n" +
+                "send group1 22 \"pong\"";
         BufferedReader input2 = new BufferedReader(new StringReader(commands2));
         PrintWriter output2 = new PrintWriter(System.out, true);
         chatClient2 = new ChatClient(input2, output2);
         chatClient2.start();
-        Thread.currentThread().sleep(20000);
+        Thread.currentThread().sleep(30000);
 
+        System.out.println("\nuser1 log");
+        chatServer2.getUserManager().getLocalUser("user1").printLog();
+        System.out.println("\nuser2 log");
+        chatServer1.getUserManager().getLocalUser("user2").printLog();
+
+        System.out.println("\n-- Shutting Down --");
         chatServer1.shutdown();
         chatServer2.shutdown();
         databaseManager.emptyDatabase();
