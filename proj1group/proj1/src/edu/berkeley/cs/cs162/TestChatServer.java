@@ -572,6 +572,7 @@ public class TestChatServer {
         chatServer1.shutdown();
         chatServer2.shutdown();
         databaseManager.emptyDatabase();
+	databaseManager.shutdown();
         System.out.println("=== END TEST DistributedClient Messages ===\n");
     }
 
